@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace KajanReview_Web.Pages
+namespace Web_App.Pages
 {
     public class PrivacyModel : PageModel
     {
