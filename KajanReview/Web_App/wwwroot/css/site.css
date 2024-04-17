@@ -20,3 +20,70 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+/*CSS for the _BookListPartial*/
+
+/*#region CSS for _BookListPartial */
+
+/* General flex CSS */
+.flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    background-color: Black;
+    height: 250px;
+}
+
+/* Nested Flex for the left side */
+.flex-book-cover-container {
+    display: flex;
+    flex-direction: column;
+    background-color: crimson;
+    margin: 20px;
+    padding: 10px;
+    align-items: center;
+    flex-basis: 15%;
+}
+
+#book-cover-pic {
+    background-color: grey;
+    height: 150px;
+    width: 100px;
+    margin-bottom: 10px;
+}
+
+.flex-book-cover-container > #stuff-under-cover {
+    font-size: 20px;
+    text-align: center;
+}
+
+/* Nested Flex for the right side */
+.flex-right-container {
+    display: flex;
+    flex-direction: column;
+    background-color: grey;
+    margin: 20px;
+    margin-left: 0px;
+    padding: 10px;
+    flex-basis: calc(100% - 20%);
+}
+
+.flex-right-container > .short-items-container {
+    font-size: 20px;
+}
+
+.flex-right-container > .title-author-lang-container {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 10px;
+}
+
+.title-author-lang-container > .short-text {
+    margin-right: 15px;
+    font-size: 20px;
+}
+
+.flex-right-container > #book-description {
+    font-size: 15px;
+}
+
+/*#endregion */

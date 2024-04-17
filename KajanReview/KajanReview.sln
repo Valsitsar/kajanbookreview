@@ -6,10 +6,19 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessLogicLayer", "BusinessLogicLayer\BusinessLogicLayer.csproj", "{BCD929C7-1A74-4A15-8DC2-42555695349C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLayer", "DataAccessLayer\DataAccessLayer.csproj", "{BC472D37-A392-4AEF-8594-C588B3412CBD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BCD929C7-1A74-4A15-8DC2-42555695349C} = {BCD929C7-1A74-4A15-8DC2-42555695349C}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web_App", "Web_App\Web_App.csproj", "{B1964682-B27A-40D5-958C-3CDC0898F9FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web_App", "Web_App\Web_App.csproj", "{B1964682-B27A-40D5-958C-3CDC0898F9FB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BCD929C7-1A74-4A15-8DC2-42555695349C} = {BCD929C7-1A74-4A15-8DC2-42555695349C}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Desktop_App", "Desktop_App\Desktop_App.csproj", "{62F85F75-3A2F-4116-BD95-79710DA89577}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Desktop_App", "Desktop_App\Desktop_App.csproj", "{62F85F75-3A2F-4116-BD95-79710DA89577}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BCD929C7-1A74-4A15-8DC2-42555695349C} = {BCD929C7-1A74-4A15-8DC2-42555695349C}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

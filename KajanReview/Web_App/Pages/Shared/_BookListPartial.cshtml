@@ -1,0 +1,36 @@
+﻿@using BusinessLogicLayer
+@model IndexModel
+@{
+    // var books = ViewData["Books"] as List<Book>;
+}
+
+
+<div class="flex-container">
+    <div class="flex-container">
+    @foreach (var book in Model.Books)
+    {
+            <div class="flex-book-cover-container">
+                <div id="book-cover-pic"></div>
+                <div>Rating</div>
+            </div>
+            <div class="flex-right-container">
+                <div class="title-author-lang-container">
+                    <div class="short-text">
+                        @book.Title
+                    </div>
+                    <div class="short-text">
+                        Example author
+                    </div>
+                    <div class="short-text">
+                        @book.Language
+                    </div>
+                </div>
+
+                <div id="book-description">
+                    @book.Description
+                </div>
+            </div>
+        <br />
+        }
+    </div>
+</div>
