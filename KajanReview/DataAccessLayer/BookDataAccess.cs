@@ -13,6 +13,7 @@ namespace DataAccessLayer
     public class BookDataAccess : DataAccessBase, IBookDataAccess
     {
         public BookDataAccess() { }
+
         public void CreateBook(Book newBook)
         {
             using (SqlConnection connection = OpenConnection())
@@ -50,12 +51,12 @@ namespace DataAccessLayer
             throw new NotImplementedException();
         }
 
-        public Book ReadBook(int id)
+        public Book GetBook(int id)
         {
             throw new NotImplementedException();
         }
 
-        public Book ReadBooks()
+        public List<Book> GetAllBooks()
         {
             throw new NotImplementedException();
         }
