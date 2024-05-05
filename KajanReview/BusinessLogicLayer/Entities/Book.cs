@@ -10,26 +10,26 @@ namespace BusinessLogicLayer.Entities
 {
     public class Book
     {
-        public int? Id { get; private set; }
-        //public byte[] Cover { get; private set; }
-        public string Title { get; private set; }
+        public int? Id { get; }
+        public string CoverFilePath { get; }
+        public string Title { get; }
         //public List<Author> Authors { get; set; }
-        public string Description { get; private set; }
-        public int NoOfPages { get; private set; }
+        public string Description { get; }
+        public int NoOfPages { get; }
         //public List<Genre> Genres { get; set; }
-        public string ISBN { get; private set; }
+        public string ISBN { get; }
         //public BookFormat Format { get; set; }
-        public string Publisher { get; private set; }
-        public DateTime PubDate { get; private set; }
-        public string Language { get; private set; }
+        public string Publisher { get; }
+        public DateTime PubDate { get; }
+        public string Language { get; }
         //public List<int> Ratings { get; set; }
         //public List<Review> Reviews { get; set; }
 
-        public Book(int? id/*, byte[] cover*/, string title, string description, int noOfPages,
+        public Book(int? id, string coverFilePath, string title, string description, int noOfPages,
             string isbn, string publisher, DateTime pubDate, string language)
         {
             Id = id;
-            //Cover = cover;
+            CoverFilePath = coverFilePath;
             Title = title;
             Description = description;
             NoOfPages = noOfPages;
