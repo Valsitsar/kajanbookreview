@@ -25,7 +25,7 @@ namespace DataAccessLayer
                 {
                     command.Parameters.AddWithValue("@Title", newBook.Title);
                     command.Parameters.AddWithValue("@Description", newBook.Description);
-                    command.Parameters.AddWithValue("@NoOfPages", newBook.NoOfPages);
+                    command.Parameters.AddWithValue("@NoOfPages", newBook.PageCount);
                     command.Parameters.AddWithValue("@Publisher", newBook.Publisher);
                     command.Parameters.AddWithValue("@PubDate", newBook.PubDate);
                     command.Parameters.AddWithValue("@Language", newBook.Language);

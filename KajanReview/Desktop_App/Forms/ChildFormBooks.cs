@@ -33,8 +33,15 @@ namespace Desktop_App.Forms
 
         private void btnCreateBook_Click(object sender, EventArgs e)
         {
-            Book newBook = new Book(null, tbxTitle.Text, tbxDescription.Text, Convert.ToInt32(tbxNoOfPages.Text), tbxISBN.Text, tbxPublisher.Text, dtpPubDate.Value, tbxLanguage.Text);
-            _bookManager.CreateBook(newBook);
+            _bookManager.CreateBook(new Book {
+                Title = tbxTitle.Text,
+                Description = tbxDescription.Text,
+                PageCount = Convert.ToInt32(tbxNoOfPages.Text),
+                ISBN = tbxISBN.Text,
+                Publisher = tbxPublisher.Text,
+                PubDate = dtpPubDate.Value,
+                Language = tbxLanguage.Text,
+            });
         }
     }
 }
