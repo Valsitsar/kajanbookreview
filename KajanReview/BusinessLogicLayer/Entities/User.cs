@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BusinessLogicLayer.Interfaces;
 
 namespace BusinessLogicLayer.Entities
 {
@@ -18,6 +19,6 @@ namespace BusinessLogicLayer.Entities
         public string PhoneNumber { get; set; }
         public List<Bookshelf> Bookshelves { get; set; }
         public List<Role> Roles { get; set; }
-        public List<UserPost>? Posts { get; set; }
+        public List<IUserPost>? Posts { get; set; }
     }
 }
