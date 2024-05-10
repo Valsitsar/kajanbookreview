@@ -16,12 +16,12 @@ namespace BusinessLogicLayer.Entities
         public string Title { get; set; }
         public string Description { get; set; }
         public int PageCount { get; set; }
-        public List<Genre> Genres { get; set; }
         public string ISBN { get; set; }
         public BookFormat Format { get; set; }
         public string Publisher { get; set; }
         public DateTime PubDate { get; set; }
         public string Language { get; set; }
+        public List<Genre> Genres { get; set; }
         public List<User> Authors { get; set; }
         public List<Review>? Reviews { get; set; }
 
