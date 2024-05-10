@@ -10,6 +10,7 @@ namespace BusinessLogicLayer.Entities
     {
         public int ID { get; set; }
         public string Name { get; set; }
+        public User Owner { get; set; }
         public List<Book> Books { get; set; }
     }
 }
