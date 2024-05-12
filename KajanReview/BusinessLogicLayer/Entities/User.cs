@@ -7,11 +7,11 @@ using BusinessLogicLayer.Interfaces;
 
 namespace BusinessLogicLayer.Entities
 {
-    public abstract class User
+    public class User
     {
         public int ID { get; set; }
         public string FirstName { get; set; }
-        public string MiddleNames {  get; }
+        public string? MiddleNames { get; set; }
         public string LastName { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }

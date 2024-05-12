@@ -18,6 +18,7 @@ namespace BusinessLogicLayer.Entities
         public int DownvoteCount { get; set; }
         public DateTime PostDate { get; set; }
         public int BookRating { get; set; }
+        public Book SourceBook { get; set; }
         public List<Comment>? Comments { get; set; }
     }
 }
