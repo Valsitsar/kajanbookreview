@@ -16,35 +16,42 @@ namespace BusinessLogicLayer.EntityManagers
         {
             _bookDataAccess = bookDataAccess;
         }
+
         public void CreateBook(Book book)
         {
-            try
-            {
-                _bookDataAccess.CreateBook(book);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+            try { _bookDataAccess.CreateBook(book); }
+            catch (Exception ex) { Console.WriteLine(ex.Message); }
         }
-
-        public void DeleteBook(int id)
+        public Book GetBookByID(int bookID)
         {
-            throw new NotImplementedException();
+            try { return _bookDataAccess.GetBookByID(bookID); }
+            catch (Exception ex) 
+            { 
+                Console.WriteLine(ex.Message);
+                return null;
+            }
         }
-
         public List<Book> GetAllBooks()
         {
-            throw new NotImplementedException();
-        }
-
-        public Book GetBook(int id)
-        {
-            throw new NotImplementedException();
+            try { return _bookDataAccess.GetAllBooks(); }
+            catch (Exception ex) 
+            { 
+                Console.WriteLine(ex.Message); 
+                return [];
+            }
         }
         public void UpdateBook(Book book)
         {
-            throw new NotImplementedException();
+            try { _bookDataAccess.UpdateBook(book); } 
+            catch (Exception ex) { Console.WriteLine(ex.Message); }
         }
+
+        public void DeleteBook(int bookID)
+        {
+            try { _bookDataAccess.DeleteBookByID(bookID); }
+            catch (Exception ex) { Console.WriteLine(ex.Message); }
+        }
+
+
     }
 }
