@@ -1,5 +1,74 @@
 ﻿@page
 @model Web_App.Pages.BookDetailsModel
 @{
+    ViewData["Title"] = $"{Model.CurrentBook.Title} details";
 }
 
+<div class="container my-5">
+    <div class="row">
+        <!-- Book Cover and Rating -->
+        <div class="col-12 col-md-3 text-center mb-4 sticky-md-top">
+            <img id="book-cover-pic" src="@Model.CurrentBook.CoverFilePath" alt="@Model.CurrentBook.Title cover" class="img-fluid">
+            <div id="star-rating" class="my-2">
+                @for (int i = 0; i < 5; i++)
+                {
+                    <i class="bi bi-star text-warning fs-3"></i>
+                }
+            </div>
+            <button type="button" class="btn btn-lg" style="background-color: #DAA520; color: #36454F;">Want to read</button>
+        </div>
+
+        <!-- Book Details -->
+        <div class="col-12 col-md-9">
+            <div class="row">
+                <div class="col-12">
+                    <h1><strong>@Model.CurrentBook.Title</strong></h1>
+                </div>
+                <div class="col-12 mb-3">
+                    @if (Model.CurrentBook.Authors.Count == 1)
+                    {
+                        <h5>@Model.CurrentBook.Authors[0].FirstName @Model.CurrentBook.Authors[0].LastName</h5>
+                    }
+                    else
+                    {
+                        <h5>@Model.CurrentBook.Authors[0].FirstName @Model.CurrentBook.Authors[0].LastName</h5>
+                        @foreach (var author in Model.CurrentBook.Authors)
+                        {
+                            @if (author != Model.CurrentBook.Authors[0])
+                            {
+                                <h5>, @author.FirstName @author.LastName</h5>
+                            }
+                        }
+                    }
+                </div>
+                <div class="col-3">
+                    <div>#X in Series</div>
+                </div>
+                <div class="col-4">
+                    <div>Publisher</div>
+                </div>
+                <div class="col-5">
+                    <div>Page Count</div>
+                </div>
+
+                <div class="col-3">
+                    Example series
+                </div>
+                <div class="col-4">
+                    @Model.CurrentBook.Publisher, @Model.CurrentBook.PubDate.Year
+                </div>
+                <div class="col-5">
+                    @Model.CurrentBook.PageCount
+                </div>
+
+                <div class="col-12 my-5">
+                    <p>@Model.CurrentBook.Description</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="border" style="border-color: #DAA520;">
+
+</div>

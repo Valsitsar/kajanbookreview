@@ -45,9 +45,8 @@ body {
 }
 
 #book-cover-pic {
-    background-color: grey;
-    height: 150px;
-    width: 100px;
+    max-height: 450px;
+    max-width: 300px;
     margin-bottom: 10px;
 }
 
@@ -86,4 +85,24 @@ body {
     font-size: 15px;
 }
 
+/*#endregion */
+
+/*#region CSS Boostrap changes for Book Details */
+@media (min-width: 768px) { /* Medium devices (tablets, 768px and up) */
+    #book-cover-pic {
+        max-width: 150px;
+    }
+}
+
+@media (min-width: 992px) { /* Large devices (desktops, 992px and up) */
+    #book-cover-pic {
+        max-width: 200px;
+    }
+}
+
+@media (min-width: 1200px) { /* Extra large devices (large desktops, 1200px and up) */
+    #book-cover-pic {
+        max-width: 250px;
+    }
+}
 /*#endregion */
