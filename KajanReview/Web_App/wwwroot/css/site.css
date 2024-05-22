@@ -21,7 +21,21 @@ body {
   margin-bottom: 60px;
 }
 
-/*CSS for the _BookListPartial*/
+.body-footer-divider {
+    width: 100%;
+    height: 3rem;
+}
+
+.bd-mode-toggle {
+    z-index: 1500;
+}
+
+#bd-theme {
+    background-color: #DAA520;
+}
+.border-goldenrod {
+    border: 1px solid #DAA520;
+}
 
 /*#region CSS for _BookListPartial */
 
@@ -88,9 +102,19 @@ body {
 /*#endregion */
 
 /*#region CSS Boostrap changes for Book Details */
+@media (min-width: 576px) { /* Small devices (landscape phones, 576px and up) */
+    .sticky-sidebar {
+        position: static !important;
+    }
+}
 @media (min-width: 768px) { /* Medium devices (tablets, 768px and up) */
     #book-cover-pic {
         max-width: 150px;
+    }
+    .sticky-sidebar {
+        position: -webkit-sticky; /* For Safari */
+        position: sticky !important;
+        top: 75px; /* Adjust as needed */
     }
 }
 
@@ -98,11 +122,78 @@ body {
     #book-cover-pic {
         max-width: 200px;
     }
+    .additional-info {
+        margin-top: 60px; /* Add some margin to separate from the book details */
+    }
 }
 
 @media (min-width: 1200px) { /* Extra large devices (large desktops, 1200px and up) */
     #book-cover-pic {
         max-width: 250px;
     }
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+.full-height-container {
+    height: 100vh; /* Full viewport height */
+    display: flex;
+    flex-direction: column;
+    margin-top: 75px; /* Adjust as needed */
+}
+
+.content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+}
+
+.sticky-sidebar {
+    position: -webkit-sticky; /* For Safari */
+    position: sticky;
+    top: 75px; /* Adjust as needed */
+}
+
+.site-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.site-content {
+    flex: 1 0 auto;
+}
+
+.site-footer {
+    position: fixed;
+}
+
+.sticky-top {
+    position: -webkit-sticky; /* For Safari */
+    position: sticky;
+    /*top: 0;*/
+    z-index: 1030;
+}
+
+.additional-info {
+    margin-top: 20px; /* Add some margin to separate from the book details */
+}
+
+header .fixed-top {
+    z-index: 1400;
+    margin-bottom: 0px;
+}
+
+nav {
+    margin-bottom: 20px;
+    background-color: #726880;
+}
+
+nav .container .navbar-brand,
+nav .container .nav-link {
+    color: #DAA520 !important;
 }
 /*#endregion */

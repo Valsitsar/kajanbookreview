@@ -4,18 +4,22 @@
     ViewData["Title"] = $"{Model.CurrentBook.Title} details";
 }
 
-<div class="container my-5">
-    <div class="row">
+<div class="full-height-container">
+    <div class="content-wrapper row">
         <!-- Book Cover and Rating -->
-        <div class="col-12 col-md-3 text-center mb-4 sticky-md-top">
-            <img id="book-cover-pic" src="@Model.CurrentBook.CoverFilePath" alt="@Model.CurrentBook.Title cover" class="img-fluid">
-            <div id="star-rating" class="my-2">
-                @for (int i = 0; i < 5; i++)
-                {
-                    <i class="bi bi-star text-warning fs-3"></i>
-                }
+        <div class="col-12 col-md-3 mb-4">
+            <div class="sticky-sidebar">
+                <div class="text-center">
+                    <img id="book-cover-pic" src="@Model.CurrentBook.CoverFilePath" alt="@Model.CurrentBook.Title cover" class="img-fluid">
+                    <div id="star-rating" class="my-2">
+                        @for (int i = 0; i < 5; i++)
+                        {
+                            <i class="bi bi-star text-warning fs-3"></i>
+                        }
+                    </div>
+                    <button type="button" class="btn btn-lg" style="background-color: #DAA520; color: #36454F;">Want to read</button>
+                </div>
             </div>
-            <button type="button" class="btn btn-lg" style="background-color: #DAA520; color: #36454F;">Want to read</button>
         </div>
 
         <!-- Book Details -->
@@ -41,34 +45,90 @@
                         }
                     }
                 </div>
-                <div class="col-3">
-                    <div>#X in Series</div>
+                <div class="col-3 fs-5">
+                    <div>#X IN SERIES</div>
                 </div>
-                <div class="col-4">
-                    <div>Publisher</div>
+                <div class="col-4 fs-5">
+                    <div>PUBLISHER</div>
                 </div>
-                <div class="col-5">
-                    <div>Page Count</div>
+                <div class="col-5 fs-5">
+                    <div>PAGES</div>
                 </div>
 
-                <div class="col-3">
+                <div class="col-3 fs-5">
                     Example series
                 </div>
-                <div class="col-4">
+                <div class="col-4 fs-5">
                     @Model.CurrentBook.Publisher, @Model.CurrentBook.PubDate.Year
                 </div>
-                <div class="col-5">
+                <div class="col-5 fs-5">
                     @Model.CurrentBook.PageCount
                 </div>
 
-                <div class="col-12 my-5">
+                <div class="col-12 my-5 fs-5">
                     <p>@Model.CurrentBook.Description</p>
+                </div>
+            </div>
+
+            <!-- Additional Info -->
+            <div class="row additional-info mt-lg-5">
+                <div class="col-12">
+                    <h2 class="text-center">Additional Information</h2>
+                    <div class="border-goldenrod p-2 px-3">
+                        <div class="row fs-5">
+                            <div class="col-4">
+                                <div class="text-muted">TITLE</div>
+                                <div class="mb-4">@Model.CurrentBook.Title</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="text-muted fs-5">LANGUAGE</div>
+                                <div class="mb-4">@Model.CurrentBook.Language</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="text-muted fs-5">PAGES</div>
+                                <div class="mb-4">@Model.CurrentBook.PageCount</div>
+                            </div>
+                        </div>
+                        <div class="row fs-5">
+                            <div class="col-4">
+                                <div class="text-muted">FORMAT</div>
+                                <div class="mb-4">@Model.CurrentBook.Format.Name</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="text-muted">ISBN</div>
+                                <div class="mb-4">@Model.CurrentBook.ISBN</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="text-muted">GENRES</div>
+                                <div class="mb-4">
+                                    @foreach (var genre in Model.CurrentBook.Genres)
+                                    {
+                                        <span>@genre.Name</span>
+                                        if (genre != Model.CurrentBook.Genres.Last())
+                                        {
+                                            <span>, </span>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row fs-5">
+                            <div class="col-4">
+                                <div class="text-muted">PUBLISHER</div>
+                                <div class="mb-4">@Model.CurrentBook.Publisher</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="text-muted">PUBLISHED ON</div>
+                                <div class="mb-4">@Model.CurrentBook.PubDate.Day/@Model.CurrentBook.PubDate.Month/@Model.CurrentBook.PubDate.Year</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="text-muted">3. IN SERIES</div>
+                                <div class="mb-4">Example series</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<div class="border" style="border-color: #DAA520;">
-
 </div>

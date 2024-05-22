@@ -27,7 +27,12 @@ namespace Web_App.Pages
                 {
                     new Genre() { Name = "Fantasy" }, new Genre() { Name = "Romance" }
                 },
-                Authors = new List<User> { new User() { FirstName = "Example", LastName = "Author" } }
+                Authors = new List<User> { new User() { FirstName = "Example", LastName = "Author" } },
+                Reviews = new List<Review>
+                {
+                    new Review() { Poster = new User() { Username = "ReviewPoster1" }, Body = "This book is amazing!", BookRating = 5},
+                    new Review() { Poster = new User() { Username = "ReviewPoster2" }, Body = "This book is okay.", BookRating = 3 }
+                }
             };
         }
     }
