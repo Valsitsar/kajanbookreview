@@ -14,7 +14,7 @@ namespace BusinessLogicLayer.Entities
 
         public User Poster { get; set; }
 
-        public string Body { get; set; }
+        public string Body { get; set; } = string.Empty;
 
         public int UpvoteCount { get; set; }
 
