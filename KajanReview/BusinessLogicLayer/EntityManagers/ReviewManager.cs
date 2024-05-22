@@ -14,45 +14,32 @@ namespace BusinessLogicLayer.EntityManagers
 
         public ReviewManager(IReviewDataAccess reviewDataAccess)
         {
-            _reviewDataAccess = reviewDataAccess;
+            _reviewDataAccess = reviewDataAccess ?? throw new ArgumentNullException(nameof(_reviewDataAccess));
         }
 
         public void CreateReview(Review newReview)
         {
-            try { _reviewDataAccess.CreateReview(newReview); }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _reviewDataAccess.CreateReview(newReview);
         }
 
         public Review GetReviewByID(int reviewID)
         {
-            try { return _reviewDataAccess.GetReviewByID(reviewID); }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return null;
-            }
+            return _reviewDataAccess.GetReviewByID(reviewID);
         }
 
         public List<Review> GetAllReviews()
         {
-            try { return _reviewDataAccess.GetAllReviews(); }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return null;
-            }
+            return _reviewDataAccess.GetAllReviews();
         }
 
         public void UpdateReview(Review review)
         {
-            try { _reviewDataAccess.UpdateReview(review); }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _reviewDataAccess.UpdateReview(review);
         }
 
         public void DeleteReviewByID(int reviewID)
         {
-            try { _reviewDataAccess.DeleteReviewByID(reviewID); }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _reviewDataAccess.DeleteReviewByID(reviewID);
         }
     }
 }

@@ -14,45 +14,32 @@ namespace BusinessLogicLayer.EntityManagers
 
         public BookshelfManager(IBookshelfDataAccess bookshelfDataAccess)
         {
-            _bookshelfDataAccess = bookshelfDataAccess;
+            _bookshelfDataAccess = bookshelfDataAccess ?? throw new ArgumentNullException(nameof(_bookshelfDataAccess));
         }
 
         public void CreateBookshelf(Bookshelf newBookshelf)
         {
-            try { _bookshelfDataAccess.CreateBookshelf(newBookshelf); }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _bookshelfDataAccess.CreateBookshelf(newBookshelf);
         }
 
         public Bookshelf GetBookshelfByID(int bookshelfID)
         {
-            try { return _bookshelfDataAccess.GetBookshelfByID(bookshelfID); }
-            catch (Exception ex) 
-            { 
-                Console.WriteLine(ex.Message); 
-                return null;
-            }
+            return _bookshelfDataAccess.GetBookshelfByID(bookshelfID);
         }
 
         public List<Bookshelf> GetAllBookshelvesForUser(int userID)
         {
-            try { return _bookshelfDataAccess.GetAllBookshelvesForUser(userID); }
-            catch (Exception ex) 
-            { 
-                Console.WriteLine(ex.Message);
-                return [];
-            }
+            return _bookshelfDataAccess.GetAllBookshelvesForUser(userID);
         }
 
         public void UpdateBookshelf(Bookshelf bookshelf)
         {
-            try { _bookshelfDataAccess.UpdateBookshelf(bookshelf); }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _bookshelfDataAccess.UpdateBookshelf(bookshelf);
         }
 
         public void DeleteBookshelfByID(int bookshelfID)
         {
-            try { _bookshelfDataAccess.DeleteBookshelfByID(bookshelfID); }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _bookshelfDataAccess.DeleteBookshelfByID(bookshelfID);
         }
     }
 }

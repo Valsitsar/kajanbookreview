@@ -15,45 +15,32 @@ namespace BusinessLogicLayer.EntityManagers
 
         public BookFormatManager(IBookFormatDataAccess bookFormatDataAccess)
         {
-            _bookFormatDataAccess = bookFormatDataAccess;
+            _bookFormatDataAccess = bookFormatDataAccess ?? throw new ArgumentNullException(nameof(_bookFormatDataAccess));
         }
 
         public void CreateBookFormat(BookFormat newBookFormat)
         {
-            try { _bookFormatDataAccess.CreateBookFormat(newBookFormat); }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _bookFormatDataAccess.CreateBookFormat(newBookFormat);
         }
 
         public BookFormat GetBookFormatByID(int bookFormatID)
         {
-            try { return _bookFormatDataAccess.GetBookFormatByID(bookFormatID); }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return null;
-            }
+            return _bookFormatDataAccess.GetBookFormatByID(bookFormatID);
         }
 
         public List<BookFormat> GetAllBookFormats()
         {
-            try { return _bookFormatDataAccess.GetAllBookFormats(); }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return [];
-            }
+            return _bookFormatDataAccess.GetAllBookFormats();
         }
 
         public void UpdateBookFormat(BookFormat bookFormat)
         {
-            try { _bookFormatDataAccess.UpdateBookFormat(bookFormat); }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _bookFormatDataAccess.UpdateBookFormat(bookFormat);
         }
 
         public void DeleteBookFormatByID(int bookFormatID)
         {
-            try { _bookFormatDataAccess.DeleteBookFormatByID(bookFormatID); }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _bookFormatDataAccess.DeleteBookFormatByID(bookFormatID);
         }
     }
 }

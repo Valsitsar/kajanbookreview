@@ -15,45 +15,32 @@ namespace BusinessLogicLayer.EntityManagers
 
         public RoleManager(IRoleDataAccess roleDataAccess)
         {
-            _roleDataAccess = roleDataAccess;
+            _roleDataAccess = roleDataAccess ?? throw new ArgumentNullException(nameof(_roleDataAccess));
         }
 
         public void CreateRole(Role newRole)
         {
-            try { _roleDataAccess.CreateRole(newRole); }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _roleDataAccess.CreateRole(newRole);
         }
 
         public Role GetRoleByID(int roleID)
         {
-            try { return _roleDataAccess.GetRoleByID(roleID); }
-            catch (Exception ex) 
-            { 
-                Console.WriteLine(ex.Message);
-                return null;
-            }
+            return _roleDataAccess.GetRoleByID(roleID);
         }
 
         public List<Role> GetAllRoles()
         {
-            try { return _roleDataAccess.GetAllRoles(); } 
-            catch (Exception ex) 
-            {
-                Console.WriteLine(ex.Message);
-                return null;
-            }
+            return _roleDataAccess.GetAllRoles();
         }
 
         public void UpdateRole(Role role)
         {
-            try { _roleDataAccess.UpdateRole(role); } 
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _roleDataAccess.UpdateRole(role);
         }
 
         public void DeleteRoleByID(int roleID)
         {
-            try { _roleDataAccess.DeleteRoleByID(roleID); }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _roleDataAccess.DeleteRoleByID(roleID);
         }
     }
 }

@@ -14,45 +14,32 @@ namespace BusinessLogicLayer.EntityManagers
 
         public GenreManager(IGenreDataAccess genreDataAccess)
         {
-            _genreDataAccess = genreDataAccess;
+            _genreDataAccess = genreDataAccess ?? throw new ArgumentNullException(nameof(_genreDataAccess));
         }
 
         public void CreateGenre(Genre newGenre)
         {
-            try { _genreDataAccess.CreateGenre(newGenre); }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _genreDataAccess.CreateGenre(newGenre);
         }
 
         public Genre GetGenreByID(int genreID)
         {
-            try { return _genreDataAccess.GetGenreByID(genreID); }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return null;
-            }
+            return _genreDataAccess.GetGenreByID(genreID);
         }
 
         public List<Genre> GetAllGenres()
         {
-            try { return _genreDataAccess.GetAllGenres(); }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return [];
-            }
+            return _genreDataAccess.GetAllGenres();
         }
 
         public void UpdateGenre(Genre genre)
         {
-            try { _genreDataAccess.UpdateGenre(genre); }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _genreDataAccess.UpdateGenre(genre);
         }
 
         public void DeleteGenreByID(int genreID)
         {
-            try { _genreDataAccess.DeleteGenreByID(genreID); }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _genreDataAccess.DeleteGenreByID(genreID);
         }
     }
 }

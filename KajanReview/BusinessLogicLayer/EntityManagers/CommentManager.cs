@@ -14,45 +14,32 @@ namespace BusinessLogicLayer.EntityManagers
 
         public CommentManager(ICommentDataAccess commentDataAccess)
         {
-            _commentDataAccess = commentDataAccess;
+            _commentDataAccess = commentDataAccess ?? throw new ArgumentNullException(nameof(_commentDataAccess));
         }
 
         public void CreateComment(Comment newComment)
         {
-            try { _commentDataAccess.CreateComment(newComment); }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _commentDataAccess.CreateComment(newComment);
         }
 
         public Comment GetCommentByID(int commentID)
         {
-            try { return _commentDataAccess.GetCommentByID(commentID); }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return null;
-            }
+            return _commentDataAccess.GetCommentByID(commentID);
         }
 
         public List<Comment> GetAllComments()
         {
-            try { return _commentDataAccess.GetAllComments(); }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return null;
-            }
+            return _commentDataAccess.GetAllComments();
         }
 
         public void UpdateComment(Comment comment)
         {
-            try { _commentDataAccess.UpdateComment(comment); }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _commentDataAccess.UpdateComment(comment);
         }
 
         public void DeleteCommentByID(int commentID)
         {
-            try { _commentDataAccess.DeleteCommentByID(commentID); }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _commentDataAccess.DeleteCommentByID(commentID);
         }
     }
 }

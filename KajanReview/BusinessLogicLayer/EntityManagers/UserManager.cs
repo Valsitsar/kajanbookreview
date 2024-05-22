@@ -14,45 +14,32 @@ namespace BusinessLogicLayer.EntityManagers
 
         public UserManager(IUserDataAccess userDataAccess)
         {
-            _userDataAccess = userDataAccess;
+            _userDataAccess = userDataAccess ?? throw new ArgumentNullException(nameof(_userDataAccess));
         }
 
         public void CreateUser(User newUser)
         {
-            try { _userDataAccess.CreateUser(newUser); }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _userDataAccess.CreateUser(newUser);
         }
 
         public User GetUserByID(int userID)
         {
-            try {  return _userDataAccess.GetUserByID(userID); }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return null;
-            }
+            return _userDataAccess.GetUserByID(userID);
         }
 
         public List<User> GetAllUsers()
         {
-            try { return _userDataAccess.GetAllUsers(); }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return null;
-            }
+            return _userDataAccess.GetAllUsers();
         }
 
         public void UpdateUser(User user)
         {
-            try { _userDataAccess.UpdateUser(user); }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _userDataAccess.UpdateUser(user);
         }
 
         public void DeleteUserByID(int userID)
         {
-            try { _userDataAccess.DeleteUserByID(userID); }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            _userDataAccess.DeleteUserByID(userID);
         }
     }
 }
