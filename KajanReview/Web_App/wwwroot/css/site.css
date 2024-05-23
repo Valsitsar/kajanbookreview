@@ -59,8 +59,8 @@ body {
 }
 
 #book-cover-pic {
-    max-height: 450px;
-    max-width: 300px;
+    max-height: 180px;
+    max-width: 120px;
     margin-bottom: 10px;
 }
 
@@ -103,13 +103,18 @@ body {
 
 /*#region CSS Boostrap changes for Book Details */
 @media (min-width: 576px) { /* Small devices (landscape phones, 576px and up) */
+    #book-cover-pic {
+        max-width: 300px !important;
+        max-height: 450px !important;
+    }
     .sticky-sidebar {
         position: static !important;
     }
 }
 @media (min-width: 768px) { /* Medium devices (tablets, 768px and up) */
     #book-cover-pic {
-        max-width: 150px;
+        max-width: 150px !important;
+        max-height: 225px !important;
     }
     .sticky-sidebar {
         position: -webkit-sticky; /* For Safari */
@@ -120,17 +125,26 @@ body {
 
 @media (min-width: 992px) { /* Large devices (desktops, 992px and up) */
     #book-cover-pic {
-        max-width: 200px;
+        max-width: 200px !important;
+        max-height: 300px !important;
     }
-    .additional-info {
+    .additional-details {
         margin-top: 60px; /* Add some margin to separate from the book details */
     }
 }
 
 @media (min-width: 1200px) { /* Extra large devices (large desktops, 1200px and up) */
     #book-cover-pic {
-        max-width: 250px;
+        max-width: 250px !important;
+        max-height: 375px !important;
     }
+}
+@media (min-width: 1400px) {/* Extra large devices (large desktops, 1400px and up) */
+    #book-cover-pic {
+        max-width: 300px !important;
+        max-height: 450px !important;
+    }
+
 }
 
 html, body {
@@ -178,7 +192,7 @@ html, body {
     z-index: 1030;
 }
 
-.additional-info {
+.additional-details {
     margin-top: 20px; /* Add some margin to separate from the book details */
 }
 

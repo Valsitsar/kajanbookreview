@@ -6,7 +6,7 @@
 
 <div class="full-height-container">
     <div class="content-wrapper row">
-        <!-- Book Cover and Rating -->
+        <!-- #region Left column -->
         <div class="col-12 col-md-3 mb-4">
             <div class="sticky-sidebar">
                 <div class="text-center">
@@ -21,9 +21,11 @@
                 </div>
             </div>
         </div>
+        <!-- #endregion -->
 
-        <!-- Book Details -->
+        <!-- #region Right column -->
         <div class="col-12 col-md-9">
+            <!-- #region Book info section -->
             <div class="row">
                 <div class="col-12">
                     <h1><strong>@Model.CurrentBook.Title</strong></h1>
@@ -69,11 +71,12 @@
                     <p>@Model.CurrentBook.Description</p>
                 </div>
             </div>
+            <!-- #endregion -->
 
-            <!-- Additional Info -->
-            <div class="row additional-info mt-lg-5">
+            <!-- #region Additional Details section -->
+            <div class="row additional-details mt-lg-5">
                 <div class="col-12">
-                    <h2 class="text-center">Additional Information</h2>
+                    <h2>Additional Details</h2>
                     <div class="border-goldenrod p-2 px-3">
                         <div class="row fs-5">
                             <div class="col-4">
@@ -129,6 +132,8 @@
                     </div>
                 </div>
             </div>
+            <!-- #endregion -->
         </div>
+        <!-- #endregion -->
     </div>
 </div>

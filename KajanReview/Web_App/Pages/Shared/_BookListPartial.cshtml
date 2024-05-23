@@ -10,7 +10,7 @@
     @foreach (var book in Model.Books)
     {
             <div class="flex-book-cover-container">
-                <img id="book-cover-pic" src="@book.CoverFilePath" alt="@book.Title cover" max-width=650px max-height />
+                <img id="book-cover-pic" src="@book.CoverFilePath" alt="@book.Title cover"/>
                 <div>
                     @for (int i = 0; i < 5; i++) { <i class="bi bi-star"></i> }
                 </div>
