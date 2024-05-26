@@ -30,8 +30,45 @@ namespace Web_App.Pages
                 Authors = new List<User> { new User() { FirstName = "Example", LastName = "Author" } },
                 Reviews = new List<Review>
                 {
-                    new Review() { Poster = new User() { Username = "ReviewPoster1" }, Body = "This book is amazing!", BookRating = 5},
-                    new Review() { Poster = new User() { Username = "ReviewPoster2" }, Body = "This book is okay.", BookRating = 3 }
+                    new Review() 
+                    { 
+                        Poster = new User() { Username = "ReviewPoster1" }, 
+                        Title = "I loved it!", 
+                        Body = "This book is amazing!", 
+                        BookRating = 5, 
+                        PostDate = DateTime.Today.AddDays(-4),
+                        UpvoteCount = 69,
+                    },
+                    new Review() 
+                    { 
+                        Poster = new User() { Username = "ReviewPoster2" }, 
+                        Title = "A mediocre experience.", 
+                        Body = "This book is okay.", 
+                        BookRating = 3, 
+                        PostDate = DateTime.Today.AddDays(-3),
+                        UpvoteCount = 420,
+                    },
+                    new Review() 
+                    { 
+                        Poster = new User() { Username = "ReviewPoster3" }, 
+                        Title = "Do not recommend to anyone. Stay away!", 
+                        Body = "This book is terrible.", 
+                        BookRating = 1, 
+                        PostDate = DateTime.Today.AddDays(-2),
+                        DownvoteCount = 666,
+                    },
+                    new Review() 
+                    { 
+                        Poster = new User() { Username = "ReviewPoster4" }, 
+                        Title = "This book changed my life - here's how.", 
+                        Body = "This book is the best book ever!", 
+                        BookRating = 5, 
+                        PostDate = DateTime.Today.AddDays(-1)
+                    },
+                    new Review() 
+                    { BookRating = 2 },
+                    new Review() 
+                    { BookRating = 4 }
                 }
             };
         }

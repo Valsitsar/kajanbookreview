@@ -83,3 +83,20 @@
             })
     })
 })()
+
+function setUserRating(rating) {
+    for (let i = 1; i <= 5; i++) {
+        let star = document.getElementById(`userRatingStar-${i}`);
+        star.classList.remove('bi-star-fill');
+        star.classList.add('bi-star');
+        if (i <= rating) {
+            star.classList.remove('bi-star');
+            star.classList.add('bi-star-fill');
+        }
+    }
+}
+
+function playVineBoomSound() {
+    let audio = new Audio('~/sounds/vine-boom-sound-effect.mp3');
+    audio.play();
+}

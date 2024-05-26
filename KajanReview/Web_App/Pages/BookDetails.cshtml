@@ -2,9 +2,11 @@
 @model Web_App.Pages.BookDetailsModel
 @{
     ViewData["Title"] = $"{Model.CurrentBook.Title} details";
+    var averageRating = Math.Round(Model.CurrentBook.Reviews.Average(r => r.BookRating), 2);
+    var percentage = (averageRating / 5.0) * 100;
 }
 
-<div class="full-height-container">
+<div style="margin-top: 75px;">
     <div class="content-wrapper row">
         <!-- #region Left column -->
         <div class="col-12 col-md-3 mb-4">
@@ -22,11 +24,11 @@
             </div>
         </div>
         <!-- #endregion -->
-
         <!-- #region Right column -->
         <div class="col-12 col-md-9">
             <!-- #region Book info section -->
             <div class="row">
+                <!-- #region Book title, author -->
                 <div class="col-12">
                     <h1><strong>@Model.CurrentBook.Title</strong></h1>
                 </div>
@@ -47,6 +49,39 @@
                         }
                     }
                 </div>
+                <!-- #endregion -->
+                <!-- #region Short Star-rating statistics -->
+                <div class="col-12 mb-3">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-2">
+                            <div class="stars-outer">
+                                @for (int i = 0; i < 5; i++)
+                                {
+                                    <i class="bi bi-star text-warning"></i>
+                                }
+                                <div class="stars-inner" style="width:@percentage%">
+                                    @for (int i = 0; i < 5; i++)
+                                    {
+                                        <i class="bi bi-star-fill"></i>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="fw-bold fs-4">@averageRating</span>
+                            <span class="text-muted">/ 5</span>
+                            <span class="text-muted ms-2">
+                                @Model.CurrentBook.Reviews.Count() ratings
+                            </span>
+                            <span class="text-muted">·</span>
+                            <span class="text-muted">
+                                @Model.CurrentBook.Reviews.FindAll(r => r.Body != null).Count() reviews
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <!-- #endregion -->
+                <!-- #region More info + Description -->
                 <div class="col-3 fs-5">
                     <div>#X IN SERIES</div>
                 </div>
@@ -70,11 +105,11 @@
                 <div class="col-12 my-5 fs-5">
                     <p>@Model.CurrentBook.Description</p>
                 </div>
+                <!-- #endregion -->
             </div>
             <!-- #endregion -->
-
             <!-- #region Additional Details section -->
-            <div class="row additional-details mt-lg-5">
+            <div class="row additional-details mt-lg-5 mb-5">
                 <div class="col-12">
                     <h2>Additional Details</h2>
                     <div class="border-goldenrod p-2 px-3">
@@ -125,7 +160,7 @@
                                 <div class="mb-4">@Model.CurrentBook.PubDate.Day/@Model.CurrentBook.PubDate.Month/@Model.CurrentBook.PubDate.Year</div>
                             </div>
                             <div class="col-4">
-                                <div class="text-muted">3. IN SERIES</div>
+                                <div class="text-muted">#3 IN SERIES</div>
                                 <div class="mb-4">Example series</div>
                             </div>
                         </div>
@@ -133,7 +168,110 @@
                 </div>
             </div>
             <!-- #endregion -->
+
+            <!-- #region Rating stats Section -->
+            <div class="row">
+                <div class="col-12 mb-3">
+                    <h2>Ratings</h2>
+                    <div class="d-flex justify-content-center align-items-center mb-5">
+                        <div class="me-2 text-center">
+                            <div class="display-4 fw-bold">
+                                @averageRating <span class="text-muted">/ 5</span>
+                            </div>
+                            <div class="text-muted">@Model.CurrentBook.Reviews.Count ratings</div>
+                        </div>
+                        <br />
+                        <div class="ms-2 text-center">
+                            <div class="stars-outer position-relative">
+                                @for (int i = 0; i < 5; i++)
+                                {
+                                    <i class="bi bi-star"></i>
+                                }
+                                <div class="stars-inner position-absolute" style="width:@percentage%">
+                                    @for (int i = 0; i < 5; i++)
+                                    {
+                                        <i class="bi bi-star-fill"></i>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 mb-3">
+                    @for (int rating = 5; rating >= 1; rating--)
+                    {
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="fs-5">@rating</span>
+                            <i class="bi bi-star-fill text-warning ms-2"></i>
+                            <div class="progress flex-grow-1 mx-2" style="height: 1rem; background-color: #444;">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width:@(Model.CurrentBook.Reviews.Count(r => r.BookRating == rating) / (double)Model.CurrentBook.Reviews.Count() * 100)%" aria-valuenow="@(Model.CurrentBook.Reviews.Count(r => r.BookRating == rating))" aria-valuemin="0" aria-valuemax="@Model.CurrentBook.Reviews.Count()"></div>
+                            </div>
+                            <span class="fs-6">@Model.CurrentBook.Reviews.Count(r => r.BookRating == rating)</span>
+                        </div>
+                    }
+                </div>
+                <div class="col-12 mb-5">
+                    <h4>How did you like the book? Let others know!</h4>
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <i class="bi bi-star text-warning fs-2" onclick="setUserRating(@i)" id="userRatingStar-@i"></i>
+                            }
+                        </div>
+                        <button type="button" class="btn btn-lg btn-secondary">Write review</button>
+                    </div>
+                </div>
+            </div>
+            <!-- #endregion -->
+            <section class="mb-5" id="reviews">
+                <h2 class="my-5">Reviews by fellow bookworms</h2>
+                @foreach (var review in Model.CurrentBook.Reviews)
+                {
+                    @if (review.Body == null) { continue; }
+                    <div class="card mb-3 border-goldenrod">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <div class="d-flex align-items-center">
+                                    @if (review.Poster.ProfilePicturePath != string.Empty)
+                                    {
+                                        <img src="@review.Poster.ProfilePicturePath" alt="@review.Poster.Username profile picture" class="rounded-circle me-2" style="width: 50px; height: 50px;">
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-person-circle fs-3 text-muted me-2"></i>
+                                    }
+                                    <h5 class="card-title mb-0 fs-3">@review.Poster.Username</h5>
+                                </div>
+                                <div class="d-flex align-items-center text-muted">
+                                    @for (int i = 0; i < review.BookRating; i++)
+                                    {
+                                        <i class="bi bi-star-fill text-warning me-1"></i>
+                                    }
+                                    @for (int i = 0; i < 5 - review.BookRating; i++)
+                                    {
+                                        <i class="bi bi-star text-warning me-1"></i>
+                                    }
+                                    <span class="ms-2">@review.PostDate.ToString("MMMM/dd/yyyy")</span>
+                                </div>
+                            </div>
+                            <strong class="card-text fs-5">@review.Title</strong>
+                            <p class="card-text fs-5">@review.Body</p>
+                            <div class="d-flex align-items-start">
+                                <button type="button" class="btn btn-sm p-0 text-decoration-none">
+                                    <span>&#128563 @review.UpvoteCount</span>
+                                </button>
+                                <button type="button" class="btn btn-sm p-0 text-decoration-none mx-3" id="btnDownvote" onclick="playVineBoomSound()">
+                                    <span>&#128128 @review.DownvoteCount</span>
+                                </button>
+                                <button type="button" class="btn btn-sm p-0 text-decoration-none">
+                                    <i class="bi bi-reply"></i> Reply
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </section>
         </div>
-        <!-- #endregion -->
     </div>
 </div>
