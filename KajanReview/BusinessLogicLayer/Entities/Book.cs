@@ -15,10 +15,5 @@
         public List<Genre> Genres { get; set; } = new List<Genre>();
         public List<User> Authors { get; set; } = new List<User>();
         public List<Review>? Reviews { get; set; } = new List<Review>();
-
-        public override string ToString()
-        {
-            return $"ID: {ID}, Title: {Title}, Description: {Description}, # of pages: {PageCount}";
-        }
     }
 }
