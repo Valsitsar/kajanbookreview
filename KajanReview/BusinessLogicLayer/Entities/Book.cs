@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Drawing;
-using System.Net;
-using System.Security.Principal;
-
-namespace BusinessLogicLayer.Entities
+﻿namespace BusinessLogicLayer.Entities
 {
     public class Book
     {

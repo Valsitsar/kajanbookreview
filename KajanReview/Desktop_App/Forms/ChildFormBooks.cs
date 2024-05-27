@@ -1,16 +1,5 @@
 ﻿using BusinessLogicLayer.Entities;
-using BusinessLogicLayer.EntityManagers;
 using BusinessLogicLayer.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Drawing.Text;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Desktop_App.Forms
 {
@@ -33,7 +22,8 @@ namespace Desktop_App.Forms
 
         private void btnCreateBook_Click(object sender, EventArgs e)
         {
-            _bookManager.CreateBook(new Book {
+            _bookManager.CreateBook(new Book
+            {
                 Title = tbxTitle.Text,
                 Description = tbxDescription.Text,
                 PageCount = Convert.ToInt32(tbxNoOfPages.Text),

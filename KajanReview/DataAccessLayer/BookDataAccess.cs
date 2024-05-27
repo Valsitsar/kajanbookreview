@@ -1,12 +1,8 @@
 ﻿using BusinessLogicLayer.Entities;
 using BusinessLogicLayer.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccessLayer
 {
@@ -40,7 +36,7 @@ namespace DataAccessLayer
                     }
                     catch (SqlException ex)
                     {
-                        
+
                         throw new IOException("Failed to create the Book.", ex);
                     }
                 }
@@ -51,7 +47,7 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery = 
+                string sqlQuery =
                     @"SELECT Books.ID, Title, Description, PageCount, Publisher, PubDate, Language, ISBN,
                     BookFormatID, BookFormats.Name AS BookFormatName, CoverFilePath,
                     FROM Books
@@ -80,10 +76,10 @@ namespace DataAccessLayer
                                 PubDate = reader.GetDateTime("PubDate"),
                                 Language = reader.GetString("Language"),
                                 ISBN = reader.GetString("ISBN"),
-                                Format = new BookFormat() 
-                                { 
-                                    ID = reader.GetInt32("BookFormatID"), 
-                                    Name = reader.GetString("FormatName") 
+                                Format = new BookFormat()
+                                {
+                                    ID = reader.GetInt32("BookFormatID"),
+                                    Name = reader.GetString("FormatName")
                                 },
                                 CoverFilePath = reader.GetString("CoverFilePath")
                             };
@@ -165,7 +161,7 @@ namespace DataAccessLayer
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
                     command.Parameters.AddWithValue("@ID", book.ID);
-                    command.Parameters.AddWithValue("@Title", book.Title);          
+                    command.Parameters.AddWithValue("@Title", book.Title);
                     command.Parameters.AddWithValue("@Description", book.Description);
                     command.Parameters.AddWithValue("@PageCount", book.PageCount);
                     command.Parameters.AddWithValue("@Publisher", book.Publisher);
