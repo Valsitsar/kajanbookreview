@@ -5,7 +5,7 @@ namespace BusinessLogicLayer.Entities
     public class User
     {
         public int ID { get; set; }
-        public string? ProfilePicturePath { get; set; } = string.Empty; // TODO: Add to DB
+        public string? ProfilePicturePath { get; set; } = string.Empty; // TODO: Add to DB + Maybe don't need to init
         public string FirstName { get; set; } = string.Empty;
         public string? MiddleNames { get; set; }
         public string LastName { get; set; } = string.Empty;
