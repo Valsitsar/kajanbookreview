@@ -14,8 +14,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"INSERT INTO Books (Title, Description, PageCount, Publisher, PubDate, Language, ISBN, BookFormatID, CoverFilePath)
+                string sqlQuery = @"
+                    INSERT INTO Books (Title, Description, PageCount, Publisher, PubDate, Language, ISBN, BookFormatID, CoverFilePath)
                     VALUES (@Title, @Description, @NoOfPages, @Publisher, @PubDate, @Language, @ISBN, @BookFormatID, @CoverFilePath);";
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
@@ -47,8 +47,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"SELECT Books.ID, Title, Description, PageCount, Publisher, PubDate, Language, ISBN,
+                string sqlQuery = @"
+                    SELECT Books.ID, Title, Description, PageCount, Publisher, PubDate, Language, ISBN,
                     BookFormatID, BookFormats.Name AS BookFormatName, CoverFilePath,
                     FROM Books
                     INNER JOIN BookFormats
@@ -85,7 +85,7 @@ namespace DataAccessLayer
                             };
                             return book;
                         }
-                        else { return null; }
+                        else { return new Book(); }
                     }
                     catch (SqlException ex)
                     {
@@ -99,8 +99,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"SELECT Books.ID, Title, Description, PageCount, Publisher, PubDate, Language, ISBN,
+                string sqlQuery = @"
+                    SELECT Books.ID, Title, Description, PageCount, Publisher, PubDate, Language, ISBN,
                     BookFormatID, BookFormats.Name AS BookFormatName, CoverFilePath,
                     FROM Books
                     INNER JOIN BookFormats
@@ -138,7 +138,7 @@ namespace DataAccessLayer
                         }
 
                         if (_books.Count > 0) { return _books; }
-                        else { return null; }
+                        else { return []; }
                     }
                     catch (SqlException ex)
                     {
@@ -152,8 +152,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"UPDATE Books
+                string sqlQuery = @"
+                    UPDATE Books
                     SET Title = @Title, Description = @Description, PageCount = @PageCount, Publisher = @Publisher,
                     PubDate = @PubDate, Language = @Language, ISBN = @ISBN, BookFormatID = @Format.ID, CoverFilePath = @CoverFilePath
                     WHERE ID = @ID; ";

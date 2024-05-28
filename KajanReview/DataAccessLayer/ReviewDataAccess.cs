@@ -12,8 +12,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"INSERT INTO Reviews (UserID, Body, UpvoteCount, DownvoteCount, PostDate, BookRating, BookID) 
+                string sqlQuery = @"
+                    INSERT INTO Reviews (UserID, Body, UpvoteCount, DownvoteCount, PostDate, BookRating, BookID) 
                     VALUES (@UserID, @Body, @UpvoteCount, @DownvoteCount, @PostDate, @BookRating, @BookID); ";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
@@ -44,8 +44,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"SELECT Reviews.ID as ReviewID, Users.ID AS PosterID, Users.Username AS PosterUsername,
+                string sqlQuery = @"
+                    SELECT Reviews.ID as ReviewID, Users.ID AS PosterID, Users.Username AS PosterUsername,
                     Body, UpvoteCount, DownvoteCount, PostDate, BookRating,
                     Books.ID AS SourceBookID, Books.Title AS SourceBookTitle
                     FROM Users
@@ -89,7 +89,7 @@ namespace DataAccessLayer
                             };
                             return review;
                         }
-                        else { return null; }
+                        else { return new Review(); }
                     }
                     catch (SqlException ex)
                     {
@@ -103,8 +103,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"SELECT Reviews.ID as ReviewID, Users.ID AS PosterID, Users.Username AS PosterUsername,
+                string sqlQuery = @"
+                    SELECT Reviews.ID as ReviewID, Users.ID AS PosterID, Users.Username AS PosterUsername,
                     Body, UpvoteCount, DownvoteCount, PostDate, BookRating,
                     Books.ID AS SourceBookID, Books.Title AS SourceBookTitle
                     FROM Users
@@ -149,7 +149,7 @@ namespace DataAccessLayer
                         }
 
                         if (_reviews.Count > 0) { return _reviews; }
-                        else { return null; }
+                        else { return []; }
                     }
                     catch (SqlException ex)
                     {
@@ -163,8 +163,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"UPDATE Reviews
+                string sqlQuery = @"
+                    UPDATE Reviews
                     SET UserID = @UserID, Body = @Body, UpvoteCount = @UpvoteCount, DownvoteCount = @DownvoteCount, 
                     PostDate = @PostDate, BookRating = @BookRating, BookID = @BookID)
                     WHERE ID = @ID;";

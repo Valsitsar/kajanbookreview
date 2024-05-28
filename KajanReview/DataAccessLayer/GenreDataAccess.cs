@@ -12,8 +12,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"INSERT INTO Genres (Name) 
+                string sqlQuery = @"
+                    INSERT INTO Genres (Name) 
                     VALUES (@Name); ";
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
@@ -36,8 +36,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"SELECT ID, Name 
+                string sqlQuery = @"
+                    SELECT ID, Name 
                     FROM Genres 
                     WHERE ID = @ID; ";
 
@@ -59,7 +59,7 @@ namespace DataAccessLayer
                             };
                             return genre;
                         }
-                        else { return null; }
+                        else { return new Genre(); }
                     }
                     catch (Exception ex)
                     {
@@ -73,8 +73,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"SELECT ID, Name 
+                string sqlQuery = @"
+                    SELECT ID, Name 
                     FROM Genres; ";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
@@ -96,7 +96,7 @@ namespace DataAccessLayer
                             _genres.Add(genre);
                         }
                         if (_genres.Count > 0) { return _genres; }
-                        else { return null; }
+                        else { return []; }
                     }
                     catch (Exception ex)
                     {
@@ -110,8 +110,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"UPDATE Genres 
+                string sqlQuery = @"
+                    UPDATE Genres 
                     SET Name = @Name 
                     WHERE ID = @ID; ";
 

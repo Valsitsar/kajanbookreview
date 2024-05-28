@@ -12,8 +12,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"INSERT INTO Comments (UserID, Body, UpvoteCount, DownvoteCount, PostDate, SourceReviewID) 
+                string sqlQuery = @"
+                    INSERT INTO Comments (UserID, Body, UpvoteCount, DownvoteCount, PostDate, SourceReviewID) 
                     VALUES (@UserID, @Body, @UpvoteCount, @DownvoteCount, @PostDate, @SourceReviewID); ";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
@@ -43,8 +43,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"SELECT Comments.ID as CommentID, Comments_Users.ID AS PosterID, Comments_Users.Username AS PosterUsername, 
+                string sqlQuery = @"
+                    SELECT Comments.ID as CommentID, Comments_Users.ID AS PosterID, Comments_Users.Username AS PosterUsername, 
                     Comments.Body, Comments.UpvoteCount, Comments.DownvoteCount, Comments.PostDate, 
                     Reviews.ID AS SourceReviewID, Reviews.Body AS SourceReviewBody, 
                     Reviews.UserID AS SourceReviewPosterID, Reviews_Users.Username AS SourceReviewPosterUsername
@@ -96,7 +96,7 @@ namespace DataAccessLayer
                             };
                             return comment;
                         }
-                        else { return null; }
+                        else { return new Comment(); }
                     }
                     catch (SqlException ex)
                     {
@@ -110,8 +110,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"SELECT Comments.ID as CommentID, Comments_Users.ID AS PosterID, Comments_Users.Username AS PosterUsername, 
+                string sqlQuery = @"
+                    SELECT Comments.ID as CommentID, Comments_Users.ID AS PosterID, Comments_Users.Username AS PosterUsername, 
                     Comments.Body, Comments.UpvoteCount, Comments.DownvoteCount, Comments.PostDate, 
                     Reviews.ID AS SourceReviewID, Reviews.Body AS SourceReviewBody, 
                     Reviews.UserID AS SourceReviewPosterID, Reviews_Users.Username AS SourceReviewPosterUsername
@@ -164,7 +164,7 @@ namespace DataAccessLayer
                         }
 
                         if (_comments.Count > 0) { return _comments; }
-                        else { return null; }
+                        else { return []; }
                     }
                     catch (SqlException ex)
                     {
@@ -178,8 +178,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"UPDATE Comments
+                string sqlQuery = @"
+                    UPDATE Comments
                     SET UserID = @UserID, Body = @Body, UpvoteCount = @UpvoteCount, DownvoteCount = @DownvoteCount, 
                     PostDate = @PostDate, SourceReviewID = @SourceReviewID)
                     WHERE ID = @ID;";

@@ -15,6 +15,6 @@ namespace BusinessLogicLayer.Entities
         public string PhoneNumber { get; set; } = string.Empty;
         public List<Bookshelf> Bookshelves { get; set; } = new List<Bookshelf>();
         public List<Role> Roles { get; set; } = new List<Role>();
-        public List<IUserPost>? Posts { get; set; } = new List<IUserPost>(); // Maybe don't need to init
+        public List<IUserPost> Posts { get; set; } = new List<IUserPost>();
     }
 }
