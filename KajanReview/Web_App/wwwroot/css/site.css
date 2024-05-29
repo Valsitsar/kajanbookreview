@@ -42,132 +42,73 @@ footer {
     border: 1px solid #DAA520;
 }
 
-/*#region CSS for _BookListPartial */
+.book-cover {
+    max-width: 100%;
+    max-height: auto;
+    margin-bottom: 10px;
+}
 
-/* General flex CSS */
-.flex-container {
+.content-wrapper {
     display: flex;
     flex-wrap: wrap;
-    background-color: Black;
-    height: 250px;
 }
-
-/* Nested Flex for the left side */
-.flex-book-cover-container {
-    display: flex;
-    flex-direction: column;
-    background-color: crimson;
-    margin: 20px;
-    padding: 10px;
-    align-items: center;
-    flex-basis: 15%;
-}
-
-#book-cover-pic {
-    max-height: 180px;
-    max-width: 120px;
-    margin-bottom: 10px;
-}
-
-.flex-book-cover-container > #stuff-under-cover {
-    font-size: 20px;
-    text-align: center;
-}
-
-/* Nested Flex for the right side */
-.flex-right-container {
-    display: flex;
-    flex-direction: column;
-    background-color: grey;
-    margin: 20px;
-    margin-left: 0px;
-    padding: 10px;
-    flex-basis: calc(100% - 20%);
-}
-
-.flex-right-container > .short-items-container {
-    font-size: 20px;
-}
-
-.flex-right-container > .title-author-lang-container {
-    display: flex;
-    flex-direction: row;
-    margin-bottom: 10px;
-}
-
-.title-author-lang-container > .short-text {
-    margin-right: 15px;
-    font-size: 20px;
-}
-
-.flex-right-container > #book-description {
-    font-size: 15px;
-}
-
-/*#endregion */
 
 /*#region CSS Boostrap changes for Book Details */
 @media (min-width: 576px) { /* Small devices (landscape phones, 576px and up) */
-    #book-cover-pic {
-        max-width: 300px !important;
-        max-height: 450px !important;
-    }
     .sticky-sidebar {
         position: static !important;
     }
 }
-@media (min-width: 768px) { /* Medium devices (tablets, 768px and up) */
-    #book-cover-pic {
-        max-width: 150px !important;
-        max-height: 225px !important;
+
+@media (max-width: 768px) {
+    .book-cover {
+        max-width: 80%;
     }
+}
+
+@media (min-width: 992px) { /* Large devices (desktops, 992px and up) */
     .sticky-sidebar {
         position: -webkit-sticky; /* For Safari */
         position: sticky !important;
         top: 75px; /* Adjust as needed */
     }
-}
-
-@media (min-width: 992px) { /* Large devices (desktops, 992px and up) */
-    #book-cover-pic {
-        max-width: 200px !important;
-        max-height: 300px !important;
-    }
     .additional-details {
         margin-top: 60px; /* Add some margin to separate from the book details */
+    }
+    .content-wrapper {
+        flex-direction: row;
+    }
+}
+
+@media (max-width: 992px) {
+    .book-cover {
+        max-width: 60%;
     }
 }
 
 @media (min-width: 1200px) { /* Extra large devices (large desktops, 1200px and up) */
-    #book-cover-pic {
-        max-width: 250px !important;
-        max-height: 375px !important;
-    }
 }
 @media (min-width: 1400px) {/* Extra large devices (large desktops, 1400px and up) */
-    #book-cover-pic {
-        max-width: 300px !important;
-        max-height: 450px !important;
+    .content-wrapper {
+        max-width: 1360px;
     }
+}
 
+@media (min-width: 1600px) {
+    .content-wrapper {
+        max-width: 1560px;
+    }
+}
+
+@media (min-width: 1800px) {
+    .container-xxl, .container-xl, .container-lg, .container-md, .container-sm, .container {
+        max-width: 1720px;
+    }
 }
 
 html, body {
     height: 100%;
     margin: 0;
-}
-
-/*.full-height-container {
-    height: 100vh;*/ /*Full viewport height*/
-    /*display: flex;
-    flex-direction: column;
-    margin-top: 75px;*/ /*Adjust as needed*/
-/*}*/
-
-.content-wrapper {
-    flex: 1;
-    display: flex;
-    flex-direction: row;
 }
 
 .sticky-sidebar {
@@ -212,7 +153,7 @@ nav .container .nav-link {
     color: #DAA520 !important;
 }
 
-/*Star-rating CSS*/
+/* #region Star-rating CSS*/
 .stars-outer {
     display: inline-block;
     position: relative;
@@ -233,6 +174,7 @@ nav .container .nav-link {
     color: #FFD700;
 }
 /*#endregion */
+
 .progress {
     background-color: #444;
     border-radius: 0.5rem;

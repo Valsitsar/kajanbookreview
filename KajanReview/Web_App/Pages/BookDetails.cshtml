@@ -9,23 +9,25 @@
 <div style="margin-top: 75px;">
     <div class="content-wrapper row">
         <!-- #region Left column -->
-        <div class="col-12 col-md-3 mb-4">
+        <div class="col-12 col-lg-3 mb-4">
             <div class="sticky-sidebar">
                 <div class="text-center">
-                    <img id="book-cover-pic" src="@Model.CurrentBook.CoverFilePath" alt="@Model.CurrentBook.Title cover" class="img-fluid">
+                    <img class="book-cover" src="@Model.CurrentBook.CoverFilePath" alt="@Model.CurrentBook.Title cover" class="img-fluid">
                     <div id="star-rating" class="my-2">
                         @for (int i = 0; i < 5; i++)
                         {
                             <i class="bi bi-star text-warning fs-3"></i>
                         }
                     </div>
+                    @* TODO: Make it a button group with a dropdown to select a specific Bookshelf --> *@
                     <button type="button" class="btn btn-lg" style="background-color: #DAA520; color: #36454F;">Want to read</button>
                 </div>
             </div>
         </div>
         <!-- #endregion -->
+
         <!-- #region Right column -->
-        <div class="col-12 col-md-9">
+        <div class="col-12 col-lg-9">
             <!-- #region Book info section -->
             <div class="row">
                 <!-- #region Book title, author -->
@@ -82,28 +84,30 @@
                 </div>
                 <!-- #endregion -->
                 <!-- #region More info + Description -->
-                <div class="col-3 fs-5">
-                    <div>#X IN SERIES</div>
-                </div>
-                <div class="col-4 fs-5">
-                    <div>PUBLISHER</div>
-                </div>
-                <div class="col-5 fs-5">
-                    <div>PAGES</div>
-                </div>
+                <div>
+                    <div class="col-3 fs-5">
+                        <div>#X IN SERIES</div>
+                    </div>
+                    <div class="col-4 fs-5">
+                        <div>PUBLISHER</div>
+                    </div>
+                    <div class="col-5 fs-5">
+                        <div>PAGES</div>
+                    </div>
 
-                <div class="col-3 fs-5">
-                    Example series
-                </div>
-                <div class="col-4 fs-5">
-                    @Model.CurrentBook.Publisher, @Model.CurrentBook.PubDate.Year
-                </div>
-                <div class="col-5 fs-5">
-                    @Model.CurrentBook.PageCount
-                </div>
+                    <div class="col-3 fs-5">
+                        Example series
+                    </div>
+                    <div class="col-4 fs-5">
+                        @Model.CurrentBook.Publisher, @Model.CurrentBook.PubDate.Year
+                    </div>
+                    <div class="col-5 fs-5">
+                        @Model.CurrentBook.PageCount
+                    </div>
 
-                <div class="col-12 my-5 fs-5">
-                    <p>@Model.CurrentBook.Description</p>
+                    <div class="col-12 my-5 fs-5">
+                        <p>@Model.CurrentBook.Description</p>
+                    </div>
                 </div>
                 <!-- #endregion -->
             </div>
@@ -233,9 +237,9 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between mb-2">
                                 <div class="d-flex align-items-center">
-                                    @if (review.Poster.ProfilePicturePath != string.Empty)
+                                    @if (review.Poster.ProfilePictureFilePath != string.Empty)
                                     {
-                                        <img src="@review.Poster.ProfilePicturePath" alt="@review.Poster.Username profile picture" class="rounded-circle me-2" style="width: 50px; height: 50px;">
+                                        <img src="@review.Poster.ProfilePictureFilePath" alt="@review.Poster.Username profile picture" class="rounded-circle me-2" style="width: 50px; height: 50px;">
                                     }
                                     else
                                     {
@@ -252,7 +256,7 @@
                                     {
                                         <i class="bi bi-star text-warning me-1"></i>
                                     }
-                                    <span class="ms-2">@review.PostDate.ToString("MMMM/dd/yyyy")</span>
+                                    <span class="ms-2">@review.PostDate.ToString("MMMM dd, yyyy")</span>
                                 </div>
                             </div>
                             <strong class="card-text fs-5">@review.Title</strong>
@@ -273,5 +277,6 @@
                 }
             </section>
         </div>
+        <!-- #endregion -->
     </div>
 </div>
