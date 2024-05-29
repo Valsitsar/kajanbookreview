@@ -5,7 +5,7 @@ namespace BusinessLogicLayer.Entities
     public class User
     {
         public int ID { get; set; }
-        public string? ProfilePicturePath { get; set; } = string.Empty; // TODO: Add to DB + Maybe don't need to init
+        public string? ProfilePictureFilePath { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string? MiddleNames { get; set; }
         public string LastName { get; set; } = string.Empty;
@@ -15,6 +15,6 @@ namespace BusinessLogicLayer.Entities
         public string PhoneNumber { get; set; } = string.Empty;
         public List<Bookshelf> Bookshelves { get; set; } = new List<Bookshelf>();
         public List<Role> Roles { get; set; } = new List<Role>();
-        public List<IUserPost>? Posts { get; set; } = new List<IUserPost>(); // Maybe don't need to init
+        public List<IUserPost>? Posts { get; set; } = new List<IUserPost>();
     }
 }
