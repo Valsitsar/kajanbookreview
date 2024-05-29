@@ -2,11 +2,14 @@
 @model IndexModel
 @{
     ViewData["Title"] = "Home page";
-    // ViewData["Books"] = Model.Books;
 }
 
 <div class="text-center">
-    <h1 class="display-4">Book list</h1>
-    @Html.Partial("Shared/_BookListPartial.cshtml", Model)
-    @* <partial name="Shared/_BookListPartial.cshtml" /> *@
+    <h1 class="display-4 fw-bold my-5">Welcome to KajanReview!</h1>
+    <h1 class="display-4 my-5">Book list</h1>
+
+    @foreach (var book in Model.Books)
+    {
+        <partial name="Shared/_BookListPartial" for="@book" />
+    }
 </div>
