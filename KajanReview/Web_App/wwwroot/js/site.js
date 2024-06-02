@@ -86,7 +86,7 @@
 
 function setUserRating(rating) {
     for (let i = 1; i <= 5; i++) {
-        let star = document.getElementById(`userRatingStar-${i}`);
+        let star = document.getElementById(`userRatingStar(${i})`);
         star.classList.remove('bi-star-fill');
         star.classList.add('bi-star');
         if (i <= rating) {
@@ -100,3 +100,48 @@ function playVineBoomSound() {
     let audio = new Audio('~/sounds/vine-boom-sound-effect.mp3');
     audio.play();
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Get all elements to collapse and the links to show more details
+    const descriptionContainers = document.querySelectorAll('.BookItem-description-container');
+    const descriptions = document.querySelectorAll('.BookItem-description');
+    const moreDetailsLinks = document.querySelectorAll('.BookItem-more-details');
+
+    const checkAndUpdateCollapsible = () => {
+        descriptionContainers.forEach((descriptionContainer, index) => {
+            const description = descriptions[index];
+            const moreDetailsLink = moreDetailsLinks[index];
+
+            if (!descriptionContainer || !description || !moreDetailsLink) {
+                console.error('Required elements are missing.');
+                return;
+            }
+
+            // Get the current heights
+            const containerHeight = descriptionContainer.clientHeight;
+            const contentHeight = description.scrollHeight;
+
+            console.log(`Container height: ${containerHeight}`);
+            console.log(`Content height: ${contentHeight}`);
+
+            // Update classes based on height comparison
+            if (contentHeight > containerHeight) {
+                descriptionContainer.classList.add('collapsed');
+                moreDetailsLink.classList.remove('d-none');
+                description.style.display = '-webkit-box';
+                console.log('Description is collapsed, and "More details" link is shown.');
+            } else {
+                descriptionContainer.classList.remove('collapsed');
+                moreDetailsLink.classList.add('d-none');
+                description.style.display = 'block';
+                console.log('Description does not need collapsing.');
+            }
+        });
+    };
+
+    // Initial check with delay to ensure rendering
+    setTimeout(checkAndUpdateCollapsible, 100);
+
+    // Check on window resize
+    window.addEventListener('resize', checkAndUpdateCollapsible);
+});

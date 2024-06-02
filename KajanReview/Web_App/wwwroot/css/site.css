@@ -54,16 +54,42 @@ footer {
     flex-wrap: wrap;
 }
 
+#welcome-header {
+    margin-top: 100px;
+}
+
+.btn-goldenrod {
+    background-color: #DAA520;
+    border-color: #DAA520;
+    color: #000;
+}
+
 /*#region CSS Boostrap changes for Book Details */
 @media (min-width: 576px) { /* Small devices (landscape phones, 576px and up) */
     .sticky-sidebar {
         position: static !important;
     }
+    .BookItem-body dl {
+        margin-bottom: 0;
+    }
+    .BookItem-description-container {
+        max-height: 80px;
+        overflow: hidden;
+        position: relative;
+    }
+    .BookItem-description-container .collapsed {
+        max-height: 80px;
+    }
 }
 
-@media (max-width: 768px) {
-    .book-cover {
-        max-width: 80%;
+@media (min-width: 768px) { /* Medium devices (tablets, 768px and up) */
+    .BookItem-description-container {
+        max-height: 60px;
+        overflow: hidden;
+        position: relative;
+    }
+    .BookItem-description-container .collapsed {
+        max-height: 60px;
     }
 }
 
@@ -79,31 +105,79 @@ footer {
     .content-wrapper {
         flex-direction: row;
     }
-}
-
-@media (max-width: 992px) {
-    .book-cover {
-        max-width: 60%;
+    .BookItem-description-container {
+        max-height: 90px;
+        overflow: hidden;
+        position: relative;
+    }
+    .BookItem-description-container .collapsed {
+        max-height: 90px;
     }
 }
 
 @media (min-width: 1200px) { /* Extra large devices (large desktops, 1200px and up) */
 }
+
 @media (min-width: 1400px) {/* Extra large devices (large desktops, 1400px and up) */
-    .content-wrapper {
+    .container > #BookDetails-body {
         max-width: 1360px;
+    }
+    .BookItem-description-container {
+        max-height: 110px;
+        overflow: hidden;
+        position: relative;
+    }
+    .BookItem-description-container .collapsed {
+        max-height: 110px;
+    }
+    .BookItem-description {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
 
 @media (min-width: 1600px) {
-    .content-wrapper {
+    .container > #BookDetails-body {
         max-width: 1560px;
     }
 }
 
 @media (min-width: 1800px) {
-    .container-xxl, .container-xl, .container-lg, .container-md, .container-sm, .container {
-        max-width: 1720px;
+    .container > #BookDetails-body {
+        max-width: 1720px !important;
+    }
+}
+
+@media (max-width: 1399px) {
+}
+
+@media (max-width: 991px) {
+    #BookDetails-body .book-cover {
+        max-width: 60%;
+    }
+
+    .container:has(.BookItem-body) {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 767px) {
+    #BookDetails-body .book-cover {
+        max-width: 80%;
+    }
+}
+
+@media (max-width: 576px) {
+    .BookItem-description-container {
+        max-height: 50px;
+        overflow: hidden;
+        position: relative;
+    }
+    .BookItem-description-container .collapsed {
+        max-height: 50px;
     }
 }
 
@@ -155,6 +229,12 @@ nav .container .nav-link {
     display: inline-block;
     position: relative;
     font-size: 2rem;
+    color: #ccc;
+}
+.BookItem-body .stars-outer {
+    display: inline-block;
+    position: relative;
+    font-size: 1rem;
     color: #ccc;
 }
 
