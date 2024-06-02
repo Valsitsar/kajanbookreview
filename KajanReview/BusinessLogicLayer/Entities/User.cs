@@ -6,7 +6,7 @@ namespace BusinessLogicLayer.Entities
     public class User
     {
         public int ID { get; set; }
-        public string? ProfilePicturePath { get; set; }
+        public string? ProfilePictureFilePath { get; set; }
 
         [Required]
         public string FirstName { get; set; } = string.Empty;
