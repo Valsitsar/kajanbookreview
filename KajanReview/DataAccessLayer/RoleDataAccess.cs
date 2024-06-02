@@ -12,8 +12,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"INSERT INTO Roles (Name) 
+                string sqlQuery = @"
+                    INSERT INTO Roles (Name) 
                     VALUES (@Name); ";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
@@ -37,8 +37,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"SELECT ID, Name 
+                string sqlQuery = @"
+                    SELECT ID, Name 
                     FROM Roles 
                     WHERE ID = @ID; ";
 
@@ -60,7 +60,7 @@ namespace DataAccessLayer
                             };
                             return role;
                         }
-                        else { return null; }
+                        else { return new Role(); }
                     }
                     catch (Exception ex)
                     {
@@ -74,8 +74,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"SELECT ID, Name 
+                string sqlQuery = @"
+                    SELECT ID, Name 
                     FROM Roles ";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
@@ -97,7 +97,7 @@ namespace DataAccessLayer
                             _roles.Add(role);
                         }
                         if (_roles.Count > 0) { return _roles; }
-                        else { return null; }
+                        else { return []; }
                     }
                     catch (Exception ex)
                     {
@@ -111,8 +111,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"UPDATE Roles 
+                string sqlQuery = @"
+                    UPDATE Roles 
                     SET Name = @Name 
                     WHERE ID = @ID";
 
@@ -138,8 +138,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"DELETE FROM Roles 
+                string sqlQuery = @"
+                    DELETE FROM Roles 
                     WHERE ID = @ID; ";
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {

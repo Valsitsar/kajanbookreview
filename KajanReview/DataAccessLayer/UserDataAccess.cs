@@ -12,8 +12,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"INSERT INTO Users (FirstName, MiddleNames, LastName, Username, Email, PhoneNumber, Password) 
+                string sqlQuery = @"
+                    INSERT INTO Users (FirstName, MiddleNames, LastName, Username, Email, PhoneNumber, Password) 
                     VALUES (@FirstName, @MiddleNames, @LastName, @Username, @Email, @PhoneNumber, @Password); ";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
@@ -44,8 +44,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"SELECT ID, FirstName, MiddleNames, LastName, Username, Email, PhoneNumber, Password 
+                string sqlQuery = @"
+                    SELECT ID, FirstName, MiddleNames, LastName, Username, Email, PhoneNumber, Password 
                     FROM Users 
                     WHERE ID = @ID; ";
 
@@ -75,7 +75,7 @@ namespace DataAccessLayer
                             };
                             return user;
                         }
-                        else { return null; }
+                        else { return new User(); }
                     }
                     catch (SqlException ex)
                     {
@@ -90,8 +90,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"SELECT ID, FirstName, MiddleNames, LastName, Username, Email, PhoneNumber, Password 
+                string sqlQuery = @"
+                    SELECT ID, FirstName, MiddleNames, LastName, Username, Email, PhoneNumber, Password 
                     FROM Users; ";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
@@ -122,7 +122,7 @@ namespace DataAccessLayer
                         }
 
                         if (_users.Count > 0) { return _users; }
-                        else { return null; }
+                        else { return []; }
                     }
                     catch (SqlException ex)
                     {
@@ -137,8 +137,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"UPDATE Users 
+                string sqlQuery = @"
+                    UPDATE Users 
                     SET FirstName = @FirstName, MiddleNames = @MiddleNames, LastName = @LastName, 
                     Username = @Username, Email = @Email, PhoneNumber = @PhoneNumber, Password = @Password) 
                     WHERE ID = @ID; ";

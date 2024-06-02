@@ -1,11 +1,11 @@
 ﻿using BusinessLogicLayer.Entities;
 using BusinessLogicLayer.Interfaces;
 
-namespace BusinessLogicLayer.EntityManagers
+namespace BusinessLogicLayer.ManagerClasses
 {
     public class GenreManager : IGenreManager
     {
-        private IGenreDataAccess _genreDataAccess;
+        private readonly IGenreDataAccess _genreDataAccess;
 
         public GenreManager(IGenreDataAccess genreDataAccess)
         {

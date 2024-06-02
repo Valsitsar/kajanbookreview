@@ -14,8 +14,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"INSERT INTO Bookshelves (Name, OwnerID) 
+                string sqlQuery = @"
+                    INSERT INTO Bookshelves (Name, OwnerID) 
                     VALUES (@Name, @OwnerID); ";
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
@@ -39,8 +39,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"SELECT Bookshelves.ID, Name, OwnerID, Users.Username AS OwnerUsername 
+                string sqlQuery = @"
+                    SELECT Bookshelves.ID, Name, OwnerID, Users.Username AS OwnerUsername 
                     FROM Bookshelves 
                     INNER JOIN Users 
                     ON Bookshelves.OwnerID = Users.ID 
@@ -69,7 +69,7 @@ namespace DataAccessLayer
                             };
                             return bookshelf;
                         }
-                        else { return null; }
+                        else { return new Bookshelf(); }
                     }
                     catch (SqlException ex)
                     {
@@ -83,8 +83,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"SELECT Bookshelves.ID, Name, OwnerID, Users.Username AS OwnerUsername 
+                string sqlQuery = @"
+                    SELECT Bookshelves.ID, Name, OwnerID, Users.Username AS OwnerUsername 
                     FROM Bookshelves 
                     INNER JOIN Users 
                     ON Bookshelves.OwnerID = Users.ID 
@@ -109,7 +109,6 @@ namespace DataAccessLayer
                                 Name = reader.GetString("Name"),
                                 Owner = new User()
                                 {
-                                    // ASK GUI IF THIS IS GOOD OR IF I'M SUPPOSED TO ASSIGN VALUES TO ALL USER PROPERTIES
                                     ID = reader.GetInt32("Users.ID"),
                                     Username = reader.GetString("Users.Username")
                                 }
@@ -118,7 +117,7 @@ namespace DataAccessLayer
                         }
 
                         if (_bookshelves.Count > 0) { return _bookshelves; }
-                        else { return null; }
+                        else { return []; }
                     }
                     catch (SqlException ex)
                     {
@@ -132,8 +131,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"UPDATE Bookshelves 
+                string sqlQuery = @"
+                    UPDATE Bookshelves 
                     SET Name = @Name, OwnerID = @OwnerID 
                     WHERE ID = @ID; ";
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))

@@ -12,8 +12,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"INSERT INTO BookFormats (Name) 
+                string sqlQuery = @"
+                    INSERT INTO BookFormats (Name) 
                     VALUES (@Name); ";
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
@@ -36,8 +36,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"SELECT ID, Name 
+                string sqlQuery = @"
+                    SELECT ID, Name 
                     FROM BookFormats 
                     WHERE ID = @ID; ";
 
@@ -59,7 +59,7 @@ namespace DataAccessLayer
                             };
                             return bookFormat;
                         }
-                        else { return null; }
+                        else { return new BookFormat(); }
                     }
                     catch (Exception ex)
                     {
@@ -73,8 +73,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"SELECT ID, Name 
+                string sqlQuery = @"
+                    SELECT ID, Name 
                     FROM BookFormats; ";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
@@ -96,7 +96,7 @@ namespace DataAccessLayer
                             _bookFormats.Add(bookFormat);
                         }
                         if (_bookFormats.Count > 0) { return _bookFormats; }
-                        else { return null; }
+                        else { return []; }
                     }
                     catch (Exception ex)
                     {
@@ -110,8 +110,8 @@ namespace DataAccessLayer
         {
             using (SqlConnection connection = OpenConnection())
             {
-                string sqlQuery =
-                    @"UPDATE BookFormats 
+                string sqlQuery = @"
+                    UPDATE BookFormats 
                     SET Name = @Name 
                     WHERE ID = @ID; ";
 
