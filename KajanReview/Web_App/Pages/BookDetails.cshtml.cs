@@ -65,10 +65,9 @@ namespace Web_App.Pages
                         BookRating = 5,
                         PostDate = DateTime.Today.AddDays(-1)
                     },
-                    new Review()
-                    { BookRating = 2 },
-                    new Review()
-                    { BookRating = 4 }
+                    new Review() { BookRating = 2 },
+                    new Review() { BookRating = 4 },
+                    new Review() { BookRating = 5 },
                 }
             };
         }

@@ -6,13 +6,13 @@
     var percentage = (averageRating / 5.0) * 100;
 }
 
-<div style="margin-top: 75px;">
+<div id="BookDetails-body" style="margin-top: 75px;">
     <div class="content-wrapper row">
         <!-- #region Left column -->
         <div class="col-12 col-lg-3 mb-4">
             <div class="sticky-sidebar">
                 <div class="text-center">
-                    <img class="book-cover" src="@Model.CurrentBook.CoverFilePath" alt="@Model.CurrentBook.Title cover" class="img-fluid">
+                    <img class="book-cover img-fluid rounded" src="@Model.CurrentBook.CoverFilePath" alt="@Model.CurrentBook.Title cover">
                     <div id="star-rating" class="my-2">
                         @for (int i = 0; i < 5; i++)
                         {
@@ -52,6 +52,7 @@
                     }
                 </div>
                 <!-- #endregion -->
+
                 <!-- #region Short Star-rating statistics -->
                 <div class="col-12 mb-3">
                     <div class="d-flex align-items-center mb-3">
@@ -83,6 +84,7 @@
                     </div>
                 </div>
                 <!-- #endregion -->
+
                 <!-- #region More info + Description -->
                 <div>
                     <div class="col-3 fs-5">
@@ -112,6 +114,7 @@
                 <!-- #endregion -->
             </div>
             <!-- #endregion -->
+
             <!-- #region Additional Details section -->
             <div class="row additional-details mt-lg-5 mb-5">
                 <div class="col-12">
@@ -228,6 +231,8 @@
                 </div>
             </div>
             <!-- #endregion -->
+
+            <!-- #region Reviews list -->
             <section class="mb-5" id="reviews">
                 <h2 class="my-5">Reviews by fellow bookworms</h2>
                 @foreach (var review in Model.CurrentBook.Reviews)
@@ -235,18 +240,22 @@
                     @if (review.Body == null) { continue; }
                     <div class="card mb-3 border-goldenrod">
                         <div class="card-body">
+                            <!-- #region Review header -->
                             <div class="d-flex justify-content-between mb-2">
                                 <div class="d-flex align-items-center">
-                                    @if (review.Poster.ProfilePictureFilePath != string.Empty)
+                                    @if (review.Poster.ProfilePictureFilePath != null)
                                     {
                                         <img src="@review.Poster.ProfilePictureFilePath" alt="@review.Poster.Username profile picture" class="rounded-circle me-2" style="width: 50px; height: 50px;">
                                     }
                                     else
                                     {
+                                        // TODO: Default profile picture - make it an SVG later
                                         <i class="bi bi-person-circle fs-3 text-muted me-2"></i>
                                     }
                                     <h5 class="card-title mb-0 fs-3">@review.Poster.Username</h5>
                                 </div>
+
+                                @* The rating of the review *@
                                 <div class="d-flex align-items-center text-muted">
                                     @for (int i = 0; i < review.BookRating; i++)
                                     {
@@ -259,8 +268,14 @@
                                     <span class="ms-2">@review.PostDate.ToString("MMMM dd, yyyy")</span>
                                 </div>
                             </div>
+                            <!-- #endregion -->
+
+                            <!-- #region Review content -->
                             <strong class="card-text fs-5">@review.Title</strong>
                             <p class="card-text fs-5">@review.Body</p>
+                            <!-- #endregion -->
+
+                            <!-- #region Review actions -->
                             <div class="d-flex align-items-start">
                                 <button type="button" class="btn btn-sm p-0 text-decoration-none">
                                     <span>&#128563 @review.UpvoteCount</span>
@@ -272,10 +287,13 @@
                                     <i class="bi bi-reply"></i> Reply
                                 </button>
                             </div>
+                            <!-- #endregion -->
+
                         </div>
                     </div>
                 }
             </section>
+            <!-- #endregion -->
         </div>
         <!-- #endregion -->
     </div>
