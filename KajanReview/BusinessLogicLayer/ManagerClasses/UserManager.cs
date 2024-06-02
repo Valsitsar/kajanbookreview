@@ -1,11 +1,11 @@
 ﻿using BusinessLogicLayer.Entities;
 using BusinessLogicLayer.Interfaces;
 
-namespace BusinessLogicLayer.EntityManagers
+namespace BusinessLogicLayer.ManagerClasses
 {
     public class UserManager : IUserManager
     {
-        private IUserDataAccess _userDataAccess;
+        private readonly IUserDataAccess _userDataAccess;
 
         public UserManager(IUserDataAccess userDataAccess)
         {
@@ -35,6 +35,13 @@ namespace BusinessLogicLayer.EntityManagers
         public void DeleteUserByID(int userID)
         {
             _userDataAccess.DeleteUserByID(userID);
+        }
+
+        public User? Authenticate(string usernameOrEmail, string password)
+        {
+            // TODO: Implement this method (UserManager.Authenticate)
+            //return _userDataAccess.Authenticate(usernameOrEmail, password);
+            throw new NotImplementedException();
         }
     }
 }

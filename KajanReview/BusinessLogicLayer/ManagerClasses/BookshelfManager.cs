@@ -1,11 +1,11 @@
 ﻿using BusinessLogicLayer.Entities;
 using BusinessLogicLayer.Interfaces;
 
-namespace BusinessLogicLayer.EntityManagers
+namespace BusinessLogicLayer.ManagerClasses
 {
     public class BookshelfManager : IBookshelfManager
     {
-        private IBookshelfDataAccess _bookshelfDataAccess;
+        private readonly IBookshelfDataAccess _bookshelfDataAccess;
 
         public BookshelfManager(IBookshelfDataAccess bookshelfDataAccess)
         {

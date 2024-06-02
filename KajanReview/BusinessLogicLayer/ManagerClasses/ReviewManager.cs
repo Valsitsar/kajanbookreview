@@ -1,11 +1,11 @@
 ﻿using BusinessLogicLayer.Entities;
 using BusinessLogicLayer.Interfaces;
 
-namespace BusinessLogicLayer.EntityManagers
+namespace BusinessLogicLayer.ManagerClasses
 {
     public class ReviewManager : IReviewManager
     {
-        private IReviewDataAccess _reviewDataAccess;
+        private readonly IReviewDataAccess _reviewDataAccess;
 
         public ReviewManager(IReviewDataAccess reviewDataAccess)
         {

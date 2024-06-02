@@ -1,11 +1,11 @@
 ﻿using BusinessLogicLayer.Entities;
 using BusinessLogicLayer.Interfaces;
 
-namespace BusinessLogicLayer.EntityManagers
+namespace BusinessLogicLayer.ManagerClasses
 {
     public class BookFormatManager : IBookFormatManager
     {
-        private IBookFormatDataAccess _bookFormatDataAccess;
+        private readonly IBookFormatDataAccess _bookFormatDataAccess;
 
         public BookFormatManager(IBookFormatDataAccess bookFormatDataAccess)
         {

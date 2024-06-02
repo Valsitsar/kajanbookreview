@@ -1,11 +1,11 @@
 ﻿using BusinessLogicLayer.Entities;
 using BusinessLogicLayer.Interfaces;
 
-namespace BusinessLogicLayer.EntityManagers
+namespace BusinessLogicLayer.ManagerClasses
 {
     public class RoleManager : IRoleManager
     {
-        private IRoleDataAccess _roleDataAccess;
+        private readonly IRoleDataAccess _roleDataAccess;
 
         public RoleManager(IRoleDataAccess roleDataAccess)
         {

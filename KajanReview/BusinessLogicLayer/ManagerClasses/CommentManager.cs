@@ -1,11 +1,11 @@
 ﻿using BusinessLogicLayer.Entities;
 using BusinessLogicLayer.Interfaces;
 
-namespace BusinessLogicLayer.EntityManagers
+namespace BusinessLogicLayer.ManagerClasses
 {
     public class CommentManager : ICommentManager
     {
-        private ICommentDataAccess _commentDataAccess;
+        private readonly ICommentDataAccess _commentDataAccess;
 
         public CommentManager(ICommentDataAccess commentDataAccess)
         {
