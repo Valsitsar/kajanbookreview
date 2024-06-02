@@ -1,35 +1,93 @@
 ﻿@using BusinessLogicLayer.Entities
 @model Book
 @{
+    var averageRating = 0.0;
+    var percentage = 0.0;
+    if (Model.Reviews != null && Model.Reviews.Count > 0) {
+        averageRating = Math.Round(Model.Reviews.Average(r => r.BookRating), 2);
+        percentage = (averageRating / 5.0) * 100;
+    }
 }
 
-
-<div class="">
-    <div class="">
-            <div class="">
-                <img class="book-cover" src="@Model.CoverFilePath" alt="@Model.Title cover"/>
-                <div>
-                    @for (int i = 0; i < 5; i++) { <i class="bi bi-star"></i> }
-                </div>
+<div class="card BookItem-body mb-5 border-0">
+    <div class="row g-0">
+        <div class="col-md-1 col-0">
+        </div>
+        <!-- Left side with book cover, rating, and buttons -->
+        <div class="col-md-2 col-3 d-flex flex-column align-items-center p-3 border-goldenrod border-end-0">
+            <a href="/BookDetails">
+                <img class="book-cover img-fluid rounded" src="@Model.CoverFilePath" alt="@Model.Title cover">
+            </a>
+            
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-goldenrod">Want To Read</button>
+                <button type="button" class="btn btn-goldenrod dropdown-toggle dropdown-toggle-split overflow-auto" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="visually-hidden">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu border-goldenrod">
+                    <li><a class="dropdown-item" href="#">Want to Read</a></li>
+                    <li><a class="dropdown-item" href="#">Reading</a></li>
+                    <li><a class="dropdown-item" href="#">Read</a></li>
+                    <li><a class="dropdown-item" href="#">Favorites</a></li>
+                </ul>
             </div>
-            <div class="flex-right-container">
-                <div class="title-author-lang-container">
-                    <div class="short-text">
-                        @Model.Title
-                    </div>
-                    <div class="short-text">
-                        Example author
-                    </div>
-                    <div class="short-text">
-                        @Model.Language
+        </div>
+        <!-- Right side with book details -->
+        <div class="col-md-8 col-9 border-goldenrod border-start-0">
+            <div class="card-body text-start fs-5">
+                <h5 class="card-title text-start fs-3">
+                    <a href="/BookDetails">@Model.Title</a>
+                </h5>
+                <p class="card-text mb-0">
+                    @foreach (var author in Model.Authors)
+                    {
+                        <span>@author.FirstName @author.LastName</span>
+                        @if (author != Model.Authors.Last())
+                        {
+                            <span>, </span>
+                        }
+                    }
+                </p>
+                <div class="stars-outer">
+                    @for (int i = 0; i < 5; i++)
+                    {
+                        <i class="bi bi-star text-warning"></i>
+                    }
+                    <div class="stars-inner" style="width:@percentage%">
+                        @for (int i = 0; i < 5; i++)
+                        {
+                            <i class="bi bi-star-fill"></i>
+                        }
                     </div>
                 </div>
+                <span class="fw-bold fs-4 ms-3">@averageRating</span>
+                <span class="text-muted">/ 5</span>
+                @* Maybe add number of reviews/ratings too, like in BookDetails *@
 
-                <div id="book-description">
-                    @Model.Description
+                <div class="d-flex mt-2">
+                    <dl class="me-4">
+                        <dt>#X IN SERIES</dt>
+                        <dd>Example Series</dd> <!-- Placeholder for series data -->
+                    </dl>
+                    <dl class="me-4">
+                        <dt>PUBLISHER</dt>
+                        <dd>@Model.Publisher, @Model.PubDate.Year</dd>
+                    </dl>
+                    <dl>
+                        <dt>PAGES</dt>
+                        <dd>@Model.PageCount</dd>
+                    </dl>
                 </div>
+                <div class="BookItem-description-container">
+                    <p class="BookItem-description card-text mt-xxl-3 mt-0">@Model.Description</p>
+                </div>
+                <a href="/BookDetails" class="BookItem-more-details d-none">More details</a>
             </div>
-        <br />
-        }
+        </div>
+        <div class="col-md-0">
+
+        </div>
     </div>
 </div>
+
+
