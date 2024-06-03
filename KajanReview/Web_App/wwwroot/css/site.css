@@ -39,10 +39,6 @@ footer {
     background-color: #DAA520;
 }
 
-.border-goldenrod {
-    border: 1px solid #DAA520;
-}
-
 .book-cover {
     max-width: 100%;
     max-height: auto;
@@ -58,10 +54,162 @@ footer {
     margin-top: 100px;
 }
 
+/* #region Goldenrod */
+
+a {
+    color: #DAA520 !important;
+}
+
+a:hover, a:focus {
+    color: #DAA520 !important;
+}
+
 .btn-goldenrod {
-    background-color: #DAA520;
+    background-color: #DAA520 !important;
     border-color: #DAA520;
     color: #000;
+}
+
+.btn-outline-goldenrod {
+    color: #DAA520;
+    border-color: #DAA520;
+}
+
+.btn-outline-goldenrod:hover {
+    color: #726880 !important;
+    background-color: #DAA520;
+    border-color: #DAA520;
+}
+
+.btn-goldenrod:hover {
+    background-color: #DAA520 !important;
+    border-color: #DAA520;
+    color: #000;
+}
+
+.btn-goldenrod:active {
+    background-color: #DAA520 !important;
+    border-color: #DAA520;
+    color: #000;
+}
+
+.btn-goldenrod:active:focus {
+    background-color: #DAA520 !important;
+    border-color: #DAA520;
+    color: #000;
+}
+
+.btn-goldenrod:active:hover {
+    background-color: #DAA520 !important;
+    border-color: #DAA520;
+    color: #000;
+}
+
+.btn-goldenrod:focus {
+    background-color: #DAA520 !important;
+    border-color: #DAA520;
+    color: #000;
+}
+
+.btn-goldenrod:active:hover:focus {
+    background-color: #DAA520 !important;
+    border-color: #DAA520;
+    color: #000;
+}
+
+.border-goldenrod {
+    border: 1px solid #DAA520;
+}
+
+.border-top-goldenrod {
+    border-top: 1px solid #DAA520;
+}
+
+.border-right-goldenrod {
+    border-right: 1px solid #DAA520;
+}
+
+.border-bottom-goldenrod {
+    border-bottom: 1px solid #DAA520;
+}
+
+.border-left-goldenrod {
+    border-left: 1px solid #DAA520;
+}
+
+.link-goldenrod {
+    color: #DAA520 !important;
+}
+
+.link-goldenrod:hover, .link-goldenrod:focus {
+    color: #DAA520 !important;
+}
+
+.bg-goldenrod {
+    background-color: #DAA520;
+}
+
+/* #endregion */
+
+.badge {
+    background-color: #726880;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+.sticky-sidebar {
+    position: -webkit-sticky; /* For Safari */
+    position: sticky;
+    top: 75px; /* Adjust as needed */
+}
+
+.site-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.sticky-top {
+    position: -webkit-sticky; /* For Safari */
+    position: sticky;
+    /*top: 0;*/
+    z-index: 1030;
+}
+
+header .fixed-top {
+    z-index: 1400;
+    margin-bottom: 0px;
+}
+
+nav {
+    margin-bottom: 20px;
+    background-color: #726880;
+}
+
+nav .container .navbar-brand, 
+nav .container .nav-link {
+    color: #DAA520 !important;
+}
+
+.sign-in-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 72vh;
+    margin-top: 55px;
+}
+
+.profile-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 72vh;
+
 }
 
 /*#region CSS Boostrap changes for Book Details */
@@ -151,9 +299,6 @@ footer {
     }
 }
 
-@media (max-width: 1399px) {
-}
-
 @media (max-width: 991px) {
     #BookDetails-body .book-cover {
         max-width: 60%;
@@ -168,6 +313,10 @@ footer {
     #BookDetails-body .book-cover {
         max-width: 80%;
     }
+    #UserProfilePicture {
+        max-width: 80%;
+        margin-top: 7vh;
+    }
 }
 
 @media (max-width: 576px) {
@@ -181,47 +330,8 @@ footer {
     }
 }
 
-html, body {
-    height: 100%;
-    margin: 0;
-}
-
-.sticky-sidebar {
-    position: -webkit-sticky; /* For Safari */
-    position: sticky;
-    top: 75px; /* Adjust as needed */
-}
-
-.site-wrapper {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-.sticky-top {
-    position: -webkit-sticky; /* For Safari */
-    position: sticky;
-    /*top: 0;*/
-    z-index: 1030;
-}
-
 .additional-details {
     margin-top: 20px; /* Add some margin to separate from the book details */
-}
-
-header .fixed-top {
-    z-index: 1400;
-    margin-bottom: 0px;
-}
-
-nav {
-    margin-bottom: 20px;
-    background-color: #726880;
-}
-
-nav .container .navbar-brand,
-nav .container .nav-link {
-    color: #DAA520 !important;
 }
 
 /* #region Star-rating CSS*/
