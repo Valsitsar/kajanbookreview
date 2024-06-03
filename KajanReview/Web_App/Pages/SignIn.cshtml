@@ -1,0 +1,47 @@
+﻿@page
+@model Web_App.Pages.SignInModel
+@{
+    ViewData["Title"] = "Sign In";
+}
+
+<div class="sign-in-wrapper d-flex flex-column justify-content-center align-items-center">
+    <div class="col-lg-8 col-12">
+        <div class="card border-goldenrod">
+            <div class="card-header text-center">
+                <h3>Sign In</h3>
+            </div>
+            <div class="card-body col-xl-6 col-lg-8 col-md-9 col-xs-12 mx-auto">
+                <form method="post">
+
+                    @* Username or Email *@
+                    <div class="input-group mb-3 border-goldenrod rounded">
+                        <span class="input-group-text">
+                            <i class="bi bi-person"></i>
+                        </span>
+                        <input type="text" class="form-control" id="UsernameOrEmail" name="UsernameOrEmail" placeholder="Username / Email" required />
+                    </div>
+
+                    @* Password *@
+                    <div class="input-group mb-3 border-goldenrod rounded">
+                        <span class="input-group-text">
+                            <i class="bi bi-lock"></i>
+                        </span>
+                        <input type="password" class="form-control" id="Password" name="Password" placeholder="Password" required />
+                    </div>
+
+                    @* Confirm sign in *@
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-goldenrod mb-1">Continue</button>
+                    </div>
+                </form>
+                <div class="text-center text-muted pb-3 border-bottom-goldenrod">
+                    Don't have an account yet? Sign up <a href="/SignUp" class="text-decoration-none">here</a>.
+                </div>
+                <div class="text-center pt-3">
+                    <p>Or sign in with:</p>
+                    <a href="#" class="btn btn-outline-goldenrod mb-2"><i class="bi bi-google me-1"></i>Google</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
