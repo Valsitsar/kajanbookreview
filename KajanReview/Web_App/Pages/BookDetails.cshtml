@@ -226,7 +226,7 @@
                                 <i class="bi bi-star text-warning fs-2" onclick="setUserRating(@i)" id="userRatingStar-@i"></i>
                             }
                         </div>
-                        <button type="button" class="btn btn-lg btn-secondary">Write review</button>
+                        <button type="button" class="btn btn-lg btn-goldenrod">Write review</button>
                     </div>
                 </div>
             </div>
@@ -243,9 +243,9 @@
                             <!-- #region Review header -->
                             <div class="d-flex justify-content-between mb-2">
                                 <div class="d-flex align-items-center">
-                                    @if (review.Poster.ProfilePictureFilePath != null)
+                                    @if (review.Poster.ProfilePictureFilePath != null && review.Poster.ProfilePictureFilePath != string.Empty)
                                     {
-                                        <img src="@review.Poster.ProfilePictureFilePath" alt="@review.Poster.Username profile picture" class="rounded-circle me-2" style="width: 50px; height: 50px;">
+                                        <img src="@Url.Content(review.Poster.ProfilePictureFilePath)" alt="@review.Poster.Username profile picture" class="rounded-circle me-2" style="width: 50px; height: 50px;">
                                     }
                                     else
                                     {
