@@ -89,6 +89,8 @@
         </symbol>
     </svg>
 
+    @* Other SVGs *@
+
     @* WEBSITE CONTENT *@
     <div class="site-wrapper d-flex flex-column min-vh-100">
 
@@ -115,6 +117,9 @@
                         @* If yes, show "Sign out" instead *@
                         <ul class="navbar-nav ms-auto">
                             <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-page="/Profile"><i class="bi bi-person-circle" style="min-height: 25px; min-width: 25px;"></i></a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-page="/SignIn">Sign in</a>
                             </li>
                         </ul>
@@ -125,13 +130,13 @@
 
         @* Main content *@
         <div class="container site-content">
-            <main role="main" class="pb-3">
+            <main role="main">
                 @RenderBody()
             </main>
         </div>
 
         @* Footer *@
-        <div class="body-footer-divider bg-gradient border-1 border-light"></div>
+        <div class="body-footer-divider bg-gradient border-1 border-light pt-3"></div>
         <div class="container">
             <footer class="pt-5 mt-auto">
                 <div class="row">
@@ -141,13 +146,13 @@
                         <h5>Section</h5>
                         <ul class="nav flex-column">
                             <li class="nav-item mb-2">
-                                <a href="#" class="nav-link p-0 text-light">Home</a>
+                                <a href="#" class="nav-link p-0">Home</a>
                             </li>
                             <li class="nav-item mb-2">
-                                <a href="#" class="nav-link p-0 text-light">About us</a>
+                                <a href="#" class="nav-link p-0">About us</a>
                             </li>
                             <li class="nav-item mb-2">
-                                <a href="#" class="nav-link p-0 text-light">Privacy</a>
+                                <a href="#" class="nav-link p-0">Privacy</a>
                             </li>
                         </ul>
                     </div>
@@ -157,13 +162,13 @@
                         <h5>Section</h5>
                         <ul class="nav flex-column">
                             <li class="nav-item mb-2">
-                                <a href="#" class="nav-link p-0 text-light">Home</a>
+                                <a href="#" class="nav-link p-0">Home</a>
                             </li>
                             <li class="nav-item mb-2">
-                                <a href="#" class="nav-link p-0 text-light">About us</a>
+                                <a href="#" class="nav-link p-0">About us</a>
                             </li>
                             <li class="nav-item mb-2">
-                                <a href="#" class="nav-link p-0 text-light">Privacy</a>
+                                <a href="#" class="nav-link p-0">Privacy</a>
                             </li>
                         </ul>
                     </div>
@@ -173,13 +178,13 @@
                         <h5>Section</h5>
                         <ul class="nav flex-column">
                             <li class="nav-item mb-2">
-                                <a href="#" class="nav-link p-0 text-light">Home</a>
+                                <a href="#" class="nav-link p-0">Home</a>
                             </li>
                             <li class="nav-item mb-2">
-                                <a href="#" class="nav-link p-0 text-light">About us</a>
+                                <a href="#" class="nav-link p-0">About us</a>
                             </li>
                             <li class="nav-item mb-2">
-                                <a href="#" class="nav-link p-0 text-light">Privacy</a>
+                                <a href="#" class="nav-link p-0">Privacy</a>
                             </li>
                         </ul>
                     </div>
