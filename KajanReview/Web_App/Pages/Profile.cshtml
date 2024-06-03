@@ -1,0 +1,54 @@
+﻿@page
+@using BusinessLogicLayer.Entities
+@model ProfileModel
+@{
+    ViewData["Title"] = "Profile";
+    // TODO: Figure out how to get all the user's book ratings
+    // List<Review> reviews = Model.CurrentUser.Posts.FindAll(r => r.GetType() == typeof(Review));
+    int totalUpvotes = Model.CurrentUser.Posts.FindAll(r => r.GetType() == typeof(Review)).Sum(s => s.UpvoteCount);
+    int totalDownvotes = Model.CurrentUser.Posts.FindAll(r => r.GetType() == typeof(Review)).Sum(s => s.DownvoteCount);
+    int totalRatings = Model.CurrentUser.Posts.FindAll(r => r.GetType() == typeof(Review)).Count;
+    // int bookRatingSum = Model.CurrentUser.Posts.FindAll(r => r.GetType() == typeof(Review));
+    decimal upvoteDownvoteRatio = totalDownvotes == 0 ? totalUpvotes : (decimal)totalUpvotes / totalDownvotes;
+}
+
+<div class="container profile-wrapper d-flex justify-content-center mb-5">
+    <div class="row w-75">
+        <!-- Profile Picture and Ratings Section -->
+        <div class="col-md-3 text-center">
+            <img src="@Url.Content(Model.CurrentUser.ProfilePictureFilePath)" id="UserProfilePicture" class="img-fluid rounded-circle mb-3" alt="Profile Picture" style="max-width: 100%">
+            <div>
+                @* <p><strong>@Model.CurrentUser.Posts.Count ratings (@(Model.CurrentUser.Posts.Average(p => p.BookRating).ToString("F2")) avg.)</strong></p> *@
+                <p><strong>@Model.CurrentUser.Posts.Count ratings</strong></p>
+                <p><strong>Up/Down: @upvoteDownvoteRatio.ToString("F2")</strong></p>
+            </div>
+        </div>
+
+        <!-- User Information Section -->
+        <div class="col-xxl-7 col-md-8">
+            <h2 class="text-start mb-4"><strong>@Model.CurrentUser.Username (@Model.CurrentUser.FirstName @Model.CurrentUser.LastName)</strong></h2>
+            <p class="text-start">@Model.CurrentUser.MiddleNames</p>
+            <p class="text-start"><i class="bi bi-envelope"></i> @Model.CurrentUser.Email</p>
+            <p class="text-start"><i class="bi bi-telephone"></i> @Model.CurrentUser.PhoneNumber</p>
+
+            <!-- Edit Details Button -->
+            <div class="col-12 text-start mt-4">
+                <button type="button" class="btn btn-goldenrod">Edit details</button>
+            </div>
+            
+            <!-- Bookshelves Section -->
+            <div class=" mt-2 pt-4 border-top-goldenrod">
+                <h3>Bookshelves</h3>
+                <ul class="list-group border-goldenrod">
+                    @foreach (var bookshelf in Model.CurrentUser.Bookshelves)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="#" class="text-decoration-none list-group-item-action">@bookshelf.Name</a>
+                            <span class="badge bg-goldenrod rounded-pill">@bookshelf.Books.Count</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

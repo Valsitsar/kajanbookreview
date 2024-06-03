@@ -20,7 +20,7 @@ namespace Web_App.Pages
             {
                 new Book
                 {
-                    CoverFilePath = "./images/Book_cover_unavailable.png",
+                    CoverFilePath = "./img/Book_cover_unavailable.png",
                     Title = "Example book",
                     Description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin tincidunt leo imperdiet ante venenatis, et tempus odio eleifend.",
                     PageCount = 1000,
@@ -44,7 +44,7 @@ namespace Web_App.Pages
                 },
                 new Book
                 {
-                    CoverFilePath = "./images/Book_cover_unavailable.png",
+                    CoverFilePath = "./img/Book_cover_unavailable.png",
                     Title = "Example book 2",
                     Description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin tincidunt leo imperdiet ante venenatis, et tempus odio eleifend. Vivamus a magna arcu. In nisl ipsum, cursus sit amet posuere eu, bibendum eget mauris. Pellentesque semper semper orci, ut vehicula enim ultrices in. Duis tempor vulputate ante vel viverra. Sed fringilla dolor eget neque interdum, laoreet facilisis massa condimentum. Etiam ultrices sem non nunc gravida aliquet. Nunc eu ligula ut libero pulvinar porttitor a vitae nunc. Maecenas et nulla sem. Fusce ac risus ac justo dictum luctus id eu augue.",
                     PageCount = 500,
@@ -69,7 +69,7 @@ namespace Web_App.Pages
                 },
                 new Book()
                 {
-                    CoverFilePath = "./images/Book_cover_unavailable.png",
+                    CoverFilePath = "./img/Book_cover_unavailable.png",
                     Title = "Example book",
                     Description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin tincidunt leo imperdiet ante venenatis, et tempus odio eleifend. Vivamus a magna arcu. In nisl ipsum, cursus sit amet posuere eu, bibendum eget mauris. Pellentesque semper semper orci, ut vehicula enim ultrices in. Duis tempor vulputate ante vel viverra. Sed fringilla dolor eget neque interdum, laoreet facilisis massa condimentum. Etiam ultrices sem non nunc gravida aliquet. Nunc eu ligula ut libero pulvinar porttitor a vitae nunc. Maecenas et nulla sem. Fusce ac risus ac justo dictum luctus id eu augue.",
                     PageCount = 1000,
