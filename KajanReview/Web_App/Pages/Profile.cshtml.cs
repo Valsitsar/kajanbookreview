@@ -7,6 +7,7 @@ namespace Web_App.Pages
 {
     public class ProfileModel : PageModel
     {
+        [BindProperty]
         public User CurrentUser { get; set; }
 
         public void OnGet()
@@ -118,7 +119,7 @@ namespace Web_App.Pages
                         Name = "Reading",
                         Books = new List<Book>()
                         {
-                            new Book()
+                            new Book()  
                             {
                                 Title = "The Book of Reading",
                                 Authors = new List<User>()

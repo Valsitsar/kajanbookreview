@@ -33,17 +33,25 @@
 
             <!-- Edit Details Button -->
             <div class="col-12 text-start mt-4">
-                <button type="button" class="btn btn-goldenrod">Edit details</button>
+                <form action="/ProfileEdit">
+                    <input type="submit" class="btn btn-goldenrod" value="Edit details" />
+                </form>
             </div>
             
             <!-- Bookshelves Section -->
             <div class=" mt-2 pt-4 border-top-goldenrod">
                 <h3>Bookshelves</h3>
                 <ul class="list-group border-goldenrod">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <a href="/MyBooks/All" class="text-decoration-none list-group-item-action">All</a>
+                        <span class="badge bg-goldenrod rounded-pill">@Model.CurrentUser.Posts.Count</span>
+                    </li>
                     @foreach (var bookshelf in Model.CurrentUser.Bookshelves)
                     {
+                        // Encode the bookshelf name to be used in the URL (spaces are replaced with %20)
+                        var encodedBookshelfName = System.Uri.EscapeDataString(bookshelf.Name);
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <a href="#" class="text-decoration-none list-group-item-action">@bookshelf.Name</a>
+                            <a href=@($"/Mybooks/{encodedBookshelfName}") class="text-decoration-none list-group-item-action">@bookshelf.Name</a>
                             <span class="badge bg-goldenrod rounded-pill">@bookshelf.Books.Count</span>
                         </li>
                     }
