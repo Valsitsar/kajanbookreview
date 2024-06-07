@@ -42,7 +42,6 @@ footer {
 .book-cover {
     max-width: 100%;
     max-height: auto;
-    margin-bottom: 10px;
 }
 
 .content-wrapper {
@@ -51,7 +50,7 @@ footer {
 }
 
 #welcome-header {
-    margin-top: 100px;
+    margin-top: 48px;
 }
 
 /* #region Goldenrod */
@@ -209,7 +208,16 @@ nav .container .nav-link {
     justify-content: center;
     align-items: center;
     min-height: 72vh;
+}
 
+.profile-edit-wrapper {
+    min-height: 62vh;
+    margin-top: 15vh;
+}
+
+.my-books-wrapper { 
+    min-height: 72vh;
+    margin-top: 5vh;
 }
 
 /*#region CSS Boostrap changes for Book Details */

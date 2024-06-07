@@ -144,4 +144,107 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Check on window resize
     window.addEventListener('resize', checkAndUpdateCollapsible);
+    
+    // Function to validate change password form
+    
+
+    // Add an event listener for the 'submit' event on the change password form
+    document.getElementById('changePasswordForm').addEventListener('submit', (event) => {
+        // Prevent the default form submission
+        event.preventDefault();
+
+        // Create a FormData object from the form
+        const formData = new FormData(event.target);
+
+        // Send a POST request to the server with the form data
+        fetch('/ProfileEdit?handler=ChangePassword', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())  // Parse the JSON response from the server
+        .then(data => {
+            if (data.success) {
+                // If the password change was successful, close the modal and refresh the page
+                $('#changePasswordModal').modal('hide');
+                location.reload();
+            } else {
+                // If there was an error, show the error message in the modal
+                const errorSpan = document.getElementById('changePasswordError');
+                errorSpan.textContent = data.error;
+                errorSpan.classList.remove('d-none');
+            }
+        });
+    });
+
+    // Clear password fields when the modal is closed
+    $('#changePasswordModal').on('hidden.bs.modal', function () {
+        document.getElementById('currentPassword').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
+        document.querySelector('span[asp-validation-for="ChangePasswordError"]').innerText = '';
+    });
 });
+
+(function () {
+    'use strict';
+    var forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+})();
+
+function displayFileNameAndPreview() {
+    const input = document.getElementById('profilePictureInput');
+    const fileName = input.files.length > 0 ? input.files[0].name : 'No file selected.';
+    document.getElementById('fileName').innerText = fileName;
+
+    // Display image preview with enforced 1:1 aspect ratio
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = new Image();
+            img.src = e.target.result;
+
+            img.onload = function () {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const size = Math.min(img.width, img.height);
+
+                canvas.width = size;
+                canvas.height = size;
+
+                ctx.drawImage(img,
+                    (img.width - size) / 2,
+                    (img.height - size) / 2,
+                    size, size,
+                    0, 0, size, size);
+
+                const dataURL = canvas.toDataURL();
+                document.getElementById('profilePicture').src = dataURL;
+            };
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function togglePasswordFields() {
+    const passwordFields = document.getElementById('passwordFields');
+    if (passwordFields.classList.contains('d-none')) {
+        passwordFields.classList.remove('d-none');
+    } else {
+        passwordFields.classList.add('d-none');
+    }
+}
+
+// Show the change password modal if there are validation errors
+const showChangePasswordModal = '@(ViewData["ShowChangePasswordModal"] != null && (bool)ViewData["ShowChangePasswordModal"])';
+if (showChangePasswordModal === 'True') {
+    $('#changePasswordModal').modal('show');
+}
