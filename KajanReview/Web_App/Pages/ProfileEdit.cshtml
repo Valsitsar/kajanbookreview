@@ -1,0 +1,111 @@
+﻿@page
+@model Web_App.Pages.ProfileEditModel
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<div class="container profile-edit-wrapper">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center">Edit Details</h1>
+        </div>
+    </div>
+    <div class="row justify-content-center mt-3">
+        <div class="col-md-3 text-center">
+            <img src="@Url.Content(Model.CurrentUser.ProfilePictureFilePath)" id="profilePicture" class="img-fluid rounded-circle mb-3" alt="Profile Picture">
+            <label class="btn btn-goldenrod">
+                Upload Picture
+                <input type="file" class="d-none" id="profilePictureInput" name="ProfilePictureFile" accept=".jpg,.jpeg,.png,.gif" onchange="displayFileNameAndPreview()">
+            </label>
+            <div id="fileName" class="text-muted fst-italic mt-1">No file selected.</div>
+        </div>
+        <div class="col-md-9">
+            <form method="post" class="needs-validation" novalidate>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="firstName" class="form-label">First Name</label>
+                        <input type="text" class="form-control border-goldenrod" id="firstName" name="CurrentUser.FirstName" value="@Model.CurrentUser.FirstName">
+                        <span asp-validation-for="CurrentUser.FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="middleNames" class="form-label">Middle Names</label>
+                        <input type="text" class="form-control border-goldenrod" id="middleNames" name="CurrentUser.MiddleNames" value="@Model.CurrentUser.MiddleNames">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="lastName" class="form-label">Last Name</label>
+                        <input type="text" class="form-control border-goldenrod" id="lastName" name="CurrentUser.LastName" value="@Model.CurrentUser.LastName">
+                        <span asp-validation-for="CurrentUser.LastName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control border-goldenrod" id="username" name="CurrentUser.Username" value="@Model.CurrentUser.Username" required>
+                        <span asp-validation-for="CurrentUser.Username" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control border-goldenrod" id="email" name="CurrentUser.Email" value="@Model.CurrentUser.Email" required>
+                        <span asp-validation-for="CurrentUser.Email" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="phoneNumber" class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control border-goldenrod" id="phoneNumber" name="CurrentUser.PhoneNumber" value="@Model.CurrentUser.PhoneNumber">
+                    </div>
+                </div>
+                <!-- Change Password Button inside the main form -->
+                <div class="row">
+                    <div class="col-md-12 mb-3 text-center">
+                        <button type="button" class="btn btn-goldenrod" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Change Password</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 d-flex justify-content-center my-3">
+                        <button type="submit" class="btn btn-goldenrod w-25 align-items-center">Save Changes</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal content with form inside -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="changePasswordForm" method="post" asp-page-handler="ChangePassword">
+                    <div class="mb-3">
+                        <label for="currentPassword" class="form-label">Current Password</label>
+                        <input type="password" class="form-control border-goldenrod" id="currentPassword" name="CurrentPassword" required>
+                        <div class="invalid-feedback">Current password is required.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">New Password</label>
+                        <input type="password" class="form-control border-goldenrod" id="newPassword" name="NewPassword" required>
+                        <div class="invalid-feedback">New password is required.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-control border-goldenrod" id="confirmPassword" name="ConfirmPassword" required>
+                        <div class="invalid-feedback">Passwords must match.</div>
+                    </div>
+                    <span id="changePasswordError" asp-validation-for="ChangePasswordError" class="text-danger d-none"></span>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-goldenrod" form="changePasswordForm">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
