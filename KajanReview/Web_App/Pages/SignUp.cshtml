@@ -18,7 +18,7 @@
                         <span class="input-group-text">
                             <i class="bi bi-person"></i>
                         </span>
-                        <input type="text" class="form-control" id="Username" name="Username" placeholder="Username" required />
+                        <input asp-for="Username" type="text" class="form-control" placeholder="Username" required />
                     </div>
 
                     @* Email *@
@@ -26,7 +26,7 @@
                         <span class="input-group-text">
                             <i class="bi bi-envelope"></i>
                         </span>
-                        <input type="email" class="form-control" id="Email" name="Email" placeholder="Email" required />
+                        <input asp-for="Email" type="email" class="form-control" placeholder="Email" required />
                     </div>
 
                     @* Password *@
@@ -34,19 +34,21 @@
                         <span class="input-group-text">
                             <i class="bi bi-lock"></i>
                         </span>
-                        <input type="password" class="form-control" id="Password" name="Password" placeholder="Password" required />
+                        <input asp-for="Password" type="password" class="form-control" placeholder="Password" required />
                     </div>
 
                     @* Confirm password *@
-                    <div class="input-group mb-3 border-goldenrod rounded">
+                    <div class="input-group border-goldenrod rounded">
                         <span class="input-group-text">
                             <i class="bi bi-lock-fill"></i>
                         </span>
-                        <input type="password" class="form-control" id="ConfirmPassword" name="ConfirmPassword" placeholder="Confirm Password" required />
+                        <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Confirm Password" required
+                               data-toggle="tooltip" data-placement="bottom" title="Passwords do not match." />
                     </div>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
 
                     @* Confirm sign in *@
-                    <div class="d-grid gap-2">
+                    <div class="d-grid gap-2 mt-3">
                         <button type="submit" class="btn btn-goldenrod mb-1">Continue</button>
                     </div>
                 </form>

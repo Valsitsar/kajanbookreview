@@ -17,22 +17,22 @@ namespace Web_App.Pages
         [BindProperty]
         public string ConfirmPassword { get; set; }
 
-        private readonly UserManager _userManager;
-        private readonly PasswordHasher _passwordHasher;
+        private UserManager _userManager;
+        private PasswordHasher _passwordHasher;
 
         public SignUpModel(UserManager userManager)
         {
             _userManager = userManager;
+            _passwordHasher = new PasswordHasher();
         }
 
         public IActionResult OnPost()
         {
             if (!ModelState.IsValid) { return Page(); }
 
-            // TODO: Implement sign-up logic here (e.g. add the user to the database)
             if (Password != ConfirmPassword)
             {
-                ModelState.AddModelError(string.Empty, "Passwords do not match.");
+                ModelState.AddModelError("ConfirmPassword", "Passwords do not match.");
                 return Page();
             }
 
@@ -67,9 +67,6 @@ namespace Web_App.Pages
                 ModelState.AddModelError(string.Empty, "Sign-up failed.");
                 return Page();
             }
-
-            // Redirect to the sign-in for now
-            return RedirectToPage("SignIn");
         }
     }
 }

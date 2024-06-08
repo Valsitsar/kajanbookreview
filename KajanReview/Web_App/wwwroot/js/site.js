@@ -248,3 +248,7 @@ const showChangePasswordModal = '@(ViewData["ShowChangePasswordModal"] != null &
 if (showChangePasswordModal === 'True') {
     $('#changePasswordModal').modal('show');
 }
+
+$(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+})
