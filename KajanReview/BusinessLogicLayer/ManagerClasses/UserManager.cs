@@ -12,9 +12,9 @@ namespace BusinessLogicLayer.ManagerClasses
             _userDataAccess = userDataAccess ?? throw new ArgumentNullException(nameof(_userDataAccess));
         }
 
-        public void CreateUser(User newUser)
+        public void CreateUser(User newUser, string hashedPassword, string salt)
         {
-            _userDataAccess.CreateUser(newUser);
+            _userDataAccess.CreateUser(newUser, hashedPassword, salt);
         }
 
         public User GetUserByID(int userID)
@@ -42,6 +42,16 @@ namespace BusinessLogicLayer.ManagerClasses
             // TODO: Implement this method (UserManager.Authenticate)
             //return _userDataAccess.Authenticate(usernameOrEmail, password);
             throw new NotImplementedException();
+        }
+
+        public (string hashedPassword, string salt) GetPasswordAndSaltByUsername(string username)
+        {
+            return _userDataAccess.GetPasswordAndSaltByUsername(username);
+        }
+
+        public void UpdatePasswordAndSaltByUserID(int userID, string hashedPassword, string salt)
+        {
+            _userDataAccess.UpdatePasswordAndSaltByUserID(userID, hashedPassword, salt);
         }
     }
 }

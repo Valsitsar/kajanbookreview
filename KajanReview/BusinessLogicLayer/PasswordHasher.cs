@@ -9,7 +9,7 @@ namespace BusinessLogicLayer
 {
     public class PasswordHasher
     {
-        public (string hashedPassword, string salt) HashPassword(string password, string salt = null)
+        public (string hashedPassword, string salt) HashAndSaltPassword(string password, string salt = null)
         {
             // Generate a random salt if one is not provided
             if (salt == null)
