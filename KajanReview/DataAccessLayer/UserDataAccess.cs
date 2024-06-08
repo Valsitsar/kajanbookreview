@@ -8,13 +8,15 @@ namespace DataAccessLayer
 {
     public class UserDataAccess : DataAccessBase, IUserDataAccess
     {
-        public void CreateUser(User newUser)
+        public void CreateUser(User newUser, string hashedPassword, string salt)
         {
             using (SqlConnection connection = OpenConnection())
             {
                 string sqlQuery = @"
-                    INSERT INTO Users (FirstName, MiddleNames, LastName, Username, Email, PhoneNumber, Password) 
-                    VALUES (@FirstName, @MiddleNames, @LastName, @Username, @Email, @PhoneNumber, @Password); ";
+                    INSERT INTO Users (FirstName, MiddleNames, LastName, Username, Email, 
+                    PhoneNumber, PasswordHash, Salt, ProfilePictureFilePath) 
+                    VALUES (@FirstName, @MiddleNames, @LastName, @Username, @Email, 
+                    @PhoneNumber, @PasswordHash, @Salt, @ProfilePictureFilePath); ";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
@@ -24,7 +26,9 @@ namespace DataAccessLayer
                     command.Parameters.AddWithValue("@Username", newUser.Username);
                     command.Parameters.AddWithValue("@Email", newUser.Email);
                     command.Parameters.AddWithValue("@PhoneNumber", newUser.PhoneNumber);
-                    command.Parameters.AddWithValue("@Password", newUser.Password);
+                    command.Parameters.AddWithValue("@PasswordHash", hashedPassword);
+                    command.Parameters.AddWithValue("@Salt", salt);
+                    command.Parameters.AddWithValue("@ProfilePictureFilePath", newUser.ProfilePictureFilePath);
 
                     try
                     {
@@ -45,7 +49,8 @@ namespace DataAccessLayer
             using (SqlConnection connection = OpenConnection())
             {
                 string sqlQuery = @"
-                    SELECT ID, FirstName, MiddleNames, LastName, Username, Email, PhoneNumber, Password 
+                    SELECT ID, FirstName, MiddleNames, LastName, Username, 
+                    Email, PhoneNumber, ProfilePictureFilePath
                     FROM Users 
                     WHERE ID = @ID; ";
 
@@ -71,7 +76,7 @@ namespace DataAccessLayer
                                 Username = reader.GetString("Username"),
                                 Email = reader.GetString("Email"),
                                 PhoneNumber = reader.GetString("PhoneNumber"),
-                                Password = reader.GetString("Password")
+                                ProfilePictureFilePath = reader.GetString("ProfilePictureFilePath")
                             };
                             return user;
                         }
@@ -91,7 +96,8 @@ namespace DataAccessLayer
             using (SqlConnection connection = OpenConnection())
             {
                 string sqlQuery = @"
-                    SELECT ID, FirstName, MiddleNames, LastName, Username, Email, PhoneNumber, Password 
+                    SELECT ID, FirstName, MiddleNames, LastName, Username, 
+                    Email, PhoneNumber, ProfilePictureFilePath
                     FROM Users; ";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
@@ -116,13 +122,12 @@ namespace DataAccessLayer
                                 Username = reader.GetString("Username"),
                                 Email = reader.GetString("Email"),
                                 PhoneNumber = reader.GetString("PhoneNumber"),
-                                Password = reader.GetString("Password")
+                                ProfilePictureFilePath = reader.GetString("ProfilePictureFilePath")
                             };
                             _users.Add(user);
                         }
 
-                        if (_users.Count > 0) { return _users; }
-                        else { return []; }
+                        return _users;
                     }
                     catch (SqlException ex)
                     {
@@ -140,7 +145,7 @@ namespace DataAccessLayer
                 string sqlQuery = @"
                     UPDATE Users 
                     SET FirstName = @FirstName, MiddleNames = @MiddleNames, LastName = @LastName, 
-                    Username = @Username, Email = @Email, PhoneNumber = @PhoneNumber, Password = @Password) 
+                    Username = @Username, Email = @Email, PhoneNumber = @PhoneNumber) 
                     WHERE ID = @ID; ";
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
@@ -151,7 +156,6 @@ namespace DataAccessLayer
                     command.Parameters.AddWithValue("@Username", user.Username);
                     command.Parameters.AddWithValue("@Email", user.Email);
                     command.Parameters.AddWithValue("@PhoneNumber", user.PhoneNumber);
-                    command.Parameters.AddWithValue("@Password", user.Password);
 
                     try
                     {
@@ -172,6 +176,73 @@ namespace DataAccessLayer
             // I'm not sure if I should allow full deletion of a user;
             // It might be better to keep it archived or something
             throw new NotImplementedException();
+        }
+
+        public (string hashedPassword, string salt) GetPasswordAndSaltByUsername(string username)
+        {
+            using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                    SELECT PasswordHash, Salt 
+                    FROM Users 
+                    WHERE Username = @Username; ";
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@Username", username);
+
+                    try
+                    {
+                        connection.Open();
+                        SqlDataReader reader = command.ExecuteReader();
+
+                        if (reader.Read())
+                        {
+                            string hashedPassword = reader.GetString("PasswordHash");
+                            string salt = reader.GetString("Salt");
+                            return (hashedPassword, salt);
+                        }
+                        else 
+                        { 
+                            // User doesn't exist
+                            return (null, null); 
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+
+                        throw new IOException("Failed to get the User's PasswordHash and Salt.", ex);
+                    }
+                }
+            }
+        }
+
+        public void UpdatePasswordAndSaltByUserID(int userID, string hashedPassword, string salt)
+        {
+            using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                    UPDATE Users 
+                    SET PasswordHash = @PasswordHash, Salt = @Salt 
+                    WHERE ID = @ID; ";
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@Username", userID);
+                    command.Parameters.AddWithValue("@PasswordHash", hashedPassword);
+                    command.Parameters.AddWithValue("@Salt", salt);
+
+                    try
+                    {
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                    catch (SqlException ex)
+                    {
+
+                        throw new IOException("Failed to update the User's PasswordHash and Salt.", ex);
+                    }
+                }
+            }
         }
     }
 }
