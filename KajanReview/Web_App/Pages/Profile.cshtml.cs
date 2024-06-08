@@ -102,7 +102,7 @@ namespace Web_App.Pages
                 Username = "johndoe",
                 Email = "john.doe@gmail.com",
                 PhoneNumber = "123-456-7890",
-                Password = "password123",
+                //Password = "password123",
                 Bookshelves = new List<Bookshelf>
                 {
                     new Bookshelf()
