@@ -20,15 +20,15 @@ namespace DataAccessLayer
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
-                    command.Parameters.AddWithValue("@FirstName", newUser.FirstName);
-                    command.Parameters.AddWithValue("@MiddleNames", newUser.MiddleNames);
-                    command.Parameters.AddWithValue("@LastName", newUser.LastName);
+                    command.Parameters.AddWithValue("@FirstName", newUser.FirstName ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@MiddleNames", newUser.MiddleNames ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@LastName", newUser.LastName ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@Username", newUser.Username);
                     command.Parameters.AddWithValue("@Email", newUser.Email);
-                    command.Parameters.AddWithValue("@PhoneNumber", newUser.PhoneNumber);
+                    command.Parameters.AddWithValue("@PhoneNumber", newUser.PhoneNumber ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@PasswordHash", hashedPassword);
                     command.Parameters.AddWithValue("@Salt", salt);
-                    command.Parameters.AddWithValue("@ProfilePictureFilePath", newUser.ProfilePictureFilePath);
+                    command.Parameters.AddWithValue("@ProfilePictureFilePath", newUser.ProfilePictureFilePath ?? (object)DBNull.Value);
 
                     try
                     {
