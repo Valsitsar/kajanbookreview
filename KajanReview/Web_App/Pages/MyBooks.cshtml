@@ -1,0 +1,122 @@
+﻿@page "{shelf?}/{pageNumber:int?}"
+@model MyBooksModel
+@{
+    ViewData["Title"] = "My Books";
+    string selectedShelf = Model.SelectedShelf ?? "All";
+    int currentPage = Model.CurrentPage;
+    int totalPages = Model.TotalPages;
+}
+
+<div class="container my-books-wrapper">
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-10">
+            <h1 class="text-center mb-5">My Books</h1>
+        </div>
+        <!-- Sidebar for bookshelves -->
+        <div class="col-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <strong>My Bookshelves</strong>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="@Url.Page("MyBooks", new { shelf = "All" })" class="list-group-item list-group-item-action @((selectedShelf == "All") ? "active" : "")">
+                        All
+                        <span class="badge bg-secondary">@Model.Bookshelves.Sum(shelf => shelf.Books.Count)</span>
+                    </a>
+                    @foreach (var shelf in Model.Bookshelves)
+                    {
+                        <a href="@Url.Page("MyBooks", new { shelf = shelf.Name })" class="list-group-item list-group-item-action @((shelf.Name == selectedShelf) ? "active" : "")">
+                            @shelf.Name
+                            <span class="badge bg-secondary">@shelf.Books.Count</span>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content for book info -->
+        <div class="col-md-10">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Cover</th>
+                            <th scope="col">Title</th>
+                            <th scope="col">Author</th>
+                            <th scope="col">Avg Rating</th>
+                            <th scope="col">Shelves</th>
+                            <th scope="col">Date Added</th>
+                        </tr>
+                    </thead>
+                    <tbody style="vertical-align: middle;">
+                        @foreach (var book in Model.PagedBooks)
+                        {
+                            <tr>
+                                <td style="width:40px" class="p-1">
+                                    <img src="@Url.Content(book.CoverFilePath)" alt="Book cover" class="book-cover">
+                                </td>
+                                <td>@book.Title</td>
+                                <td>@string.Join(", ", book.Authors.Select(a => $"{a.FirstName} {a.MiddleNames} {a.LastName}"))</td>
+                                <td>
+                                    <!-- Example average rating and star icons -->
+                                    4.30
+                                    <span class="text-warning">
+                                        <i class="bi bi-star-fill"></i>
+                                        <i class="bi bi-star-fill"></i>
+                                        <i class="bi bi-star-fill"></i>
+                                        <i class="bi bi-star-fill"></i>
+                                        <i class="bi bi-star-half"></i>
+                                    </span>
+                                </td>
+                                <td>
+                                    @string.Join(", ", Model.Bookshelves.Where(shelf => shelf.Books.Contains(book)).Select(shelf => shelf.Name))
+                                </td>
+                                <td>@book.PubDate.ToString("MMMM dd, yyyy")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <!-- Error Message -->
+            @if (!Model.HasBooks)
+            {
+                <div class="alert alert-info text-center" role="alert">
+                    No books available in this shelf. Please select a different shelf or add more books.
+                </div>
+            }
+            <!-- Pagination Controls -->
+            @if (totalPages > 1)
+            {
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Page("MyBooks", new { shelf = selectedShelf, pageNumber = currentPage - 1 })">Previous</a>
+                        </li>
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            <li class="page-item @(currentPage == i ? "active" : "")">
+                                <a class="page-link" href="@Url.Page("MyBooks", new { shelf = selectedShelf, pageNumber = i })">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Page("MyBooks", new { shelf = selectedShelf, pageNumber = currentPage + 1 })">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $(".bookshelf-link").click(function (e) {
+                var shelfName = $(this).data("shelf");
+                $('#bookList').load('/MyBooks/LoadBooks?shelf=' + shelfName)
+                console.log(shelfName);
+            });
+        });
+    </script>
+}
