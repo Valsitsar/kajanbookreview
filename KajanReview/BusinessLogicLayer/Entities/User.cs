@@ -6,7 +6,7 @@ namespace BusinessLogicLayer.Entities
     public class User
     {
         public int ID { get; set; }
-        public string? ProfilePicturePath { get; set; }
+        public string? ProfilePictureFilePath { get; set; }
 
         [Required]
         public string FirstName { get; set; } = string.Empty;
@@ -17,10 +17,6 @@ namespace BusinessLogicLayer.Entities
 
         [Required]
         public string Username { get; set; } = string.Empty;
-
-        [Required]
-        [DataType(DataType.Password)]
-        public string Password { get; set; } = string.Empty;
 
         [Required]
         [EmailAddress]
