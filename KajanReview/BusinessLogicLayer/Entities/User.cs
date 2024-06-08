@@ -11,21 +11,6 @@ namespace BusinessLogicLayer.Entities
         public string? MiddleNames { get; set; }
         public string? LastName { get; set; }
         public string Username { get; set; } = string.Empty;
-
-        [Required]
-        [DataType(DataType.Password)]
-        public string Password { get; set; } = string.Empty;
-
-        [Required]
-        [EmailAddress]
-        public string Password { get; set; } = string.Empty;
-        public string? PhoneNumber { get; set; }
-        [Required]
-        [EmailAddress]
-        
-
-        [Required]
-        [EmailAddress]
         public string Email { get; set; } = string.Empty;
         public string? PhoneNumber { get; set; }
         public List<Bookshelf> Bookshelves { get; set; } = new List<Bookshelf>();
