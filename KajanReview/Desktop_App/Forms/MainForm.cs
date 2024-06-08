@@ -1,4 +1,4 @@
-using BusinessLogicLayer.EntityManagers;
+using BusinessLogicLayer.ManagerClasses;
 using BusinessLogicLayer.Interfaces;
 using DataAccessLayer;
 using Desktop_App.Forms;

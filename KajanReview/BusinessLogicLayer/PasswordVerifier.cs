@@ -17,7 +17,7 @@ namespace BusinessLogicLayer
 
         public bool VerifyPassword(string inputPassword, string storedHash, string storedSalt)
         {
-            var (hashedInputPassword, _) = _passwordHasher.HashPassword(inputPassword, storedSalt);
+            var (hashedInputPassword, _) = _passwordHasher.HashAndSaltPassword(inputPassword, storedSalt);
             return hashedInputPassword == storedHash;
         }
     }

@@ -233,9 +233,9 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between mb-2">
                                 <div class="d-flex align-items-center">
-                                    @if (review.Poster.ProfilePicturePath != string.Empty)
+                                    @if (review.Poster.ProfilePictureFilePath != string.Empty)
                                     {
-                                        <img src="@review.Poster.ProfilePicturePath" alt="@review.Poster.Username profile picture" class="rounded-circle me-2" style="width: 50px; height: 50px;">
+                                        <img src="@review.Poster.ProfilePictureFilePath" alt="@review.Poster.Username profile picture" class="rounded-circle me-2" style="width: 50px; height: 50px;">
                                     }
                                     else
                                     {
