@@ -1,9 +1,12 @@
 using BusinessLogicLayer.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Web_App.Pages
 {
+    [Authorize(Roles = "User, Author")]
+    // TODO: For the Author role, add a new "Bookshelf" with the books they've written
     public class MyBooksModel : PageModel
     {
         public List<Bookshelf> Bookshelves { get; set; } = new List<Bookshelf>();
