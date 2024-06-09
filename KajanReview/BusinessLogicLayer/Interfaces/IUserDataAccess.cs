@@ -1,15 +1,19 @@
-﻿using BusinessLogicLayer.Entities;
+﻿using BusinessLogicLayer.DTOs;
+using BusinessLogicLayer.Entities;
 
 namespace BusinessLogicLayer.Interfaces
 {
     public interface IUserDataAccess
     {
         public void CreateUser(User newUser, string hashedPassword, string salt);
-        public User GetUserByID(int userID);
-        public List<User> GetAllUsers();
-        public void UpdateUser(User newUser);
+        public Task<UserDTO> GetUserByIDAsync(int userID);
+        public User GetUserByUsernameForLogin(string username);
+        public User GetUserByEmailForLogin(string email);
+        public List<UserDTO> GetAllUsers();
+        public (string? hashedPassword, string? salt) GetPasswordHashAndSaltByUsername(string username);
+        public Task<(string? hashedPassword, string? salt)> GetPasswordHashAndSaltByUserIDAsync(int userID);
+        public void UpdatePasswordHashAndSaltByUserID(int userID, string hashedPassword, string salt);
+        public Task UpdateUserAsync(UserDTO newUserDTO);
         public void DeleteUserByID(int userID);
-        public (string hashedPassword, string salt) GetPasswordAndSaltByUsername(string username);
-        public void UpdatePasswordAndSaltByUserID(int userID, string hashedPassword, string salt);
     }
 }

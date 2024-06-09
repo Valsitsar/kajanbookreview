@@ -1,4 +1,5 @@
-﻿using BusinessLogicLayer.Entities;
+﻿using BusinessLogicLayer.DTOs;
+using BusinessLogicLayer.Entities;
 using BusinessLogicLayer.Interfaces;
 
 namespace BusinessLogicLayer.ManagerClasses
@@ -6,10 +7,14 @@ namespace BusinessLogicLayer.ManagerClasses
     public class UserManager : IUserManager
     {
         private readonly IUserDataAccess _userDataAccess;
+        private readonly PasswordHasher _passwordHasher;
+        private readonly PasswordAuthenticator _passwordAuthenticator;
 
         public UserManager(IUserDataAccess userDataAccess)
         {
             _userDataAccess = userDataAccess ?? throw new ArgumentNullException(nameof(_userDataAccess));
+            _passwordHasher = new PasswordHasher();
+            _passwordAuthenticator = new PasswordAuthenticator(_passwordHasher);
         }
 
         public void CreateUser(User newUser, string hashedPassword, string salt)
@@ -17,19 +22,29 @@ namespace BusinessLogicLayer.ManagerClasses
             _userDataAccess.CreateUser(newUser, hashedPassword, salt);
         }
 
-        public User GetUserByID(int userID)
+        public async Task<UserDTO> GetUserByIDAsync(int userID)
         {
-            return _userDataAccess.GetUserByID(userID);
+            return await _userDataAccess.GetUserByIDAsync(userID);
         }
 
-        public List<User> GetAllUsers()
+        public User GetUserByUsernameForLogin(string username)
+        {
+            return _userDataAccess.GetUserByUsernameForLogin(username);
+        }
+
+        public User GetUserByEmailForLogin(string email)
+        {
+            return _userDataAccess.GetUserByEmailForLogin(email);
+        }
+
+        public List<UserDTO> GetAllUsers()
         {
             return _userDataAccess.GetAllUsers();
         }
 
-        public void UpdateUser(User user)
+        public async Task UpdateUserAsync(UserDTO userDTO)
         {
-            _userDataAccess.UpdateUser(user);
+            await _userDataAccess.UpdateUserAsync(userDTO);
         }
 
         public void DeleteUserByID(int userID)
@@ -37,21 +52,41 @@ namespace BusinessLogicLayer.ManagerClasses
             _userDataAccess.DeleteUserByID(userID);
         }
 
-        public User? Authenticate(string usernameOrEmail, string password)
+        public (string? hashedPassword, string? salt) GetPasswordHashAndSaltByUsername(string username)
         {
-            // TODO: Implement this method (UserManager.Authenticate)
-            //return _userDataAccess.Authenticate(usernameOrEmail, password);
-            throw new NotImplementedException();
+            return _userDataAccess.GetPasswordHashAndSaltByUsername(username);
+        }
+        public async Task<(string? hashedPassword, string? salt)> GetPasswordHashAndSaltByUserIDAsync(int userID)
+        {
+            return await _userDataAccess.GetPasswordHashAndSaltByUserIDAsync(userID);
         }
 
-        public (string hashedPassword, string salt) GetPasswordAndSaltByUsername(string username)
+        public void UpdatePasswordHashAndSaltByUserID(int userID, string hashedPassword, string salt)
         {
-            return _userDataAccess.GetPasswordAndSaltByUsername(username);
+            _userDataAccess.UpdatePasswordHashAndSaltByUserID(userID, hashedPassword, salt);
         }
 
-        public void UpdatePasswordAndSaltByUserID(int userID, string hashedPassword, string salt)
+        public async Task<bool> TryPasswordChangeAsync(int userID, string currentPassword, string newPassword)
         {
-            _userDataAccess.UpdatePasswordAndSaltByUserID(userID, hashedPassword, salt);
+            (string? hashedPassword, string? salt) = await GetPasswordHashAndSaltByUserIDAsync(userID);
+
+            if (hashedPassword == null || salt == null)
+            {
+                return false;
+            }
+
+            bool passwordIsValid = _passwordAuthenticator.IsPasswordHashValid(currentPassword, hashedPassword, salt);
+
+            if (!passwordIsValid)
+            {
+                return false;
+            }
+
+            (string newHashedPassword, string newSalt) = _passwordHasher.HashAndSaltPassword(newPassword);
+
+            UpdatePasswordHashAndSaltByUserID(userID, newHashedPassword, newSalt);
+
+            return true;
         }
     }
 }

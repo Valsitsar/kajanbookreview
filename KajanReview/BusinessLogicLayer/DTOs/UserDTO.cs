@@ -12,7 +12,7 @@ namespace BusinessLogicLayer.DTOs
     public class UserDTO
     {
         public int ID { get; set; }
-        public string? ProfilePictureFilePath { get; set; } = "~/img/default-profile-picture.png";
+        public string? ProfilePictureFilePath { get; set; }
 
         public string? FirstName { get; set; }
         public string? MiddleNames { get; set; }
@@ -20,15 +20,12 @@ namespace BusinessLogicLayer.DTOs
         public string? LastName { get; set; }
 
         [Required(ErrorMessage = "CurrentUsername is required.")]
-        public string Username { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Password is required.")]
-        [DataType(DataType.Password)]
-        public string Password { get; set; } = string.Empty;
+        public string Username { get; set; }
 
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "Invalid email address.")]
-        public string Email { get; set; } = string.Empty;
+        public string Email { get; set; }
         public string? PhoneNumber { get; set; }
+        public Role Role { get; set; } = new Role();
     }
 }

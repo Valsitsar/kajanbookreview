@@ -6,9 +6,14 @@ using BusinessLogicLayer.DTOs;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using BusinessLogicLayer.ManagerClasses;
+using System.Security.Claims;
 
 namespace Web_App.Pages
 {
+    [Authorize(Roles = "Reader, Author")]
     public class ProfileEditModel : PageModel
     {
         [BindProperty]
@@ -17,57 +22,60 @@ namespace Web_App.Pages
         [BindNever]
         public string CurrentPassword { get; set; }
 
-        [BindProperty]
+        [BindNever]
         public string NewPassword { get; set; }
 
-        [BindProperty]
+        [BindNever]
         public string ConfirmPassword { get; set; }
 
-        [BindProperty]
+        [BindNever]
         public IFormFile ProfilePictureFile { get; set; }
 
         public string ChangePasswordError { get; set; }
 
-        public void OnGet()
+
+
+        private readonly UserManager _userManager;
+        private readonly IWebHostEnvironment _environment;
+
+
+
+        public ProfileEditModel(UserManager userManager, IWebHostEnvironment environment)
         {
-            //// Retrieve the CurrentUser object from session state
-            //CurrentUser = HttpContext.Session.Get<UserDTO>("CurrentUser");
+            _userManager = userManager;
+            _environment = environment;
+        }
 
-            if (CurrentUser == null)
-            {
-                CurrentUser = new UserDTO()
-                {
-                    ProfilePictureFilePath = "~/img/default-profile-picture.png",
-                    FirstName = "John",
-                    MiddleNames = "Jacob",
-                    LastName = "Doe",
-                    Username = "johndoe",
-                    Email = "john.doe@gmail.com",
-                    PhoneNumber = "123-456-7890",
-                    Password = "password123",
-                };
 
-                //// Store the CurrentUser object in session state
-                //HttpContext.Session.Set("CurrentUser", CurrentUser);
-            }
+        public async Task OnGetAsync()
+        {
+            CurrentUser = await GetCurrentUserAsync();
 
-            NewPassword = string.Empty;
-            ConfirmPassword = string.Empty;
+
+
+            //NewPassword = string.Empty;
+            //ConfirmPassword = string.Empty;
         }
 
         // Async because it involves a file upload operation
         // Avoids blocking the server thread while waiting for the file to upload
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+            ModelState.ClearValidationState(nameof(CurrentPassword));
+            ModelState.ClearValidationState(nameof(NewPassword));
+            ModelState.ClearValidationState(nameof(ConfirmPassword));
+
+
+            if (!TryValidateModel(CurrentUser, nameof(CurrentUser)))
             {
                 return Page();
             }
 
+
             // Handle file upload
             if (ProfilePictureFile != null)
             {
-                var filePath = Path.Combine("~/img", ProfilePictureFile.FileName);
+                var filePath = Path.Combine(_environment.WebRootPath, $"img/profile-picture-{CurrentUser.Username}");
 
                 // Ensure the directory exists
                 Directory.CreateDirectory(Path.GetDirectoryName(filePath));
@@ -79,16 +87,27 @@ namespace Web_App.Pages
                 }
 
                 // Update the user's profile picture file path
-                CurrentUser.ProfilePictureFilePath = $"~/img/{ProfilePictureFile.FileName}";
+                CurrentUser.ProfilePictureFilePath = $"/img/profile-picture-{CurrentUser.Username}";
             }
 
-            // Save the user data to the DB here
-            // For demo purposes, we'll just display the same page
+            // Get the DB User object
+            var user = await _userManager.GetUserByIDAsync(CurrentUser.ID);
+
+            // Update the user's properties
+            user.FirstName = CurrentUser.FirstName;
+            user.MiddleNames = CurrentUser.MiddleNames;
+            user.LastName = CurrentUser.LastName;
+            user.Email = CurrentUser.Email;
+            user.PhoneNumber = CurrentUser.PhoneNumber;
+            user.ProfilePictureFilePath = CurrentUser.ProfilePictureFilePath;
+
+            // Save changes to the database
+            await _userManager.UpdateUserAsync(user);
 
             return RedirectToPage("./ProfileEdit");
         }
 
-        public IActionResult OnPostChangePassword()
+        public async IActionResult OnPostChangePassword()
         {
             // Clear validation state for properties not involved in this form submission
             ModelState.ClearValidationState(nameof(CurrentUser));
@@ -101,7 +120,8 @@ namespace Web_App.Pages
             }
 
             // Update the user's password
-            CurrentUser.Password = NewPassword;
+            var user = await _userManager.GetUserByIDAsync(CurrentUser.ID);
+            user
 
 
 
@@ -136,6 +156,24 @@ namespace Web_App.Pages
 
             error = null;
             return true;
+        }
+
+        private async Task<UserDTO> GetCurrentUserAsync()
+        {
+            var userID = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userManager.GetUserByIDAsync(int.Parse(userID));
+
+            return new UserDTO()
+            {
+                ID = user.ID,
+                ProfilePictureFilePath = user.ProfilePictureFilePath != null ? user.ProfilePictureFilePath : "/img/default-profile-picture.png",
+                FirstName = user.FirstName,
+                MiddleNames = user.MiddleNames,
+                LastName = user.LastName,
+                Username = user.Username,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+            };
         }
     }
 }

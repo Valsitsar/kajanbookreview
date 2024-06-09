@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace BusinessLogicLayer
 {
-    public class PasswordVerifier
+    public class PasswordAuthenticator
     {
         private PasswordHasher _passwordHasher;
 
-        public PasswordVerifier(PasswordHasher passwordHasher)
+        public PasswordAuthenticator(PasswordHasher passwordHasher)
         {
             _passwordHasher = passwordHasher;
         }
 
-        public bool VerifyPassword(string inputPassword, string storedHash, string storedSalt)
+        public bool IsPasswordHashValid(string inputPassword, string storedHash, string storedSalt)
         {
             var (hashedInputPassword, _) = _passwordHasher.HashAndSaltPassword(inputPassword, storedSalt);
             return hashedInputPassword == storedHash;

@@ -1,4 +1,5 @@
-﻿using BusinessLogicLayer.Entities;
+﻿using BusinessLogicLayer.DTOs;
+using BusinessLogicLayer.Entities;
 using BusinessLogicLayer.Interfaces;
 using System.Data;
 using System.Data.SqlClient;
@@ -14,9 +15,9 @@ namespace DataAccessLayer
             {
                 string sqlQuery = @"
                     INSERT INTO Users (FirstName, MiddleNames, LastName, Username, Email, 
-                    PhoneNumber, PasswordHash, Salt, ProfilePictureFilePath) 
+                    PhoneNumber, PasswordHash, Salt, ProfilePictureFilePath, Role) 
                     VALUES (@FirstName, @MiddleNames, @LastName, @Username, @Email, 
-                    @PhoneNumber, @PasswordHash, @Salt, @ProfilePictureFilePath); ";
+                    @PhoneNumber, @PasswordHash, @Salt, @ProfilePictureFilePath, @Role); ";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
@@ -29,6 +30,7 @@ namespace DataAccessLayer
                     command.Parameters.AddWithValue("@PasswordHash", hashedPassword);
                     command.Parameters.AddWithValue("@Salt", salt);
                     command.Parameters.AddWithValue("@ProfilePictureFilePath", newUser.ProfilePictureFilePath ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@Role", newUser.Role.Name);
 
                     try
                     {
@@ -44,19 +46,65 @@ namespace DataAccessLayer
             }
         }
 
-        public User GetUserByID(int userID)
+        public async Task<UserDTO> GetUserByIDAsync(int userID)
         {
             using (SqlConnection connection = OpenConnection())
             {
                 string sqlQuery = @"
-                    SELECT ID, FirstName, MiddleNames, LastName, Username, 
-                    Email, PhoneNumber, ProfilePictureFilePath
+                    SELECT Users.ID AS UserID, FirstName, MiddleNames, LastName, Username, 
+                    Email, PhoneNumber, ProfilePictureFilePath, Roles.Name AS Role
                     FROM Users 
-                    WHERE ID = @ID; ";
+                    JOIN Roles ON Users.Role = Roles.ID
+                    WHERE Users.ID = @ID; ";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
                     command.Parameters.AddWithValue("@ID", userID);
+
+                    try
+                    {
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                UserDTO userDTO = new UserDTO()
+                                {
+                                    FirstName = reader.IsDBNull(reader.GetOrdinal("FirstName")) ? null : reader.GetString("FirstName"),
+                                    MiddleNames = reader.IsDBNull(reader.GetOrdinal("MiddleNames")) ? null : reader.GetString("MiddleNames"),
+                                    LastName = reader.IsDBNull(reader.GetOrdinal("LastName")) ? null : reader.GetString("LastName"),
+                                    Username = reader.GetString("Username"),
+                                    Email = reader.GetString("Email"),
+                                    PhoneNumber = reader.IsDBNull(reader.GetOrdinal("PhoneNumber")) ? null : reader.GetString("PhoneNumber"),
+                                    ProfilePictureFilePath = reader.IsDBNull(reader.GetOrdinal("ProfilePictureFilePath")) ? null : reader.GetString("ProfilePictureFilePath"),
+                                    Role = new Role() { Name = reader.GetString("Role") }
+                                };
+                                return userDTO;
+                            }
+                            else { return new UserDTO(); }
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        throw new IOException("Failed to get the User.", ex);
+                    }
+                }
+            }
+        }
+
+        public User GetUserByUsernameForLogin(string username)
+        {
+            using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                    SELECT Users.ID, Username, PasswordHash, PasswordSalt, Roles.Name AS Role
+                    FROM Users 
+                    JOIN Roles ON Users.Role = Roles.ID
+                    WHERE Username = @Username; ";
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@Username", username);
 
                     try
                     {
@@ -65,18 +113,13 @@ namespace DataAccessLayer
 
                         if (reader.Read())
                         {
-                            string middleNames = !reader.IsDBNull("MiddleNames") ? reader.GetString("MiddleNames") : "";
-
                             User user = new User()
                             {
                                 ID = reader.GetInt32("ID"),
-                                FirstName = reader.GetString("FirstName"),
-                                MiddleNames = middleNames,
-                                LastName = reader.GetString("LastName"),
                                 Username = reader.GetString("Username"),
-                                Email = reader.GetString("Email"),
-                                PhoneNumber = reader.GetString("PhoneNumber"),
-                                ProfilePictureFilePath = reader.GetString("ProfilePictureFilePath")
+                                PasswordHash = reader.GetString("PasswordHash"),
+                                PasswordSalt = reader.GetString("PasswordSalt"),
+                                Role = new Role() { Name = reader.GetString("Role") }
                             };
                             return user;
                         }
@@ -91,20 +134,63 @@ namespace DataAccessLayer
             }
         }
 
-        public List<User> GetAllUsers()
+        public User GetUserByEmailForLogin(string email)
         {
             using (SqlConnection connection = OpenConnection())
             {
                 string sqlQuery = @"
-                    SELECT ID, FirstName, MiddleNames, LastName, Username, 
-                    Email, PhoneNumber, ProfilePictureFilePath
-                    FROM Users; ";
+                    SELECT Users.ID, Email, PasswordHash, PasswordSalt, Roles.Name AS Role
+                    FROM Users 
+                    JOIN Roles ON Users.Role = Roles.ID
+                    WHERE Email = @Email; ";
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@Email", email);
+
+                    try
+                    {
+                        connection.Open();
+                        SqlDataReader reader = command.ExecuteReader();
+
+                        if (reader.Read())
+                        {
+                            User user = new User()
+                            {
+                                ID = reader.GetInt32("ID"),
+                                Email = reader.GetString("Email"),
+                                PasswordHash = reader.GetString("PasswordHash"),
+                                PasswordSalt = reader.GetString("PasswordSalt"),
+                                Role = new Role() { Name = reader.GetString("Role") }
+                            };
+                            return user;
+                        }
+                        else { return new User(); }
+                    }
+                    catch (SqlException ex)
+                    {
+
+                        throw new IOException("Failed to get the User.", ex);
+                    }
+                }
+            }
+        }
+
+        public List<UserDTO> GetAllUsers()
+        {
+            using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                    SELECT Users.ID, FirstName, MiddleNames, LastName, Username, 
+                    Email, PhoneNumber, ProfilePictureFilePath, Roles.Name AS Role
+                    FROM Users
+                    JOIN Roles ON Users.Role = Roles.ID; ";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
                     try
                     {
-                        List<User> _users = [];
+                        List<UserDTO> _userDTOs = [];
 
                         connection.Open();
                         SqlDataReader reader = command.ExecuteReader();
@@ -113,7 +199,7 @@ namespace DataAccessLayer
                         {
                             string middleNames = !reader.IsDBNull("MiddleNames") ? reader.GetString("MiddleNames") : "";
 
-                            User user = new User()
+                            UserDTO userDTO = new UserDTO()
                             {
                                 ID = reader.GetInt32("ID"),
                                 FirstName = reader.GetString("FirstName"),
@@ -122,12 +208,13 @@ namespace DataAccessLayer
                                 Username = reader.GetString("Username"),
                                 Email = reader.GetString("Email"),
                                 PhoneNumber = reader.GetString("PhoneNumber"),
-                                ProfilePictureFilePath = reader.GetString("ProfilePictureFilePath")
+                                ProfilePictureFilePath = reader.GetString("ProfilePictureFilePath"),
+                                Role = new Role() { Name = reader.GetString("Role") }
                             };
-                            _users.Add(user);
+                            _userDTOs.Add(userDTO);
                         }
 
-                        return _users;
+                        return _userDTOs;
                     }
                     catch (SqlException ex)
                     {
@@ -138,47 +225,7 @@ namespace DataAccessLayer
             }
         }
 
-        public void UpdateUser(User user)
-        {
-            using (SqlConnection connection = OpenConnection())
-            {
-                string sqlQuery = @"
-                    UPDATE Users 
-                    SET FirstName = @FirstName, MiddleNames = @MiddleNames, LastName = @LastName, 
-                    Username = @Username, Email = @Email, PhoneNumber = @PhoneNumber) 
-                    WHERE ID = @ID; ";
-                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
-                {
-                    command.Parameters.AddWithValue("@ID", user.ID);
-                    command.Parameters.AddWithValue("@FirstName", user.FirstName);
-                    command.Parameters.AddWithValue("@MiddleNames", user.MiddleNames);
-                    command.Parameters.AddWithValue("@LastName", user.LastName);
-                    command.Parameters.AddWithValue("@Username", user.Username);
-                    command.Parameters.AddWithValue("@Email", user.Email);
-                    command.Parameters.AddWithValue("@PhoneNumber", user.PhoneNumber);
-
-                    try
-                    {
-                        connection.Open();
-                        command.ExecuteNonQuery();
-                    }
-                    catch (SqlException ex)
-                    {
-
-                        throw new IOException("Failed to update the User.", ex);
-                    }
-                }
-            }
-        }
-
-        public void DeleteUserByID(int userID)
-        {
-            // I'm not sure if I should allow full deletion of a user;
-            // It might be better to keep it archived or something
-            throw new NotImplementedException();
-        }
-
-        public (string hashedPassword, string salt) GetPasswordAndSaltByUsername(string username)
+        public (string? hashedPassword, string? salt) GetPasswordHashAndSaltByUsername(string username)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -202,10 +249,10 @@ namespace DataAccessLayer
                             string salt = reader.GetString("Salt");
                             return (hashedPassword, salt);
                         }
-                        else 
-                        { 
+                        else
+                        {
                             // User doesn't exist
-                            return (null, null); 
+                            return (null, null);
                         }
                     }
                     catch (SqlException ex)
@@ -217,7 +264,47 @@ namespace DataAccessLayer
             }
         }
 
-        public void UpdatePasswordAndSaltByUserID(int userID, string hashedPassword, string salt)
+        public async Task<(string? hashedPassword, string? salt)> GetPasswordHashAndSaltByUserIDAsync(int userID)
+        {
+            using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                    SELECT PasswordHash, Salt 
+                    FROM Users 
+                    WHERE ID = @ID; ";
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@ID", userID);
+
+                    try
+                    {
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                string hashedPassword = reader.GetString("PasswordHash");
+                                string salt = reader.GetString("Salt");
+                                return (hashedPassword, salt);
+                            }
+                            else
+                            {
+                                // User doesn't exist
+                                return (null, null);
+                            }
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+
+                        throw new IOException("Failed to get the User's PasswordHash and Salt.", ex);
+                    }
+                }
+            }
+        }
+
+        public void UpdatePasswordHashAndSaltByUserID(int userID, string hashedPassword, string salt)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -243,6 +330,49 @@ namespace DataAccessLayer
                     }
                 }
             }
+        }
+
+        public async Task UpdateUserAsync(UserDTO userDTO)
+        {
+            using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                    UPDATE Users 
+                    SET FirstName = @FirstName, MiddleNames = @MiddleNames, LastName = @LastName, 
+                    Username = @Username, Email = @Email, PhoneNumber = @PhoneNumber, 
+                    ProfilePictureFilePath = @ProfilePictureFilePath, Role = @Role) 
+                    WHERE ID = @ID; ";
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@ID", userDTO.ID);
+                    command.Parameters.AddWithValue("@FirstName", userDTO.FirstName);
+                    command.Parameters.AddWithValue("@MiddleNames", userDTO.MiddleNames);
+                    command.Parameters.AddWithValue("@LastName", userDTO.LastName);
+                    command.Parameters.AddWithValue("@Username", userDTO.Username);
+                    command.Parameters.AddWithValue("@Email", userDTO.Email);
+                    command.Parameters.AddWithValue("@PhoneNumber", userDTO.PhoneNumber);
+                    command.Parameters.AddWithValue("@ProfilePictureFilePath", userDTO.ProfilePictureFilePath);
+                    command.Parameters.AddWithValue("@Role", userDTO.Role.ID);
+
+                    try
+                    {
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                    catch (SqlException ex)
+                    {
+
+                        throw new IOException("Failed to update the User.", ex);
+                    }
+                }
+            }
+        }
+
+        public void DeleteUserByID(int userID)
+        {
+            // I'm not sure if I should allow full deletion of a user;
+            // It might be better to keep it archived or something
+            throw new NotImplementedException();
         }
     }
 }
