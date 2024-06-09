@@ -12,29 +12,29 @@ namespace BusinessLogicLayer.ManagerClasses
             _bookshelfDataAccess = bookshelfDataAccess ?? throw new ArgumentNullException(nameof(_bookshelfDataAccess));
         }
 
-        public void CreateBookshelf(Bookshelf newBookshelf)
+        public async Task CreateBookshelfAsync(Bookshelf newBookshelf)
         {
-            _bookshelfDataAccess.CreateBookshelf(newBookshelf);
+            await _bookshelfDataAccess.CreateBookshelfAsync(newBookshelf);
         }
 
-        public Bookshelf GetBookshelfByID(int bookshelfID)
+        public async Task<Bookshelf> GetBookshelfByIDAsync(int bookshelfID)
         {
-            return _bookshelfDataAccess.GetBookshelfByID(bookshelfID);
+            return await _bookshelfDataAccess.GetBookshelfByIDAsync(bookshelfID);
         }
 
-        public List<Bookshelf> GetAllBookshelvesForUser(int userID)
+        public async Task<List<Bookshelf>> GetAllBookshelvesForUserAsync(int userID)
         {
-            return _bookshelfDataAccess.GetAllBookshelvesForUser(userID);
+            return await _bookshelfDataAccess.GetAllBookshelvesForUserAsync(userID);
         }
 
-        public void UpdateBookshelf(Bookshelf bookshelf)
+        public async Task UpdateBookshelfAsync(Bookshelf bookshelf)
         {
-            _bookshelfDataAccess.UpdateBookshelf(bookshelf);
+            await _bookshelfDataAccess.UpdateBookshelfAsync(bookshelf);
         }
 
-        public void DeleteBookshelfByID(int bookshelfID)
+        public async Task DeleteBookshelfByIDAsync(int bookshelfID)
         {
-            _bookshelfDataAccess.DeleteBookshelfByID(bookshelfID);
+            await _bookshelfDataAccess.DeleteBookshelfByIDAsync(bookshelfID);
         }
     }
 }

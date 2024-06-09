@@ -4,10 +4,10 @@ namespace BusinessLogicLayer.Interfaces
 {
     public interface IBookFormatManager
     {
-        public void CreateBookFormat(BookFormat newBookFormat);
-        public BookFormat GetBookFormatByID(int bookFormatId);
-        public List<BookFormat> GetAllBookFormats();
-        public void UpdateBookFormat(BookFormat bookFormat);
-        public void DeleteBookFormatByID(int bookFormatId);
+        public Task CreateBookFormatAsync(BookFormat newBookFormat);
+        public Task<BookFormat> GetBookFormatByIDAsync(int bookFormatId);
+        public Task<List<BookFormat>> GetAllBookFormatsAsync();
+        public Task UpdateBookFormatAsync(BookFormat bookFormat);
+        public Task DeleteBookFormatByIDAsync(int bookFormatId);
     }
 }

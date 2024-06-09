@@ -10,7 +10,7 @@ namespace DataAccessLayer
     {
         public BookDataAccess() { }
 
-        public void CreateBook(Book newBook)
+        public async Task CreateBookAsync(Book newBook)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -31,19 +31,33 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        command.ExecuteNonQuery();
+                        await connection.OpenAsync();
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+                        if (rowsAffected == 0)
+                        {
+                            throw new Exception("No rows were inserted. The Book may not have been created.");
+                        }
                     }
                     catch (SqlException ex)
                     {
-
+                        // Handle SQL exceptions (e.g., query syntax errors, constraint violations)
                         throw new IOException("Failed to create the Book.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public Book GetBookByID(int bookID)
+        public async Task<Book> GetBookByIDAsync(int bookID)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -61,41 +75,53 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        SqlDataReader reader = command.ExecuteReader();
-
-                        if (reader.Read())
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            Book book = new Book()
+                            if (reader.Read())
                             {
-                                ID = reader.GetInt32("ID"),
-                                Title = reader.GetString("Title"),
-                                Description = reader.GetString("Description"),
-                                PageCount = reader.GetInt32("PageCount"),
-                                Publisher = reader.GetString("Publisher"),
-                                PubDate = reader.GetDateTime("PubDate"),
-                                Language = reader.GetString("Language"),
-                                ISBN = reader.GetString("ISBN"),
-                                Format = new BookFormat()
+                                Book book = new Book()
                                 {
-                                    ID = reader.GetInt32("BookFormatID"),
-                                    Name = reader.GetString("FormatName")
-                                },
-                                CoverFilePath = reader.GetString("CoverFilePath")
-                            };
-                            return book;
+                                    ID = reader.GetInt32("ID"),
+                                    Title = reader.GetString("Title"),
+                                    Description = reader.GetString("Description"),
+                                    PageCount = reader.GetInt32("PageCount"),
+                                    Publisher = reader.GetString("Publisher"),
+                                    PubDate = reader.GetDateTime("PubDate"),
+                                    Language = reader.GetString("Language"),
+                                    ISBN = reader.GetString("ISBN"),
+                                    Format = new BookFormat()
+                                    {
+                                        ID = reader.GetInt32("BookFormatID"),
+                                        Name = reader.GetString("FormatName")
+                                    },
+                                    CoverFilePath = reader.GetString("CoverFilePath")
+                                };
+                                return book;
+                            }
+                            else { return new Book(); }
                         }
-                        else { return new Book(); }
                     }
                     catch (SqlException ex)
                     {
-                        throw new IOException("Failed to get the Book.", ex);
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the user.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public List<Book> GetAllBooks()
+        public async Task<List<Book>> GetAllBooksAsync()
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -112,29 +138,30 @@ namespace DataAccessLayer
                     {
                         List<Book> _books = [];
 
-                        connection.Open();
-                        SqlDataReader reader = command.ExecuteReader();
-
-                        while (reader.Read())
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            Book book = new Book()
+                            while (reader.Read())
                             {
-                                ID = reader.GetInt32("ID"),
-                                Title = reader.GetString("Title"),
-                                Description = reader.GetString("Description"),
-                                PageCount = reader.GetInt32("PageCount"),
-                                Publisher = reader.GetString("Publisher"),
-                                PubDate = reader.GetDateTime("PubDate"),
-                                Language = reader.GetString("Language"),
-                                ISBN = reader.GetString("ISBN"),
-                                Format = new BookFormat()
+                                Book book = new Book()
                                 {
-                                    ID = reader.GetInt32("BookFormatID"),
-                                    Name = reader.GetString("FormatName")
-                                },
-                                CoverFilePath = reader.GetString("CoverFilePath")
-                            };
-                            _books.Add(book);
+                                    ID = reader.GetInt32("ID"),
+                                    Title = reader.GetString("Title"),
+                                    Description = reader.GetString("Description"),
+                                    PageCount = reader.GetInt32("PageCount"),
+                                    Publisher = reader.GetString("Publisher"),
+                                    PubDate = reader.GetDateTime("PubDate"),
+                                    Language = reader.GetString("Language"),
+                                    ISBN = reader.GetString("ISBN"),
+                                    Format = new BookFormat()
+                                    {
+                                        ID = reader.GetInt32("BookFormatID"),
+                                        Name = reader.GetString("FormatName")
+                                    },
+                                    CoverFilePath = reader.GetString("CoverFilePath")
+                                };
+                                _books.Add(book);
+                            }
                         }
 
                         if (_books.Count > 0) { return _books; }
@@ -142,13 +169,24 @@ namespace DataAccessLayer
                     }
                     catch (SqlException ex)
                     {
-                        throw new IOException("Failed to get Books.", ex);
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the Book.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public void UpdateBook(Book book)
+        public async Task UpdateBookAsync(Book book)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -173,18 +211,33 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        command.ExecuteNonQuery();
+                        await connection.OpenAsync();
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+                        if (rowsAffected == 0)
+                        {
+                            throw new Exception("No rows were inserted. The Book may not have been updated.");
+                        }
                     }
                     catch (SqlException ex)
                     {
+                        // Handle SQL exceptions (e.g., query syntax errors, constraint violations)
                         throw new IOException("Failed to update the Book.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public void DeleteBookByID(int id)
+        public async Task DeleteBookByIDAsync(int id)
         {
             // I'm not sure if I should allow full deletion of a book;
             // It might be better to keep it archived or something

@@ -8,7 +8,7 @@ namespace DataAccessLayer
 {
     public class BookFormatDataAccess : DataAccessBase, IBookFormatDataAccess
     {
-        public void CreateBookFormat(BookFormat newBookFormat)
+        public async Task CreateBookFormatAsync(BookFormat newBookFormat)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -21,18 +21,33 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        command.ExecuteNonQuery();
+                        await connection.OpenAsync();
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+                        if (rowsAffected == 0)
+                        {
+                            throw new Exception("No rows were inserted. The BookFormat may not have been updated.");
+                        }
                     }
                     catch (SqlException ex)
                     {
-                        throw new IOException("Failed to create the BookFormat.", ex);
+                        // Handle SQL exceptions (e.g., query syntax errors, constraint violations)
+                        throw new IOException("Failed to update the BookFormat.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public BookFormat GetBookFormatByID(int bookFormatId)
+        public async Task<BookFormat> GetBookFormatByIDAsync(int bookFormatId)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -47,29 +62,42 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        SqlDataReader reader = command.ExecuteReader();
-
-                        if (reader.Read())
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            BookFormat bookFormat = new BookFormat()
+                            if (reader.Read())
                             {
-                                ID = reader.GetInt32("ID"),
-                                Name = reader.GetString("Name")
-                            };
-                            return bookFormat;
+                                BookFormat bookFormat = new BookFormat()
+                                {
+                                    ID = reader.GetInt32("ID"),
+                                    Name = reader.GetString("Name")
+                                };
+                                return bookFormat;
+                            }
+                            else { return new BookFormat(); }
+
                         }
-                        else { return new BookFormat(); }
+                    }
+                    catch (SqlException ex)
+                    {
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the BookFormat.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
                     }
                     catch (Exception ex)
                     {
-                        throw new IOException("Failed to get the BookFormat.", ex);
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public List<BookFormat> GetAllBookFormats()
+        public async Task<List<BookFormat>> GetAllBookFormatsAsync()
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -83,30 +111,42 @@ namespace DataAccessLayer
                     {
                         List<BookFormat> _bookFormats = [];
 
-                        connection.Open();
-                        SqlDataReader reader = command.ExecuteReader();
-
-                        while (reader.Read())
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            BookFormat bookFormat = new BookFormat()
+                            while (reader.Read())
                             {
-                                ID = reader.GetInt32("ID"),
-                                Name = reader.GetString("Name")
-                            };
-                            _bookFormats.Add(bookFormat);
+                                BookFormat bookFormat = new BookFormat()
+                                {
+                                    ID = reader.GetInt32("ID"),
+                                    Name = reader.GetString("Name")
+                                };
+                                _bookFormats.Add(bookFormat);
+                            }
+                            if (_bookFormats.Count > 0) { return _bookFormats; }
+                            else { return []; }
                         }
-                        if (_bookFormats.Count > 0) { return _bookFormats; }
-                        else { return []; }
+                    }
+                    catch (SqlException ex)
+                    {
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the BookFormats.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
                     }
                     catch (Exception ex)
                     {
-                        throw new IOException("Failed to get the BookFormats.", ex);
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public void UpdateBookFormat(BookFormat bookFormat)
+        public async Task UpdateBookFormatAsync(BookFormat bookFormat)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -122,18 +162,33 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        command.ExecuteNonQuery();
+                        await connection.OpenAsync();
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+                        if (rowsAffected == 0)
+                        {
+                            throw new Exception("No rows were inserted. The BookFormat may not have been updated.");
+                        }
                     }
                     catch (SqlException ex)
                     {
+                        // Handle SQL exceptions (e.g., query syntax errors, constraint violations)
                         throw new IOException("Failed to update the BookFormat.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public void DeleteBookFormatByID(int bookFormatId)
+        public async Task DeleteBookFormatByID(int bookFormatId)
         {
             // I'm not sure if I should allow full deletion of a Book Format;
             // It might be better to keep it archived or something

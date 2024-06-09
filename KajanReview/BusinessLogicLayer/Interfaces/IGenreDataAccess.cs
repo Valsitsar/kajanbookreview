@@ -4,10 +4,10 @@ namespace BusinessLogicLayer.Interfaces
 {
     public interface IGenreDataAccess
     {
-        public void CreateGenre(Genre newGenre);
-        public Genre GetGenreByID(int genreID);
-        public List<Genre> GetAllGenres();
-        public void UpdateGenre(Genre genre);
-        public void DeleteGenreByID(int genreID);
+        public Task CreateGenreAsync(Genre newGenre);
+        public Task<Genre> GetGenreByIDAsync(int genreID);
+        public Task<List<Genre>> GetAllGenresAsync();
+        public Task UpdateGenreAsync(Genre genre);
+        public Task DeleteGenreByIDAsync(int genreID);
     }
 }

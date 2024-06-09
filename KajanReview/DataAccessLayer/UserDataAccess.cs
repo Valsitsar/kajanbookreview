@@ -9,7 +9,7 @@ namespace DataAccessLayer
 {
     public class UserDataAccess : DataAccessBase, IUserDataAccess
     {
-        public void CreateUser(User newUser, string hashedPassword, string salt)
+        public async Task CreateUserAsync(UserDTO newUser, string hashedPassword, string salt)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -34,13 +34,27 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        command.ExecuteNonQuery();
+                        await connection.OpenAsync();
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+                        if (rowsAffected == 0)
+                        {
+                            throw new Exception("No rows were inserted. The User may not have been created.");
+                        }
                     }
                     catch (SqlException ex)
                     {
-
+                        // Handle SQL exceptions (e.g., query syntax errors, constraint violations)
                         throw new IOException("Failed to create the User.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
@@ -86,13 +100,24 @@ namespace DataAccessLayer
                     }
                     catch (SqlException ex)
                     {
-                        throw new IOException("Failed to get the User.", ex);
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the User.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public User GetUserByUsernameForLogin(string username)
+        public async Task<User> GetUserByUsernameForLoginAsync(string username)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -108,33 +133,44 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        SqlDataReader reader = command.ExecuteReader();
-
-                        if (reader.Read())
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            User user = new User()
+                            if (reader.Read())
                             {
-                                ID = reader.GetInt32("ID"),
-                                Username = reader.GetString("Username"),
-                                PasswordHash = reader.GetString("PasswordHash"),
-                                PasswordSalt = reader.GetString("PasswordSalt"),
-                                Role = new Role() { Name = reader.GetString("Role") }
-                            };
-                            return user;
+                                User user = new User()
+                                {
+                                    ID = reader.GetInt32("ID"),
+                                    Username = reader.GetString("Username"),
+                                    PasswordHash = reader.GetString("PasswordHash"),
+                                    PasswordSalt = reader.GetString("PasswordSalt"),
+                                    Role = new Role() { Name = reader.GetString("Role") }
+                                };
+                                return user;
+                            }
+                            else { return new User(); }
                         }
-                        else { return new User(); }
                     }
                     catch (SqlException ex)
                     {
-
-                        throw new IOException("Failed to get the User.", ex);
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the User.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public User GetUserByEmailForLogin(string email)
+        public async Task<User> GetUserByEmailForLoginAsync(string email)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -150,33 +186,44 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        SqlDataReader reader = command.ExecuteReader();
-
-                        if (reader.Read())
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            User user = new User()
+                            if (reader.Read())
                             {
-                                ID = reader.GetInt32("ID"),
-                                Email = reader.GetString("Email"),
-                                PasswordHash = reader.GetString("PasswordHash"),
-                                PasswordSalt = reader.GetString("PasswordSalt"),
-                                Role = new Role() { Name = reader.GetString("Role") }
-                            };
-                            return user;
+                                User user = new User()
+                                {
+                                    ID = reader.GetInt32("ID"),
+                                    Email = reader.GetString("Email"),
+                                    PasswordHash = reader.GetString("PasswordHash"),
+                                    PasswordSalt = reader.GetString("PasswordSalt"),
+                                    Role = new Role() { Name = reader.GetString("Role") }
+                                };
+                                return user;
+                            }
+                            else { return new User(); }
                         }
-                        else { return new User(); }
                     }
                     catch (SqlException ex)
                     {
-
-                        throw new IOException("Failed to get the User.", ex);
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the User.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public List<UserDTO> GetAllUsers()
+        public async Task<List<UserDTO>> GetAllUsersAsync()
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -192,40 +239,51 @@ namespace DataAccessLayer
                     {
                         List<UserDTO> _userDTOs = [];
 
-                        connection.Open();
-                        SqlDataReader reader = command.ExecuteReader();
-
-                        while (reader.Read())
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            string middleNames = !reader.IsDBNull("MiddleNames") ? reader.GetString("MiddleNames") : "";
-
-                            UserDTO userDTO = new UserDTO()
+                            while (reader.Read())
                             {
-                                ID = reader.GetInt32("ID"),
-                                FirstName = reader.GetString("FirstName"),
-                                MiddleNames = middleNames,
-                                LastName = reader.GetString("LastName"),
-                                Username = reader.GetString("Username"),
-                                Email = reader.GetString("Email"),
-                                PhoneNumber = reader.GetString("PhoneNumber"),
-                                ProfilePictureFilePath = reader.GetString("ProfilePictureFilePath"),
-                                Role = new Role() { Name = reader.GetString("Role") }
-                            };
-                            _userDTOs.Add(userDTO);
-                        }
+                                string middleNames = !reader.IsDBNull("MiddleNames") ? reader.GetString("MiddleNames") : "";
 
-                        return _userDTOs;
+                                UserDTO userDTO = new UserDTO()
+                                {
+                                    ID = reader.GetInt32("ID"),
+                                    FirstName = reader.GetString("FirstName"),
+                                    MiddleNames = middleNames,
+                                    LastName = reader.GetString("LastName"),
+                                    Username = reader.GetString("Username"),
+                                    Email = reader.GetString("Email"),
+                                    PhoneNumber = reader.GetString("PhoneNumber"),
+                                    ProfilePictureFilePath = reader.GetString("ProfilePictureFilePath"),
+                                    Role = new Role() { Name = reader.GetString("Role") }
+                                };
+                                _userDTOs.Add(userDTO);
+                            }
+
+                            return _userDTOs;
+                        }
                     }
                     catch (SqlException ex)
                     {
-
-                        throw new IOException("Failed to get the Users.", ex);
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the user.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public (string? hashedPassword, string? salt) GetPasswordHashAndSaltByUsername(string username)
+        public async Task<(string? hashedPassword, string? salt)> GetPasswordHashAndSaltByUsernameAsync(string username)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -240,25 +298,36 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        SqlDataReader reader = command.ExecuteReader();
-
-                        if (reader.Read())
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            string hashedPassword = reader.GetString("PasswordHash");
-                            string salt = reader.GetString("Salt");
-                            return (hashedPassword, salt);
-                        }
-                        else
-                        {
-                            // User doesn't exist
-                            return (null, null);
+                            if (reader.Read())
+                            {
+                                string hashedPassword = reader.GetString("PasswordHash");
+                                string salt = reader.GetString("Salt");
+                                return (hashedPassword, salt);
+                            }
+                            else
+                            {
+                                // User doesn't exist
+                                return (null, null);
+                            }
                         }
                     }
                     catch (SqlException ex)
                     {
-
-                        throw new IOException("Failed to get the User's PasswordHash and Salt.", ex);
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the Hash and Salt.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
@@ -297,14 +366,24 @@ namespace DataAccessLayer
                     }
                     catch (SqlException ex)
                     {
-
-                        throw new IOException("Failed to get the User's PasswordHash and Salt.", ex);
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the user.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public void UpdatePasswordHashAndSaltByUserID(int userID, string hashedPassword, string salt)
+        public async Task UpdatePasswordHashAndSaltByUserIDAsync(int userID, string hashedPassword, string salt)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -320,13 +399,27 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        command.ExecuteNonQuery();
+                        await connection.OpenAsync();
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+                        if (rowsAffected == 0)
+                        {
+                            throw new Exception("No rows were inserted. The Hash and Salt may not have been updated.");
+                        }
                     }
                     catch (SqlException ex)
                     {
-
-                        throw new IOException("Failed to update the User's PasswordHash and Salt.", ex);
+                        // Handle SQL exceptions (e.g., query syntax errors, constraint violations)
+                        throw new IOException("Failed to update the Hash and Salt.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
@@ -356,19 +449,33 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        command.ExecuteNonQuery();
+                        await connection.OpenAsync();
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+                        if (rowsAffected == 0)
+                        {
+                            throw new Exception("No rows were inserted. The user may not have been updated.");
+                        }
                     }
                     catch (SqlException ex)
                     {
-
-                        throw new IOException("Failed to update the User.", ex);
+                        // Handle SQL exceptions (e.g., query syntax errors, constraint violations)
+                        throw new IOException("Failed to update the user.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public void DeleteUserByID(int userID)
+        public async Task DeleteUserByIDAsync(int userID)
         {
             // I'm not sure if I should allow full deletion of a user;
             // It might be better to keep it archived or something

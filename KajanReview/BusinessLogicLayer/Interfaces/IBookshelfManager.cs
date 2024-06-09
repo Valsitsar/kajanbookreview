@@ -4,10 +4,10 @@ namespace BusinessLogicLayer.Interfaces
 {
     public interface IBookshelfManager
     {
-        public void CreateBookshelf(Bookshelf newBookshelf);
-        public Bookshelf GetBookshelfByID(int bookshelfID);
-        public List<Bookshelf> GetAllBookshelvesForUser(int userID);
-        public void UpdateBookshelf(Bookshelf bookshelf);
-        public void DeleteBookshelfByID(int bookshelfID);
+        public Task CreateBookshelfAsync(Bookshelf newBookshelf);
+        public Task<Bookshelf> GetBookshelfByIDAsync(int bookshelfID);
+        public Task<List<Bookshelf>> GetAllBookshelvesForUserAsync(int userID);
+        public Task UpdateBookshelfAsync(Bookshelf bookshelf);
+        public Task DeleteBookshelfByIDAsync(int bookshelfID);
     }
 }

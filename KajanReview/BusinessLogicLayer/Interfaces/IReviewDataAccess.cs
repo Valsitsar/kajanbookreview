@@ -4,10 +4,10 @@ namespace BusinessLogicLayer.Interfaces
 {
     public interface IReviewDataAccess
     {
-        public void CreateReview(Review newReview);
-        public Review GetReviewByID(int reviewID);
-        public List<Review> GetAllReviews();
-        public void UpdateReview(Review review);
-        public void DeleteReviewByID(int reviewID);
+        public Task CreateReviewAsync(Review newReview);
+        public Task<Review> GetReviewByIDAsync(int reviewID);
+        public Task<List<Review>> GetAllReviewsAsync();
+        public Task UpdateReviewAsync(Review review);
+        public Task DeleteReviewByIDAsync(int reviewID);
     }
 }

@@ -5,15 +5,15 @@ namespace BusinessLogicLayer.Interfaces
 {
     public interface IUserDataAccess
     {
-        public void CreateUser(User newUser, string hashedPassword, string salt);
+        public Task CreateUserAsync(UserDTO newUser, string hashedPassword, string salt);
         public Task<UserDTO> GetUserByIDAsync(int userID);
-        public User GetUserByUsernameForLogin(string username);
-        public User GetUserByEmailForLogin(string email);
-        public List<UserDTO> GetAllUsers();
-        public (string? hashedPassword, string? salt) GetPasswordHashAndSaltByUsername(string username);
+        public Task<User> GetUserByUsernameForLoginAsync(string username); //not UserDTO because it handles passwords
+        public Task<User> GetUserByEmailForLoginAsync(string email); //not UserDTO because it handles passwords
+        public Task<List<UserDTO>> GetAllUsersAsync();
+        public Task<(string? hashedPassword, string? salt)> GetPasswordHashAndSaltByUsernameAsync(string username);
         public Task<(string? hashedPassword, string? salt)> GetPasswordHashAndSaltByUserIDAsync(int userID);
-        public void UpdatePasswordHashAndSaltByUserID(int userID, string hashedPassword, string salt);
+        public Task UpdatePasswordHashAndSaltByUserIDAsync(int userID, string hashedPassword, string salt);
         public Task UpdateUserAsync(UserDTO newUserDTO);
-        public void DeleteUserByID(int userID);
+        public Task DeleteUserByIDAsync(int userID);
     }
 }

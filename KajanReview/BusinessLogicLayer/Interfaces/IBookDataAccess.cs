@@ -4,10 +4,10 @@ namespace BusinessLogicLayer.Interfaces
 {
     public interface IBookDataAccess
     {
-        public void CreateBook(Book newBook);
-        public Book GetBookByID(int bookID);
-        public List<Book> GetAllBooks();
-        public void UpdateBook(Book book);
-        public void DeleteBookByID(int bookID);
+        public Task CreateBookAsync(Book newBook);
+        public Task<Book> GetBookByIDAsync(int bookID);
+        public Task<List<Book>> GetAllBooksAsync();
+        public Task UpdateBookAsync(Book book);
+        public Task DeleteBookByIDAsync(int bookID);
     }
 }

@@ -4,10 +4,10 @@ namespace BusinessLogicLayer.Interfaces
 {
     public interface IRoleDataAccess
     {
-        public void CreateRole(Role newRole);
-        public Role GetRoleByID(int roleID);
-        public List<Role> GetAllRoles();
-        public void UpdateRole(Role role);
-        public void DeleteRoleByID(int roleID);
+        public Task CreateRoleAsync(Role newRole);
+        public Task<Role> GetRoleByIDAsync(int roleID);
+        public Task<List<Role>> GetAllRolesAsync();
+        public Task UpdateRoleAsync(Role role);
+        public Task DeleteRoleByIDAsync(int roleID);
     }
 }

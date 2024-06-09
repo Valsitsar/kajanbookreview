@@ -3,6 +3,7 @@ using BusinessLogicLayer.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using BusinessLogicLayer;
+using BusinessLogicLayer.DTOs;
 
 namespace Web_App.Pages
 {
@@ -26,7 +27,7 @@ namespace Web_App.Pages
             _passwordHasher = new PasswordHasher();
         }
 
-        public IActionResult OnPost()
+        public async Task<IActionResult> OnPost()
         {
             if (!ModelState.IsValid) { return Page(); }
 
@@ -40,7 +41,7 @@ namespace Web_App.Pages
             try
             {
                 (string hashedPassword, string salt) = _passwordHasher.HashAndSaltPassword(Password);
-                _userManager.CreateUser(new User()
+                await _userManager.CreateUserAsync(new UserDTO()
                 {
                     Username = Username,
                     Email = Email

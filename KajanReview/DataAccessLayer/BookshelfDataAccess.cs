@@ -10,7 +10,7 @@ namespace DataAccessLayer
     {
         public BookshelfDataAccess() { }
 
-        public void CreateBookshelf(Bookshelf newBookshelf)
+        public async Task CreateBookshelfAsync(Bookshelf newBookshelf)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -24,18 +24,33 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        command.ExecuteNonQuery();
+                        await connection.OpenAsync();
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+                        if (rowsAffected == 0)
+                        {
+                            throw new Exception("No rows were inserted. The Bookshelf may not have been created.");
+                        }
                     }
                     catch (SqlException ex)
                     {
-                        throw new IOException("Failed to create the bookshelf.", ex);
+                        // Handle SQL exceptions (e.g., query syntax errors, constraint violations)
+                        throw new IOException("Failed to update the Bookshelf.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public Bookshelf GetBookshelfByID(int bookshelfID)
+        public async Task<Bookshelf> GetBookshelfByIDAsync(int bookshelfID)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -52,34 +67,46 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        SqlDataReader reader = command.ExecuteReader();
-
-                        if (reader.Read())
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            Bookshelf bookshelf = new Bookshelf()
+                            if (reader.Read())
                             {
-                                ID = reader.GetInt32("ID"),
-                                Name = reader.GetString("Name"),
-                                Owner = new User()
+                                Bookshelf bookshelf = new Bookshelf()
                                 {
-                                    ID = reader.GetInt32("Users.ID"),
-                                    Username = reader.GetString("Users.Username")
-                                }
-                            };
-                            return bookshelf;
+                                    ID = reader.GetInt32("ID"),
+                                    Name = reader.GetString("Name"),
+                                    Owner = new User()
+                                    {
+                                        ID = reader.GetInt32("Users.ID"),
+                                        Username = reader.GetString("Users.Username")
+                                    }
+                                };
+                                return bookshelf;
+                            }
+                            else { return new Bookshelf(); }
                         }
-                        else { return new Bookshelf(); }
                     }
                     catch (SqlException ex)
                     {
-                        throw new IOException("Failed to get the Bookshelf.", ex);
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the Bookshelf.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public List<Bookshelf> GetAllBookshelvesForUser(int userID)
+        public async Task<List<Bookshelf>> GetAllBookshelvesForUserAsync(int userID)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -98,36 +125,48 @@ namespace DataAccessLayer
                     {
                         List<Bookshelf> _bookshelves = [];
 
-                        connection.Open();
-                        SqlDataReader reader = command.ExecuteReader();
-
-                        while (reader.Read())
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            Bookshelf bookshelf = new Bookshelf()
+                            while (reader.Read())
                             {
-                                ID = reader.GetInt32("ID"),
-                                Name = reader.GetString("Name"),
-                                Owner = new User()
+                                Bookshelf bookshelf = new Bookshelf()
                                 {
-                                    ID = reader.GetInt32("Users.ID"),
-                                    Username = reader.GetString("Users.Username")
-                                }
-                            };
-                            _bookshelves.Add(bookshelf);
-                        }
+                                    ID = reader.GetInt32("ID"),
+                                    Name = reader.GetString("Name"),
+                                    Owner = new User()
+                                    {
+                                        ID = reader.GetInt32("Users.ID"),
+                                        Username = reader.GetString("Users.Username")
+                                    }
+                                };
+                                _bookshelves.Add(bookshelf);
+                            }
 
-                        if (_bookshelves.Count > 0) { return _bookshelves; }
-                        else { return []; }
+                            if (_bookshelves.Count > 0) { return _bookshelves; }
+                            else { return []; }
+                        }
                     }
                     catch (SqlException ex)
                     {
-                        throw new IOException("Failed to get the Bookshelves.", ex);
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the Bookshelf.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public void UpdateBookshelf(Bookshelf bookshelf)
+        public async Task UpdateBookshelfAsync(Bookshelf bookshelf)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -143,18 +182,33 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        command.ExecuteNonQuery();
+                        await connection.OpenAsync();
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+                        if (rowsAffected == 0)
+                        {
+                            throw new Exception("No rows were inserted. The Bookshelf may not have been updated.");
+                        }
                     }
                     catch (SqlException ex)
                     {
+                        // Handle SQL exceptions (e.g., query syntax errors, constraint violations)
                         throw new IOException("Failed to update the Bookshelf.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public void DeleteBookshelfByID(int bookshelfID)
+        public async Task DeleteBookshelfByIDAsync(int bookshelfID)
         {
             // I'm not sure if I should allow full deletion of a bookshelf;
             // It might be better to keep it archived or something

@@ -17,9 +17,9 @@ namespace BusinessLogicLayer.ManagerClasses
             _passwordAuthenticator = new PasswordAuthenticator(_passwordHasher);
         }
 
-        public void CreateUser(User newUser, string hashedPassword, string salt)
+        public async Task CreateUserAsync(UserDTO newUser, string hashedPassword, string salt)
         {
-            _userDataAccess.CreateUser(newUser, hashedPassword, salt);
+            await _userDataAccess.CreateUserAsync(newUser, hashedPassword, salt);
         }
 
         public async Task<UserDTO> GetUserByIDAsync(int userID)
@@ -27,19 +27,34 @@ namespace BusinessLogicLayer.ManagerClasses
             return await _userDataAccess.GetUserByIDAsync(userID);
         }
 
-        public User GetUserByUsernameForLogin(string username)
+        public async Task<User> GetUserByUsernameForLoginAsync(string username)
         {
-            return _userDataAccess.GetUserByUsernameForLogin(username);
+            return await _userDataAccess.GetUserByUsernameForLoginAsync(username);
         }
 
-        public User GetUserByEmailForLogin(string email)
+        public async Task<User> GetUserByEmailForLoginAsync(string email)
         {
-            return _userDataAccess.GetUserByEmailForLogin(email);
+            return await _userDataAccess.GetUserByEmailForLoginAsync(email);
         }
 
-        public List<UserDTO> GetAllUsers()
+        public async Task<List<UserDTO>> GetAllUsersAsync()
         {
-            return _userDataAccess.GetAllUsers();
+            return await _userDataAccess.GetAllUsersAsync();
+        }
+
+        public async Task<(string? hashedPassword, string? salt)> GetPasswordHashAndSaltByUsernameAsync(string username)
+        {
+            return await _userDataAccess.GetPasswordHashAndSaltByUsernameAsync(username);
+        }
+
+        public async Task<(string? hashedPassword, string? salt)> GetPasswordHashAndSaltByUserIDAsync(int userID)
+        {
+            return await _userDataAccess.GetPasswordHashAndSaltByUserIDAsync(userID);
+        }
+
+        public async Task UpdatePasswordHashAndSaltByUserIDAsync(int userID, string hashedPassword, string salt)
+        {
+            await _userDataAccess.UpdatePasswordHashAndSaltByUserIDAsync(userID, hashedPassword, salt);
         }
 
         public async Task UpdateUserAsync(UserDTO userDTO)
@@ -47,23 +62,9 @@ namespace BusinessLogicLayer.ManagerClasses
             await _userDataAccess.UpdateUserAsync(userDTO);
         }
 
-        public void DeleteUserByID(int userID)
+        public async Task DeleteUserByIDAsync(int userID)
         {
-            _userDataAccess.DeleteUserByID(userID);
-        }
-
-        public (string? hashedPassword, string? salt) GetPasswordHashAndSaltByUsername(string username)
-        {
-            return _userDataAccess.GetPasswordHashAndSaltByUsername(username);
-        }
-        public async Task<(string? hashedPassword, string? salt)> GetPasswordHashAndSaltByUserIDAsync(int userID)
-        {
-            return await _userDataAccess.GetPasswordHashAndSaltByUserIDAsync(userID);
-        }
-
-        public void UpdatePasswordHashAndSaltByUserID(int userID, string hashedPassword, string salt)
-        {
-            _userDataAccess.UpdatePasswordHashAndSaltByUserID(userID, hashedPassword, salt);
+            await _userDataAccess.DeleteUserByIDAsync(userID);
         }
 
         public async Task<bool> TryPasswordChangeAsync(int userID, string currentPassword, string newPassword)
@@ -84,7 +85,7 @@ namespace BusinessLogicLayer.ManagerClasses
 
             (string newHashedPassword, string newSalt) = _passwordHasher.HashAndSaltPassword(newPassword);
 
-            UpdatePasswordHashAndSaltByUserID(userID, newHashedPassword, newSalt);
+            await UpdatePasswordHashAndSaltByUserIDAsync(userID, newHashedPassword, newSalt);
 
             return true;
         }

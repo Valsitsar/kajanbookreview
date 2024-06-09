@@ -12,29 +12,29 @@ namespace BusinessLogicLayer.ManagerClasses
             _reviewDataAccess = reviewDataAccess ?? throw new ArgumentNullException(nameof(_reviewDataAccess));
         }
 
-        public void CreateReview(Review newReview)
+        public async Task CreateReviewAsync(Review newReview)
         {
-            _reviewDataAccess.CreateReview(newReview);
+            await _reviewDataAccess.CreateReviewAsync(newReview);
         }
 
-        public Review GetReviewByID(int reviewID)
+        public async Task<Review> GetReviewByIDAsync(int reviewID)
         {
-            return _reviewDataAccess.GetReviewByID(reviewID);
+            return await _reviewDataAccess.GetReviewByIDAsync(reviewID);
         }
 
-        public List<Review> GetAllReviews()
+        public async Task<List<Review>> GetAllReviewsAsync()
         {
-            return _reviewDataAccess.GetAllReviews();
+            return await _reviewDataAccess.GetAllReviewsAsync();
         }
 
-        public void UpdateReview(Review review)
+        public async Task UpdateReviewAsync(Review review)
         {
-            _reviewDataAccess.UpdateReview(review);
+            await _reviewDataAccess.UpdateReviewAsync(review);
         }
 
-        public void DeleteReviewByID(int reviewID)
+        public async Task DeleteReviewByIDAsync(int reviewID)
         {
-            _reviewDataAccess.DeleteReviewByID(reviewID);
+            await _reviewDataAccess.DeleteReviewByIDAsync(reviewID);
         }
     }
 }

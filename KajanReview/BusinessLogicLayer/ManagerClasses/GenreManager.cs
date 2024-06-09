@@ -12,29 +12,29 @@ namespace BusinessLogicLayer.ManagerClasses
             _genreDataAccess = genreDataAccess ?? throw new ArgumentNullException(nameof(_genreDataAccess));
         }
 
-        public void CreateGenre(Genre newGenre)
+        public async Task CreateGenreAsync(Genre newGenre)
         {
-            _genreDataAccess.CreateGenre(newGenre);
+            await _genreDataAccess.CreateGenreAsync(newGenre);
         }
 
-        public Genre GetGenreByID(int genreID)
+        public async Task<Genre> GetGenreByIDAsync(int genreID)
         {
-            return _genreDataAccess.GetGenreByID(genreID);
+            return await _genreDataAccess.GetGenreByIDAsync(genreID);
         }
 
-        public List<Genre> GetAllGenres()
+        public async Task<List<Genre>> GetAllGenresAsync()
         {
-            return _genreDataAccess.GetAllGenres();
+            return await _genreDataAccess.GetAllGenresAsync();
         }
 
-        public void UpdateGenre(Genre genre)
+        public async Task UpdateGenreAsync(Genre genre)
         {
-            _genreDataAccess.UpdateGenre(genre);
+            await _genreDataAccess.UpdateGenreAsync(genre);
         }
 
-        public void DeleteGenreByID(int genreID)
+        public async Task DeleteGenreByIDAsync(int genreID)
         {
-            _genreDataAccess.DeleteGenreByID(genreID);
+            await _genreDataAccess.DeleteGenreByIDAsync(genreID);
         }
     }
 }

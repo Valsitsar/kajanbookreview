@@ -12,29 +12,29 @@ namespace BusinessLogicLayer.ManagerClasses
             _commentDataAccess = commentDataAccess ?? throw new ArgumentNullException(nameof(_commentDataAccess));
         }
 
-        public void CreateComment(Comment newComment)
+        public async Task CreateCommentAsync(Comment newComment)
         {
-            _commentDataAccess.CreateComment(newComment);
+            await _commentDataAccess.CreateCommentAsync(newComment);
         }
 
-        public Comment GetCommentByID(int commentID)
+        public async Task<Comment> GetCommentByIDAsync(int commentID)
         {
-            return _commentDataAccess.GetCommentByID(commentID);
+            return await _commentDataAccess.GetCommentByIDAsync(commentID);
         }
 
-        public List<Comment> GetAllComments()
+        public async Task<List<Comment>> GetAllCommentsAsync()
         {
-            return _commentDataAccess.GetAllComments();
+            return await _commentDataAccess.GetAllCommentsAsync();
         }
 
-        public void UpdateComment(Comment comment)
+        public async Task UpdateCommentAsync(Comment comment)
         {
-            _commentDataAccess.UpdateComment(comment);
+            await _commentDataAccess.UpdateCommentAsync(comment);
         }
 
-        public void DeleteCommentByID(int commentID)
+        public async Task DeleteCommentByIDAsync(int commentID)
         {
-            _commentDataAccess.DeleteCommentByID(commentID);
+            await _commentDataAccess.DeleteCommentByIDAsync(commentID);
         }
     }
 }

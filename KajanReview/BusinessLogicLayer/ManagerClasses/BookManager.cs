@@ -12,26 +12,26 @@ namespace BusinessLogicLayer.ManagerClasses
             _bookDataAccess = bookDataAccess ?? throw new ArgumentNullException(nameof(bookDataAccess));
         }
 
-        public void CreateBook(Book book)
+        public async Task CreateBookAsync(Book book)
         {
-            _bookDataAccess.CreateBook(book);
+            await _bookDataAccess.CreateBookAsync(book);
         }
-        public Book GetBookByID(int bookID)
+        public async Task<Book> GetBookByIDAsync(int bookID)
         {
-            return _bookDataAccess.GetBookByID(bookID);
+            return await _bookDataAccess.GetBookByIDAsync(bookID);
         }
-        public List<Book> GetAllBooks()
+        public async Task<List<Book>> GetAllBooksAsync()
         {
-            return _bookDataAccess.GetAllBooks();
+            return await _bookDataAccess.GetAllBooksAsync();
         }
-        public void UpdateBook(Book book)
+        public async Task UpdateBookAsync(Book book)
         {
-            _bookDataAccess.UpdateBook(book);
+            await _bookDataAccess.UpdateBookAsync(book);
         }
 
-        public void DeleteBook(int bookID)
+        public async Task DeleteBookAsync(int bookID)
         {
-            _bookDataAccess.DeleteBookByID(bookID);
+            await _bookDataAccess.DeleteBookByIDAsync(bookID);
         }
     }
 }

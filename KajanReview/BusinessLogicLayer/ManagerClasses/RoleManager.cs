@@ -12,29 +12,29 @@ namespace BusinessLogicLayer.ManagerClasses
             _roleDataAccess = roleDataAccess ?? throw new ArgumentNullException(nameof(_roleDataAccess));
         }
 
-        public void CreateRole(Role newRole)
+        public async Task CreateRoleAsync(Role newRole)
         {
-            _roleDataAccess.CreateRole(newRole);
+            await _roleDataAccess.CreateRoleAsync(newRole);
         }
 
-        public Role GetRoleByID(int roleID)
+        public async Task<Role> GetRoleByIDAsync(int roleID)
         {
-            return _roleDataAccess.GetRoleByID(roleID);
+            return await _roleDataAccess.GetRoleByIDAsync(roleID);
         }
 
-        public List<Role> GetAllRoles()
+        public async Task<List<Role>> GetAllRolesAsync()
         {
-            return _roleDataAccess.GetAllRoles();
+            return await _roleDataAccess.GetAllRolesAsync();
         }
 
-        public void UpdateRole(Role role)
+        public async Task UpdateRoleAsync(Role role)
         {
-            _roleDataAccess.UpdateRole(role);
+            await _roleDataAccess.UpdateRoleAsync(role);
         }
 
-        public void DeleteRoleByID(int roleID)
+        public async Task DeleteRoleByIDAsync(int roleID)
         {
-            _roleDataAccess.DeleteRoleByID(roleID);
+            await _roleDataAccess.DeleteRoleByIDAsync(roleID);
         }
     }
 }

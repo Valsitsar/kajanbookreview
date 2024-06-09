@@ -12,29 +12,29 @@ namespace BusinessLogicLayer.ManagerClasses
             _bookFormatDataAccess = bookFormatDataAccess ?? throw new ArgumentNullException(nameof(_bookFormatDataAccess));
         }
 
-        public void CreateBookFormat(BookFormat newBookFormat)
+        public async Task CreateBookFormatAsync(BookFormat newBookFormat)
         {
-            _bookFormatDataAccess.CreateBookFormat(newBookFormat);
+            await _bookFormatDataAccess.CreateBookFormatAsync(newBookFormat);
         }
 
-        public BookFormat GetBookFormatByID(int bookFormatID)
+        public async Task<BookFormat> GetBookFormatByIDAsync(int bookFormatID)
         {
-            return _bookFormatDataAccess.GetBookFormatByID(bookFormatID);
+            return await _bookFormatDataAccess.GetBookFormatByIDAsync(bookFormatID);
         }
 
-        public List<BookFormat> GetAllBookFormats()
+        public async Task<List<BookFormat>> GetAllBookFormatsAsync()
         {
-            return _bookFormatDataAccess.GetAllBookFormats();
+            return await _bookFormatDataAccess.GetAllBookFormatsAsync();
         }
 
-        public void UpdateBookFormat(BookFormat bookFormat)
+        public async Task UpdateBookFormatAsync(BookFormat bookFormat)
         {
-            _bookFormatDataAccess.UpdateBookFormat(bookFormat);
+            await _bookFormatDataAccess.UpdateBookFormatAsync(bookFormat);
         }
 
-        public void DeleteBookFormatByID(int bookFormatID)
+        public async Task DeleteBookFormatByIDAsync(int bookFormatID)
         {
-            _bookFormatDataAccess.DeleteBookFormatByID(bookFormatID);
+            await _bookFormatDataAccess.DeleteBookFormatByIDAsync(bookFormatID);
         }
     }
 }

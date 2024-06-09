@@ -8,7 +8,7 @@ namespace DataAccessLayer
 {
     public class RoleDataAccess : DataAccessBase, IRoleDataAccess
     {
-        public void CreateRole(Role newRole)
+        public async Task CreateRoleAsync(Role newRole)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -22,18 +22,33 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        command.ExecuteNonQuery();
+                        await connection.OpenAsync();
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+                        if (rowsAffected == 0)
+                        {
+                            throw new Exception("No rows were inserted. The user may not have been updated.");
+                        }
                     }
                     catch (SqlException ex)
                     {
-                        throw new IOException("Failed to create the Role.", ex);
+                        // Handle SQL exceptions (e.g., query syntax errors, constraint violations)
+                        throw new IOException("Failed to update the user.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public Role GetRoleByID(int roleID)
+        public async Task<Role> GetRoleByIDAsync(int roleID)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -48,29 +63,41 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        SqlDataReader reader = command.ExecuteReader();
-
-                        if (reader.Read())
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            Role role = new Role()
+                            if (reader.Read())
                             {
-                                ID = reader.GetInt32("ID"),
-                                Name = reader.GetString("Name")
-                            };
-                            return role;
+                                Role role = new Role()
+                                {
+                                    ID = reader.GetInt32("ID"),
+                                    Name = reader.GetString("Name")
+                                };
+                                return role;
+                            }
+                            else { return new Role(); }
                         }
-                        else { return new Role(); }
+                    }
+                    catch (SqlException ex)
+                    {
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the user.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
                     }
                     catch (Exception ex)
                     {
-                        throw new IOException("Failed to get the Role.", ex);
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public List<Role> GetAllRoles()
+        public async Task<List<Role>> GetAllRolesAsync()
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -84,30 +111,42 @@ namespace DataAccessLayer
                     {
                         List<Role> _roles = [];
 
-                        connection.Open();
-                        SqlDataReader reader = command.ExecuteReader();
-
-                        while (reader.Read())
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            Role role = new Role()
+                            while (reader.Read())
                             {
-                                ID = reader.GetInt32("ID"),
-                                Name = reader.GetString("Name")
-                            };
-                            _roles.Add(role);
+                                Role role = new Role()
+                                {
+                                    ID = reader.GetInt32("ID"),
+                                    Name = reader.GetString("Name")
+                                };
+                                _roles.Add(role);
+                            }
+                            if (_roles.Count > 0) { return _roles; }
+                            else { return []; }
                         }
-                        if (_roles.Count > 0) { return _roles; }
-                        else { return []; }
+                    }
+                    catch (SqlException ex)
+                    {
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the user.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
                     }
                     catch (Exception ex)
                     {
-                        throw new IOException("Failed to get the Roles.", ex);
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public void UpdateRole(Role role)
+        public async Task UpdateRoleAsync(Role role)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -123,18 +162,33 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        command.ExecuteNonQuery();
+                        await connection.OpenAsync();
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+                        if (rowsAffected == 0)
+                        {
+                            throw new Exception("No rows were inserted. The user may not have been updated.");
+                        }
                     }
                     catch (SqlException ex)
                     {
-                        throw new IOException("Failed to update the Role.", ex);
+                        // Handle SQL exceptions (e.g., query syntax errors, constraint violations)
+                        throw new IOException("Failed to update the user.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public void DeleteRoleByID(int roleID)
+        public async Task DeleteRoleByIDAsync(int roleID)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -147,12 +201,27 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        command.ExecuteNonQuery();
+                        await connection.OpenAsync();
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+                        if (rowsAffected == 0)
+                        {
+                            throw new Exception("No rows were inserted. The user may not have been updated.");
+                        }
                     }
                     catch (SqlException ex)
                     {
-                        throw new IOException("Failed to delete the Role.", ex);
+                        // Handle SQL exceptions (e.g., query syntax errors, constraint violations)
+                        throw new IOException("Failed to update the user.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }

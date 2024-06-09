@@ -4,10 +4,10 @@ namespace BusinessLogicLayer.Interfaces
 {
     public interface ICommentDataAccess
     {
-        public void CreateComment(Comment newComment);
-        public Comment GetCommentByID(int commentID);
-        public List<Comment> GetAllComments();
-        public void UpdateComment(Comment comment);
-        public void DeleteCommentByID(int commentID);
+        public Task CreateCommentAsync(Comment newComment);
+        public Task<Comment> GetCommentByIDAsync(int commentID);
+        public Task<List<Comment>> GetAllCommentsAsync();
+        public Task UpdateCommentAsync(Comment comment);
+        public Task DeleteCommentByIDAsync(int commentID);
     }
 }

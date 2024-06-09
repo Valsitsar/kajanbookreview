@@ -8,7 +8,7 @@ namespace DataAccessLayer
 {
     public class ReviewDataAccess : DataAccessBase, IReviewDataAccess
     {
-        public void CreateReview(Review newReview)
+        public async Task CreateReview(Review newReview)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -28,19 +28,33 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        command.ExecuteNonQuery();
+                        await connection.OpenAsync();
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+                        if (rowsAffected == 0)
+                        {
+                            throw new Exception("No rows were inserted. The Review may not have been updated.");
+                        }
                     }
                     catch (SqlException ex)
                     {
-
-                        throw new IOException("Failed to create the Review.", ex);
+                        // Handle SQL exceptions (e.g., query syntax errors, constraint violations)
+                        throw new IOException("Failed to update the Review.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public Review GetReviewByID(int reviewID)
+        public async Task<Review> GetReviewByIDAsync(int reviewID)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -61,45 +75,57 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        SqlDataReader reader = command.ExecuteReader();
-
-                        if (reader.Read())
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            string body = !reader.IsDBNull("Body") ? reader.GetString("Body") : "";
-
-                            Review review = new Review()
+                            if (reader.Read())
                             {
-                                ID = reader.GetInt32("ID"),
-                                Poster = new User()
+                                string body = !reader.IsDBNull("Body") ? reader.GetString("Body") : "";
+
+                                Review review = new Review()
                                 {
-                                    ID = reader.GetInt32("PosterID"),
-                                    Username = reader.GetString("PosterUsername")
-                                },
-                                Body = body,
-                                UpvoteCount = reader.GetInt32("UpvoteCount"),
-                                DownvoteCount = reader.GetInt32("DownvoteCount"),
-                                PostDate = reader.GetDateTime("PostDate"),
-                                BookRating = reader.GetInt32("BookRating"),
-                                SourceBook = new Book()
-                                {
-                                    ID = reader.GetInt32("SourceBookID"),
-                                    Title = reader.GetString("SourceBookTitle")
-                                }
-                            };
-                            return review;
-                        }
-                        else { return new Review(); }
+                                    ID = reader.GetInt32("ID"),
+                                    Poster = new User()
+                                    {
+                                        ID = reader.GetInt32("PosterID"),
+                                        Username = reader.GetString("PosterUsername")
+                                    },
+                                    Body = body,
+                                    UpvoteCount = reader.GetInt32("UpvoteCount"),
+                                    DownvoteCount = reader.GetInt32("DownvoteCount"),
+                                    PostDate = reader.GetDateTime("PostDate"),
+                                    BookRating = reader.GetInt32("BookRating"),
+                                    SourceBook = new Book()
+                                    {
+                                        ID = reader.GetInt32("SourceBookID"),
+                                        Title = reader.GetString("SourceBookTitle")
+                                    }
+                                };
+                                return review;
+                            }
+                            else { return new Review(); }
+                        } 
                     }
                     catch (SqlException ex)
                     {
-                        throw new IOException("Failed to get the Review.", ex);
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the Review.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public List<Review> GetAllReviews()
+        public async Task<List<Review>> GetAllReviewsAsync()
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -119,47 +145,59 @@ namespace DataAccessLayer
                     {
                         List<Review> _reviews = [];
 
-                        connection.Open();
-                        SqlDataReader reader = command.ExecuteReader();
-
-                        while (reader.Read())
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            string body = !reader.IsDBNull("Body") ? reader.GetString("Body") : "";
-
-                            Review review = new Review()
+                            while (reader.Read())
                             {
-                                ID = reader.GetInt32("ID"),
-                                Poster = new User()
-                                {
-                                    ID = reader.GetInt32("PosterID"),
-                                    Username = reader.GetString("PosterUsername")
-                                },
-                                Body = body,
-                                UpvoteCount = reader.GetInt32("UpvoteCount"),
-                                DownvoteCount = reader.GetInt32("DownvoteCount"),
-                                PostDate = reader.GetDateTime("PostDate"),
-                                BookRating = reader.GetInt32("BookRating"),
-                                SourceBook = new Book()
-                                {
-                                    ID = reader.GetInt32("SourceBookID"),
-                                    Title = reader.GetString("SourceBookTitle")
-                                }
-                            };
-                            _reviews.Add(review);
-                        }
+                                string body = !reader.IsDBNull("Body") ? reader.GetString("Body") : "";
 
-                        if (_reviews.Count > 0) { return _reviews; }
-                        else { return []; }
+                                Review review = new Review()
+                                {
+                                    ID = reader.GetInt32("ID"),
+                                    Poster = new User()
+                                    {
+                                        ID = reader.GetInt32("PosterID"),
+                                        Username = reader.GetString("PosterUsername")
+                                    },
+                                    Body = body,
+                                    UpvoteCount = reader.GetInt32("UpvoteCount"),
+                                    DownvoteCount = reader.GetInt32("DownvoteCount"),
+                                    PostDate = reader.GetDateTime("PostDate"),
+                                    BookRating = reader.GetInt32("BookRating"),
+                                    SourceBook = new Book()
+                                    {
+                                        ID = reader.GetInt32("SourceBookID"),
+                                        Title = reader.GetString("SourceBookTitle")
+                                    }
+                                };
+                                _reviews.Add(review);
+                            }
+
+                            if (_reviews.Count > 0) { return _reviews; }
+                            else { return []; }
+                        }
                     }
                     catch (SqlException ex)
                     {
-                        throw new IOException("Failed to get the Reviews.", ex);
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the Review.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public void UpdateReview(Review review)
+        public async Task UpdateReviewAsync(Review review)
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -182,21 +220,35 @@ namespace DataAccessLayer
 
                     try
                     {
-                        connection.Open();
-                        command.ExecuteNonQuery();
+                        await connection.OpenAsync();
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+                        if (rowsAffected == 0)
+                        {
+                            throw new Exception("No rows were inserted. The Review may not have been updated.");
+                        }
                     }
                     catch (SqlException ex)
                     {
-
+                        // Handle SQL exceptions (e.g., query syntax errors, constraint violations)
                         throw new IOException("Failed to update the Review.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
                     }
                 }
             }
         }
 
-        public void DeleteReviewByID(int reviewID)
+        public async Task DeleteReviewByIDAsync(int reviewID)
         {
-            // I'm not sure if I should allow full deletion of a user;
+            // I'm not sure if I should allow full deletion of a Review;
             // It might be better to keep it archived or something
             throw new NotImplementedException();
         }
