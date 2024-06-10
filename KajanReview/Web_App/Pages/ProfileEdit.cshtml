@@ -20,7 +20,7 @@
             <div id="fileName" class="text-muted fst-italic mt-1">No file selected.</div>
         </div>
         <div class="col-md-9">
-            <form method="post" class="needs-validation" enctype="multipart/form-data" novalidate>
+            <form method="post" id="updateProfileInfo" class="needs-validation" enctype="multipart/form-data" novalidate asp-page-handler="UpdateProfile">
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="firstName" class="form-label">First Name</label>
@@ -58,12 +58,12 @@
                 <!-- Change Password Button inside the main form -->
                 <div class="row">
                     <div class="col-md-12 mb-3 text-center">
-                        <button type="button" class="btn btn-goldenrod" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Change Password</button>
+                        <button type="button" id="changePasswordButton" class="btn btn-goldenrod" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Change Password</button>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-12 d-flex justify-content-center my-3">
-                        <button type="submit" class="btn btn-goldenrod w-25 align-items-center">Save Changes</button>
+                        <button type="submit" class="btn btn-goldenrod w-25 align-items-center" form="updateProfileInfo">Save Changes</button>
                     </div>
                 </div>
             </form>

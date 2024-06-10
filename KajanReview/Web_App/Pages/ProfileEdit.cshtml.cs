@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using BusinessLogicLayer.ManagerClasses;
 using System.Security.Claims;
+using BusinessLogicLayer;
+using System.Diagnostics;
 
 namespace Web_App.Pages
 {
@@ -19,143 +21,105 @@ namespace Web_App.Pages
         [BindProperty]
         public UserDTO CurrentUser { get; set; }
 
-        [BindNever]
+        [BindProperty]
         public string CurrentPassword { get; set; }
 
-        [BindNever]
+        [BindProperty]
         public string NewPassword { get; set; }
 
-        [BindNever]
+        [BindProperty]
         public string ConfirmPassword { get; set; }
 
-        [BindNever]
+        [BindProperty]
         public IFormFile ProfilePictureFile { get; set; }
 
         public string ChangePasswordError { get; set; }
 
-
-
         private readonly UserManager _userManager;
+        private readonly PasswordAuthenticator _passwordAuthenticator;
         private readonly IWebHostEnvironment _environment;
-
-
 
         public ProfileEditModel(UserManager userManager, IWebHostEnvironment environment)
         {
             _userManager = userManager;
             _environment = environment;
+            CurrentPassword = string.Empty;
+            NewPassword = string.Empty;
+            ConfirmPassword = string.Empty;
+            ChangePasswordError = string.Empty;
         }
-
 
         public async Task OnGetAsync()
         {
             CurrentUser = await GetCurrentUserAsync();
-
-
-
-            //NewPassword = string.Empty;
-            //ConfirmPassword = string.Empty;
         }
 
-        // Async because it involves a file upload operation
-        // Avoids blocking the server thread while waiting for the file to upload
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostUpdateProfileAsync()
         {
-            ModelState.ClearValidationState(nameof(CurrentPassword));
-            ModelState.ClearValidationState(nameof(NewPassword));
-            ModelState.ClearValidationState(nameof(ConfirmPassword));
+            ModelState.Remove("ProfilePictureFile");
+            ModelState.Remove("CurrentPassword");
+            ModelState.Remove("NewPassword");
+            ModelState.Remove("ConfirmPassword");
 
-
-            if (!TryValidateModel(CurrentUser, nameof(CurrentUser)))
+            if (!ModelState.IsValid)
             {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                foreach (var error in errors)
+                {
+                    // Log the error for debugging purposes
+                    Debug.WriteLine("\nError: " + error); // Replace with your logging mechanism
+                }
                 return Page();
             }
 
-
-            // Handle file upload
             if (ProfilePictureFile != null)
             {
-                var filePath = Path.Combine(_environment.WebRootPath, $"img/profile-picture-{CurrentUser.Username}");
+                var filePath = Path.Combine(_environment.WebRootPath, "img", "profile-pics", $"profile-pic-{CurrentUser.Username}.png");
 
-                // Ensure the directory exists
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-
-                // Save the uploaded file to the server
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await ProfilePictureFile.CopyToAsync(stream);
                 }
 
-                // Update the user's profile picture file path
-                CurrentUser.ProfilePictureFilePath = $"/img/profile-picture-{CurrentUser.Username}";
+                CurrentUser.ProfilePictureFilePath = $"/img/profile-pics/profile-pic-{CurrentUser.Username}.png";
             }
 
-            // Get the DB User object
-            var user = await _userManager.GetUserByIDAsync(CurrentUser.ID);
-
-            // Update the user's properties
-            user.FirstName = CurrentUser.FirstName;
-            user.MiddleNames = CurrentUser.MiddleNames;
-            user.LastName = CurrentUser.LastName;
-            user.Email = CurrentUser.Email;
-            user.PhoneNumber = CurrentUser.PhoneNumber;
-            user.ProfilePictureFilePath = CurrentUser.ProfilePictureFilePath;
-
-            // Save changes to the database
-            await _userManager.UpdateUserAsync(user);
+            await _userManager.UpdateUserAsync(CurrentUser);
 
             return RedirectToPage("./ProfileEdit");
         }
 
-        public async IActionResult OnPostChangePassword()
+        public async Task<IActionResult> OnPostChangePasswordAsync()
         {
-            // Clear validation state for properties not involved in this form submission
-            ModelState.ClearValidationState(nameof(CurrentUser));
-            ModelState.ClearValidationState(nameof(ProfilePictureFile));
-
-            // Manually validate the password fields
-            if (!PasswordFieldsAreValid(out string? error))
+            if (string.IsNullOrWhiteSpace(CurrentPassword) || string.IsNullOrWhiteSpace(NewPassword) || string.IsNullOrWhiteSpace(ConfirmPassword))
             {
-                return new JsonResult(new { success = false, error });
+                ChangePasswordError = "All password fields are required.";
+                return Page();
             }
 
-            // Update the user's password
-            var user = await _userManager.GetUserByIDAsync(CurrentUser.ID);
-            user
+            var (storedHashedPassword, storedSalt) = await _userManager.GetPasswordHashAndSaltByUserIDAsync(CurrentUser.ID);
 
-
-
-            // Save changes to the database
-
-            // Return a JSON response
-            return new JsonResult(new { success = true });
-        }
-
-        public bool PasswordFieldsAreValid(out string? error)
-        {
-            // Handle password change logic here
-            if (string.IsNullOrWhiteSpace(CurrentPassword) ||
-                string.IsNullOrWhiteSpace(NewPassword) ||
-                string.IsNullOrWhiteSpace(ConfirmPassword))
+            if (storedHashedPassword == null || storedSalt == null)
             {
-                error = "All password fields are required.";
-                return false;
+                ChangePasswordError = "An error occurred. Please try again.";
+                return Page();
             }
 
-            if (CurrentUser.Password != CurrentPassword)
+            if ( _passwordAuthenticator.IsPasswordHashValid(CurrentPassword, storedHashedPassword, storedSalt))
             {
-                error = "The current password is incorrect.";
-                return false;
+                ChangePasswordError = "The current password is incorrect.";
+                return Page();
             }
 
             if (NewPassword != ConfirmPassword)
             {
-                error = "The new passwords do not match.";
-                return false;
+                ChangePasswordError = "The new passwords do not match.";
+                return Page();
             }
 
-            error = null;
-            return true;
+            await _userManager.UpdatePasswordHashAndSaltByUserIDAsync(CurrentUser.ID, NewPassword, storedSalt);
+
+            return RedirectToPage("./ProfileEdit");
         }
 
         private async Task<UserDTO> GetCurrentUserAsync()
