@@ -8,7 +8,7 @@ namespace DataAccessLayer
 {
     public class ReviewDataAccess : DataAccessBase, IReviewDataAccess
     {
-        public async Task CreateReview(Review newReview)
+        public async Task CreateReviewAsync(Review newReview)
         {
             using (SqlConnection connection = OpenConnection())
             {

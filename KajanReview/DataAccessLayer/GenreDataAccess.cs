@@ -66,15 +66,16 @@ namespace DataAccessLayer
                         using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
                             if (reader.Read())
-                        {
-                            Genre genre = new Genre()
                             {
-                                ID = reader.GetInt32("ID"),
-                                Name = reader.GetString("Name")
-                            };
-                            return genre;
+                                Genre genre = new Genre()
+                                {
+                                    ID = reader.GetInt32("ID"),
+                                    Name = reader.GetString("Name")
+                                };
+                                return genre;
+                            }
+                            else { return new Genre(); }
                         }
-                        else { return new Genre(); }
                     }
                     catch (SqlException ex)
                     {

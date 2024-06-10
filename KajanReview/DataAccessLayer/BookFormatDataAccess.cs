@@ -188,7 +188,7 @@ namespace DataAccessLayer
             }
         }
 
-        public async Task DeleteBookFormatByID(int bookFormatId)
+        public async Task DeleteBookFormatByIDAsync(int bookFormatId)
         {
             // I'm not sure if I should allow full deletion of a Book Format;
             // It might be better to keep it archived or something

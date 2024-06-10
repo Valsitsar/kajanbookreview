@@ -260,7 +260,7 @@ namespace DataAccessLayer
             }
         }
 
-        public async Task DeleteCommentByID(int commentID)
+        public async Task DeleteCommentByIDAsync(int commentID)
         {
             // I'm not sure if I should allow full deletion of a Comment;
             // It might be better to keep it archived or something

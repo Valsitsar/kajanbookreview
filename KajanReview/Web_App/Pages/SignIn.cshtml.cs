@@ -32,8 +32,8 @@ namespace Web_App.Pages
 
             // TODO: Implement sign-in logic here (e.g. check if the user exists in the database)
             User user = UsernameOrEmail.Contains('@')
-                ? _userManager.GetUserByEmailForLoginAsync(UsernameOrEmail)
-                : _userManager.GetUserByUsernameForLoginAsync(UsernameOrEmail);
+                ? await _userManager.GetUserByEmailForLoginAsync(UsernameOrEmail)
+                : await _userManager.GetUserByUsernameForLoginAsync(UsernameOrEmail);
 
             if (user == null)
             {

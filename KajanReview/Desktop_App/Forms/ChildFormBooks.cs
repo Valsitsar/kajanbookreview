@@ -22,7 +22,7 @@ namespace Desktop_App.Forms
 
         private void btnCreateBook_Click(object sender, EventArgs e)
         {
-            _bookManager.CreateBook(new Book
+            _bookManager.CreateBookAsync(new Book
             {
                 Title = tbxTitle.Text,
                 Description = tbxDescription.Text,

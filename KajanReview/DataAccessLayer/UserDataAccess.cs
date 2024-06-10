@@ -433,7 +433,7 @@ namespace DataAccessLayer
                     UPDATE Users 
                     SET FirstName = @FirstName, MiddleNames = @MiddleNames, LastName = @LastName, 
                     Username = @Username, Email = @Email, PhoneNumber = @PhoneNumber, 
-                    ProfilePictureFilePath = @ProfilePictureFilePath, Role = @Role) 
+                    ProfilePictureFilePath = @ProfilePictureFilePath, Role = @Role 
                     WHERE ID = @ID; ";
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
