@@ -183,22 +183,29 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('confirmPassword').value = '';
         document.querySelector('span[asp-validation-for="ChangePasswordError"]').innerText = '';
     });
+
+    // Add an event listener for the 'submit' event on the password change account form
+    document.getElementById('changePasswordButton').addEventListener('click', (event) => {
+        $('#changePasswordModal').modal('show');
+
+
+    (function () {
+        'use strict';
+        var forms = document.querySelectorAll('.needs-validation');
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        //event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })
+    })
 });
 
-(function () {
-    'use strict';
-    var forms = document.querySelectorAll('.needs-validation');
-    Array.prototype.slice.call(forms)
-        .forEach(function (form) {
-            form.addEventListener('submit', function (event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
-})();
 
 function displayFileNameAndPreview() {
     const input = document.getElementById('profilePictureInput');
@@ -243,12 +250,12 @@ function togglePasswordFields() {
     }
 }
 
-// Show the change password modal if there are validation errors
-const showChangePasswordModal = '@(ViewData["ShowChangePasswordModal"] != null && (bool)ViewData["ShowChangePasswordModal"])';
-if (showChangePasswordModal === 'True') {
-    $('#changePasswordModal').modal('show');
-}
+//// Show the change password modal if there are validation errors
+//const showChangePasswordModal = '@(ViewData["ShowChangePasswordModal"] != null && (bool)ViewData["ShowChangePasswordModal"])';
+//if (showChangePasswordModal === 'True') {
+//    $('#changePasswordModal').modal('show');
+//}
 
-$(function () {
+(function () {
     $('[data-toggle="tooltip"]').tooltip()
 })

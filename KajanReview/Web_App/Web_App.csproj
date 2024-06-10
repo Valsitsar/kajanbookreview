@@ -23,4 +23,8 @@
     <_ContentIncludedByDefault Remove="Pages\SignIn.cshtml" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\img\profile-pics\" />
+  </ItemGroup>
+
 </Project>
