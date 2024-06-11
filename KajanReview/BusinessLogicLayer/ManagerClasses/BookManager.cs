@@ -24,6 +24,14 @@ namespace BusinessLogicLayer.ManagerClasses
         {
             return await _bookDataAccess.GetAllBooksAsync();
         }
+        public async Task<List<User>> GetAuthorsForBookAsync(int bookID)
+        {
+            return await _bookDataAccess.GetAuthorsForBookAsync(bookID);
+        }
+        public async Task<int> GetMaxPageCountAsync()
+        {
+            return await _bookDataAccess.GetMaxPageCountAsync();
+        }
         public async Task UpdateBookAsync(Book book)
         {
             await _bookDataAccess.UpdateBookAsync(book);

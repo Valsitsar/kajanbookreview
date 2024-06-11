@@ -186,6 +186,101 @@ namespace DataAccessLayer
             }
         }
 
+        public async Task<List<User>> GetAuthorsForBookAsync(int bookID)
+        {
+            using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                    SELECT Users.ID as UserID, Users.FirstName, Users.MiddleNames, Users.LastName
+                    FROM Books
+                    INNER JOIN Books_Authors
+                    ON Books.ID = Books_Authors.BookID
+                    INNER JOIN Users
+                    ON Books_Authors.UserID = Users.ID
+                    WHERE Books.ID = @ID; ";
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    try
+                    {
+                        List<User> authors = [];
+
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (reader.Read())
+                            {
+                                User author = new User()
+                                {
+                                    ID = reader.GetInt32("ID"),
+                                };
+                                authors.Add(author);
+                            }
+                        }
+
+                        if (authors.Count > 0) { return authors; }
+                        else { return []; }
+                    }
+                    catch (SqlException ex)
+                    {
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the Authors.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
+                    }
+                }
+            }
+        }
+
+        public async Task<int> GetMaxPageCountAsync()
+        {
+            using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                    SELECT MAX(PageCount) AS MaxPageCount
+                    FROM Books; ";
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    try
+                    {
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            if (reader.Read())
+                            {
+                                return reader.GetInt32("MaxPageCount");
+                            }
+                            else { return 0; }
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the maximum PageCount.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
+                    }
+                }
+            }
+        }
+
         public async Task UpdateBookAsync(Book book)
         {
             using (SqlConnection connection = OpenConnection())

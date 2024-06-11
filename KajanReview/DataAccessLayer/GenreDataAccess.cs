@@ -145,6 +145,58 @@ namespace DataAccessLayer
             }
         }
 
+        public async Task<List<Genre>> GetGenresForBookAsync(int bookID)
+        {
+            using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                    SELECT Genres.ID as GenreID, Name
+                    FROM Genres
+                    INNER JOIN Books_Genres
+                    ON Genres.ID = Books_Genres.GenreID
+                    WHERE GenreID = @ID; ";
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    try
+                    {
+                        List<Genre> _genres = [];
+
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (reader.Read())
+                            {
+                                Genre genre = new Genre()
+                                {
+                                    ID = reader.GetInt32("ID"),
+                                    Name = reader.GetString("Name")
+                                };
+                                _genres.Add(genre);
+                            }
+                            if (_genres.Count > 0) { return _genres; }
+                            else { return []; }
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the Genres.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
+                    }
+                }
+            }
+        }
+
         public async Task UpdateGenreAsync(Genre genre)
         {
             using (SqlConnection connection = OpenConnection())

@@ -283,6 +283,119 @@ namespace DataAccessLayer
             }
         }
 
+        public async Task<List<Review>> GetRatingsByUserAsync(int userID)
+        {
+            using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                    SELECT BookRating 
+                    FROM Reviews
+                    WHERE UserID = @UserID; ";
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@UserID", userID);
+
+                    try
+                    {
+                        List<Review> ratings = [];
+
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (reader.Read())
+                            {
+                                int rating = reader.GetInt32("BookRating");
+                                ratings.Add(new Review() { BookRating = rating});
+                            }
+
+                            return ratings;
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the ratings.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
+                    }
+                }
+            }
+        }
+
+        public async Task<List<Book>> GetFavoritesByUserAsync(int userID)
+        {
+            using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                    SELECT Books.ID as BookID, Title, Description, PageCount, Publisher, PubDate, Language, ISBN, BookFormatID, CoverFilePath
+                    FROM Bookshelves
+                    INNER JOIN Books_Bookshelves
+                    ON Bookshelves.ID = Books_Bookshelves.BookshelfID
+                    INNER JOIN Books
+                    ON Books_Bookshelves.BookID = Books.ID
+                    WHERE Bookshelves.OwnerID = 3 AND
+                    Bookshelves.Name = 'Favorites'; ";
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@UserID", userID);
+
+                    try
+                    {
+                        List<Book> favorites = [];
+
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (reader.Read())
+                            {
+                                Book book = new Book()
+                                {
+                                    ID = reader.GetInt32("ID"),
+                                    Title = reader.GetString("Title"),
+                                    Description = reader.GetString("Description"),
+                                    PageCount = reader.GetInt32("PageCount"),
+                                    Publisher = reader.GetString("Publisher"),
+                                    PubDate = reader.GetDateTime("PubDate"),
+                                    Language = reader.GetString("Language"),
+                                    ISBN = reader.GetString("ISBN"),
+                                    Format = new BookFormat() { ID = reader.GetInt32("BookFormatID") },
+                                    CoverFilePath = reader.GetString("CoverFilePath"),
+                                };
+                                favorites.Add(book);
+                            }
+
+                            return favorites;
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the favorites.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
+                    }
+                }
+            }
+        }
+
         public async Task<(string? hashedPassword, string? salt)> GetPasswordHashAndSaltByUsernameAsync(string username)
         {
             using (SqlConnection connection = OpenConnection())

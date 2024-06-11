@@ -4,6 +4,7 @@ using BusinessLogicLayer.Interfaces;
 using System.Reflection;
 using BusinessLogicLayer.DTOs;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using BusinessLogicLayer.RecommendationAlgorithm;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,10 @@ builder.Services.AddScoped<UserManager>();
 builder.Services.AddScoped<UserDTO>();
 builder.Services.AddScoped<PasswordHasher>();
 builder.Services.AddScoped<PasswordAuthenticator>();
+
+// Register Recommendation algorithm
+builder.Services.AddScoped<RecommendationEngine>();
+
 // Load the DAL assembly
 var dalAssemblyPath = "../DataAccessLayer/bin/debug/net8.0/DataAccessLayer.dll"; // Ensure this path is correct
 var dalAssembly = Assembly.LoadFrom(dalAssemblyPath);
