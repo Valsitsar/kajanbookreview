@@ -1,22 +1,32 @@
 using BusinessLogicLayer.Entities;
+using BusinessLogicLayer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Security.Claims;
 
 namespace Web_App.Pages
 {
-    [Authorize(Roles = "User, Author")]
-    // TODO: For the Author role, add a new "Bookshelf" with the books they've written
+    [Authorize(Roles = "Reader, Author")]
+    // TODO: Make covers and titles clickable and open the book's details page
     public class MyBooksModel : PageModel
     {
-        public List<Bookshelf> Bookshelves { get; set; } = new List<Bookshelf>();
+        public List<Bookshelf> Bookshelves { get; set; }
         public string SelectedShelf { get; set; }
         public int CurrentPage { get; set; }
         public int TotalPages { get; set; }
         public List<Book> PagedBooks { get; set; }
         public bool HasBooks => PagedBooks.Any();
+        public bool IsAuthor => User.IsInRole("Author");
 
-        private const int PageSize = 3;
+        private const int PageSize = 10;
+
+        private readonly IBookshelfManager _bookshelfManager;
+
+        public MyBooksModel(IBookshelfManager bookshelfManager)
+        {
+            _bookshelfManager = bookshelfManager;
+        }
 
         public IActionResult OnGetLoadBooksForShelf(string shelfName)
         {
@@ -24,14 +34,42 @@ namespace Web_App.Pages
             return new JsonResult(books);
         }
 
-        public void OnGet(string shelf = "All", int pageNumber = 1)
+        public async Task OnGet(string shelf = "All", int pageNumber = 1)
         {
-            // TODO: Implement DB connection to retreive bookshelf data
+            var userID = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             SelectedShelf = shelf;
             CurrentPage = pageNumber;
 
-            InitializeExampleData();
+            // Populate the list if it's empty (e.g., when the page is first opened)
+            if (Bookshelves == null || !Bookshelves.Any())
+            { 
+                await GetAllBookshelvesData(); 
+            }
+
+
+            if (SelectedShelf != "All")
+            {
+                var specificShelf = Bookshelves.FirstOrDefault(shelf => shelf.Name == SelectedShelf);
+                if (specificShelf != null)
+                {
+                    PagedBooks = await _bookshelfManager.GetPagedBooksByBookshelfIDAsync(specificShelf.ID, CurrentPage, PageSize);
+                    var totalBooksCount = await _bookshelfManager.GetTotalBooksCountByBookshelfIDAsync(specificShelf.ID);
+                    TotalPages = (int)System.Math.Ceiling(totalBooksCount / (double)PageSize);
+                }
+                else
+                {
+                    PagedBooks = new List<Book>();
+                    TotalPages = 0;
+                }
+            }
+            else
+            { 
+                // Get all books from all bookshelves from the user
+                PagedBooks = await _bookshelfManager.GetPagedBooksAcrossAllShelvesAsync(userID, CurrentPage, PageSize);
+                var totalBooksCount = await _bookshelfManager.GetTotalBooksCountAcrossAllShelvesAsync(userID);
+                TotalPages = (int)System.Math.Ceiling(totalBooksCount / (double)PageSize);
+            }
 
             var allBooks = (SelectedShelf == "All")
                ? Bookshelves.SelectMany(shelf => shelf.Books).ToList()
@@ -48,176 +86,24 @@ namespace Web_App.Pages
                 PagedBooks = new List<Book>();
             }
         }
-        private void InitializeExampleData()
+        private async Task GetAllBookshelvesData()
         {
-            // Example data initialization
-            Book theGreatGatsby = new Book()
-            {
-                Title = "The Great Gatsby",
-                Authors = new List<User>()
-                {
-                    new User()
-                    {
-                        FirstName = "Francis",
-                        MiddleNames = "Scott",
-                        LastName = "Fitzgerald"
-                    }
-                },
-                Genres = new List<Genre>()
-                {
-                    new Genre() { Name = "Fiction" },
-                    new Genre() { Name = "Classic" },
-                    new Genre() { Name = "Romance" }
+            Bookshelves = new List<Bookshelf>();
+            var userID = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (int.TryParse(userID, out int parsedUserID))
+            { 
+                Bookshelves = await _bookshelfManager.GetAllBookshelvesForUserAsync(int.Parse(userID));
 
-                },
-                Description = "The Great Gatsby is a novel by American writer F. Scott Fitzgerald. Set in the Jazz Age on Long Island, near New York City, the novel depicts first-person narrator Nick Carraway's interactions with mysterious millionaire Jay Gatsby and Gatsby's obsession to reunite with his former lover, Daisy Buchanan.",
-                PageCount = 180,
-                ISBN = "978-0-7432-7356-5",
-                Format = new BookFormat() { Name = "Paperback" },
-                Publisher = "Scribner",
-                PubDate = new DateTime(1925, 4, 10),
-                Language = "English",
-                CoverFilePath = "~/img/Book_cover_unavailable.png"
-            };
-            Book theCatcherInTheRye = new Book()
-            {
-                Title = "The Catcher in the Rye",
-                Authors = new List<User>()
+                if (IsAuthor)
                 {
-                    new User()
+                    var authorShelf = new Bookshelf
                     {
-                        FirstName = "Jerome",
-                        MiddleNames = "David",
-                        LastName = "Salinger"
-                    },
-                },
-                Genres = new List<Genre>()
-                {
-                    new Genre() { Name = "Fiction" },
-                    new Genre() { Name = "Classic" },
-                    new Genre() { Name = "Coming-of-age" }
-                },
-                Description = "The Catcher in the Rye is a novel by J. D. Salinger, partially published in serial form in 1945–1946 and as a novel in 1951. It was originally intended for adults, but is often read by adolescents for its themes of angst and alienation, and as a critique on superficiality in society.",
-                PageCount = 234,
-                ISBN = "978-0-316-76948-0",
-                Format = new BookFormat() { Name = "Hardcover" },
-                Publisher = "Little, Brown and Company",
-                PubDate = new DateTime(1951, 7, 16),
-                Language = "English",
-                CoverFilePath = "~/img/Book_cover_unavailable.png"
-            };
-            Book theBookOfThePast = new Book()
-            {
-                Title = "The Book of the Past",
-                Authors = new List<User>()
-                {
-                    new User()
-                    {
-                        FirstName = "Past",
-                        LastName = "Reader"
-                    },
-                },
-                Genres = new List<Genre>()
-                {
-                    new Genre() { Name = "Non-fiction" },
-                    new Genre() { Name = "Self-help" },
-                    new Genre() { Name = "Motivational" }
-                },
-                Description = "The Book of the Past is a book about finishing books. It is a self-help book that aims to motivate readers to finish reading books.",
-                PageCount = 300,
-                ISBN = "978-0-000-00000-1",
-                Format = new BookFormat() { Name = "E-book" },
-                Publisher = "Reading Books Inc.",
-                PubDate = new DateTime(2021, 1, 1),
-                Language = "English",
-                CoverFilePath = "~/img/Book_cover_unavailable.png"
-            };
-            Bookshelves = new List<Bookshelf>
-            {
-                new Bookshelf()
-                {
-                    Name = "Want To Read",
-                    Books = new List<Book>()
-                    {
-                        theGreatGatsby,
-                        theCatcherInTheRye
-                    }
-                },
-                new Bookshelf()
-                {
-                    Name = "Reading",
-                    Books = new List<Book>()
-                    {
-                        new Book()
-                        {
-                            Title = "The Book of Reading",
-                            Authors = new List<User>()
-                            {
-                                new User()
-                                {
-                                    FirstName = "Present",
-                                    LastName = "Reader"
-                                },
-                            },
-                            Genres = new List<Genre>()
-                            {
-                                new Genre() { Name = "Non-fiction" },
-                                new Genre() { Name = "Self-help" },
-                                new Genre() { Name = "Motivational" }
-                            },
-                            Description = "The Book of Reading is a book about reading books. It is a self-help book that aims to motivate readers to read more books.",
-                            PageCount = 300,
-                            ISBN = "978-0-000-00000-0",
-                            Format = new BookFormat() { Name = "E-book" },
-                            Publisher = "Reading Books Inc.",
-                            PubDate = new DateTime(2021, 1, 1),
-                            Language = "English",
-                            CoverFilePath = "~/img/Book_cover_unavailable.png"
-                        }
-                    }
-                },
-                new Bookshelf()
-                {
-                    Name = "Read",
-                    Books = new List<Book>()
-                    {
-                        theBookOfThePast
-                    }
-                },
-                new Bookshelf()
-                {
-                    Name = "Favorites",
-                    Books = new List<Book>()
-                    {
-                        new Book()
-                        {
-                            Title = "The Best Book",
-                            Authors = new List<User>()
-                            {
-                                new User()
-                                {
-                                    FirstName = "Favorite",
-                                    LastName = "Author"
-                                },
-                            },
-                            Genres = new List<Genre>()
-                            {
-                                new Genre() { Name = "Non-fiction" },
-                                new Genre() { Name = "Self-help" },
-                                new Genre() { Name = "Motivational" }
-                            },
-                            Description = "The Best Book is a book about the best book. It is a self-help book that aims to motivate readers to read the best book.",
-                            PageCount = 300,
-                            ISBN = "978-0-000-00000-2",
-                            Format = new BookFormat() { Name = "E-book" },
-                            Publisher = "Reading Books Inc.",
-                            PubDate = new DateTime(2021, 1, 1),
-                            Language = "English",
-                            CoverFilePath = "~/img/Book_cover_unavailable.png"
-                        }
-                    }
+                        Name = "Written by Me",
+                        Books = await _bookshelfManager.GetBooksByAuthorAsync(parsedUserID)
+                    };
+                    Bookshelves.Add(authorShelf);
                 }
-            };
+            }
         }
     }
 }

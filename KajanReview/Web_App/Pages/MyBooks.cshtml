@@ -19,11 +19,13 @@
                 <div class="card-header">
                     <strong>My Bookshelves</strong>
                 </div>
-                <div class="list-group list-group-flush">
+                <div class="list-group list-group-flush mb-3">
                     <a href="@Url.Page("MyBooks", new { shelf = "All" })" class="list-group-item list-group-item-action @((selectedShelf == "All") ? "active" : "")">
                         All
                         <span class="badge bg-secondary">@Model.Bookshelves.Sum(shelf => shelf.Books.Count)</span>
                     </a>
+                </div>
+                <div class="list-group list-group-flush">
                     @foreach (var shelf in Model.Bookshelves)
                     {
                         <a href="@Url.Page("MyBooks", new { shelf = shelf.Name })" class="list-group-item list-group-item-action @((shelf.Name == selectedShelf) ? "active" : "")">
@@ -38,13 +40,13 @@
         <!-- Main content for book info -->
         <div class="col-md-10">
             <div class="table-responsive">
-                <table class="table table-bordered">
+                <table class="table table-bordered text-center">
                     <thead class="thead-light">
                         <tr>
                             <th scope="col">Cover</th>
                             <th scope="col">Title</th>
                             <th scope="col">Author</th>
-                            <th scope="col">Avg Rating</th>
+                            <th scope="col">Average Rating</th>
                             <th scope="col">Shelves</th>
                             <th scope="col">Date Added</th>
                         </tr>
@@ -53,21 +55,38 @@
                         @foreach (var book in Model.PagedBooks)
                         {
                             <tr>
+                                @{
+                                    var averageRating = book.Reviews != null && book.Reviews.Count > 0 ? book.Reviews.Average(r => r.BookRating) : 0;
+                                    var percentage = (averageRating / 5.0) * 100;
+                                }
                                 <td style="width:40px" class="p-1">
-                                    <img src="@Url.Content(book.CoverFilePath)" alt="Book cover" class="book-cover">
+                                    @if (book.CoverFilePath != null)
+                                    {
+                                        <img src="@Url.Content(book.CoverFilePath)" alt="Book cover" class="book-cover">
+                                    }
+                                    else
+                                    {
+                                        <img src="/img/Book_cover_unavailable.png" alt="Book cover" class="book-cover">
+                                    }
                                 </td>
-                                <td>@book.Title</td>
-                                <td>@string.Join(", ", book.Authors.Select(a => $"{a.FirstName} {a.MiddleNames} {a.LastName}"))</td>
-                                <td>
-                                    <!-- Example average rating and star icons -->
-                                    4.30
-                                    <span class="text-warning">
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-half"></i>
-                                    </span>
+                                <td style="width: 150px;">@book.Title</td>
+                                <td style="width: 250px;">@string.Join(", ", book.Authors.Select(a => $"{a.FirstName} {a.MiddleNames} {a.LastName}"))</td>
+                                <td style="width: 150px;">
+                                    <div class="text-center">
+                                        @averageRating.ToString("F2")
+                                    </div>
+                                    <div class="stars-outer fs-6 text-center">
+                                        @for (int i = 0; i < 5; i++)
+                                        {
+                                            <i class="bi bi-star text-warning"></i>
+                                        }
+                                        <div class="stars-inner fs-6" style="width:@percentage%">
+                                            @for (int i = 0; i < 5; i++)
+                                            {
+                                                <i class="bi bi-star-fill"></i>
+                                            }
+                                        </div>
+                                    </div>
                                 </td>
                                 <td>
                                     @string.Join(", ", Model.Bookshelves.Where(shelf => shelf.Books.Contains(book)).Select(shelf => shelf.Name))
