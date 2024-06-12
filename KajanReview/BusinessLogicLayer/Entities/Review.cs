@@ -2,7 +2,7 @@
 
 namespace BusinessLogicLayer.Entities
 {
-    public class Review : IUserPost
+    public class Review
     {
         public int ID { get; set; }
         public User Poster { get; set; }
@@ -13,6 +13,6 @@ namespace BusinessLogicLayer.Entities
         public DateTime PostDate { get; set; }
         public int BookRating { get; set; }
         public Book SourceBook { get; set; }
-        public List<Comment>? Comments { get; set; } = new List<Comment>();
+        //public List<Comment>? Comments { get; set; } = new List<Comment>();
     }
 }

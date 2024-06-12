@@ -32,7 +32,7 @@ namespace BusinessLogicLayer.RecommendationAlgorithm
                 book.Authors = await _bookManager.GetAuthorsForBookAsync(book.ID);
             }
 
-            var userRatings = await _userManager.GetRatingsByUserAsync(userID);
+            var userRatings = await _userManager.GetReviewsByUserAsync(userID);
             var userFavorites = await _userManager.GetFavoritesByUserAsync(userID);
 
             var userHighlyRatedBookIDs = userRatings.Where(review => review.BookRating >= 4).Select(review => review.SourceBook.ID).ToList();
