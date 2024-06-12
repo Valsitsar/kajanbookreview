@@ -1,5 +1,6 @@
 using BusinessLogicLayer;
 using BusinessLogicLayer.Entities;
+using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.ManagerClasses;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -17,10 +18,10 @@ namespace Web_App.Pages
         [BindProperty]
         public string Password { get; set; }
 
-        private readonly UserManager _userManager;
+        private readonly IUserManager _userManager;
         private readonly PasswordAuthenticator _passwordVerifier;
 
-        public SignInModel(UserManager userManager, PasswordAuthenticator passwordVerifier)
+        public SignInModel(IUserManager userManager, PasswordAuthenticator passwordVerifier)
         {
             _userManager = userManager;
             _passwordVerifier = passwordVerifier;
