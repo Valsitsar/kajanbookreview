@@ -42,9 +42,14 @@ namespace BusinessLogicLayer.ManagerClasses
             return await _userDataAccess.GetAllUsersAsync();
         }
 
-        public async Task<List<Review>> GetRatingsByUserAsync(int userID)
+        public async Task<List<Review>> GetReviewsByUserAsync(int userID)
         {
-            return await _userDataAccess.GetRatingsByUserAsync(userID);
+            return await _userDataAccess.GetReviewsByUserIDAsync(userID);
+        }
+
+        public async Task<(List<Bookshelf>, List<int>)> GetBookshelfNamesAndCountsForUserAsync(int userID)
+        {
+            return await _userDataAccess.GetBookshelfNamesAndCountsForUserAsync(userID);
         }
 
         public async Task<List<Book>> GetFavoritesByUserAsync(int userID)
