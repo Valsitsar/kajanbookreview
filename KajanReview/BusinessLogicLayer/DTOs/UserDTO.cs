@@ -27,5 +27,7 @@ namespace BusinessLogicLayer.DTOs
         public string Email { get; set; }
         public string? PhoneNumber { get; set; }
         public Role Role { get; set; } = new Role();
+        public List<Review> Reviews { get; set; } = new List<Review>();
+        public List<Bookshelf> Bookshelves { get; set; } = new List<Bookshelf>();
     }
 }

@@ -42,6 +42,21 @@ namespace BusinessLogicLayer.ManagerClasses
             return await _userDataAccess.GetAllUsersAsync();
         }
 
+        public async Task<List<Review>> GetReviewsByUserAsync(int userID)
+        {
+            return await _userDataAccess.GetReviewsByUserIDAsync(userID);
+        }
+
+        public async Task<(List<Bookshelf>, List<int>)> GetBookshelfNamesAndCountsForUserAsync(int userID)
+        {
+            return await _userDataAccess.GetBookshelfNamesAndCountsForUserAsync(userID);
+        }
+
+        public async Task<List<Book>> GetFavoritesByUserAsync(int userID)
+        {
+            return await _userDataAccess.GetFavoritesByUserAsync(userID);
+        }
+
         public async Task<(string? hashedPassword, string? salt)> GetPasswordHashAndSaltByUsernameAsync(string username)
         {
             return await _userDataAccess.GetPasswordHashAndSaltByUsernameAsync(username);
@@ -52,9 +67,22 @@ namespace BusinessLogicLayer.ManagerClasses
             return await _userDataAccess.GetPasswordHashAndSaltByUserIDAsync(userID);
         }
 
-        public async Task UpdatePasswordHashAndSaltByUserIDAsync(int userID, string hashedPassword, string salt)
+        public async Task UpdatePasswordHashAndSaltByUserIDAsync(int userID, string inputtedPassword, string storedSalt)
         {
-            await _userDataAccess.UpdatePasswordHashAndSaltByUserIDAsync(userID, hashedPassword, salt);
+            // Validate the current password and get the new hashed password and salt
+            var result = await PrepareNewPasswordIfValid(userID, inputtedPassword);
+
+            if (result == null)
+            {
+                // If the password is not valid, throw an exception
+                throw new ArgumentException("The inputted password is invalid.");
+            }
+
+            // Deconstruct the tuple to extract the new hashed password and salt
+            var (newHashedPassword, newSalt) = result.Value;
+
+            // Update the user's password hash and salt in the database
+            await _userDataAccess.UpdatePasswordHashAndSaltByUserIDAsync(userID, newHashedPassword, newSalt);
         }
 
         public async Task UpdateUserAsync(UserDTO userDTO)
@@ -67,27 +95,29 @@ namespace BusinessLogicLayer.ManagerClasses
             await _userDataAccess.DeleteUserByIDAsync(userID);
         }
 
-        public async Task<bool> TryPasswordChangeAsync(int userID, string currentPassword, string newPassword)
+        public async Task<(string? newHashedPassword, string? newSalt)?> PrepareNewPasswordIfValid(int userID, string inputtedPassword)
         {
-            (string? hashedPassword, string? salt) = await GetPasswordHashAndSaltByUserIDAsync(userID);
+            // Retrieve the current hashed password and salt for the user from the DB
+            (string? storedHashedPassword, string? storedSalt) = await GetPasswordHashAndSaltByUserIDAsync(userID);
 
-            if (hashedPassword == null || salt == null)
+            // If either the hashed password or salt could not be retrieved, return false
+            if (storedHashedPassword == null || storedSalt == null)
             {
-                return false;
+                return null;
             }
 
-            bool passwordIsValid = _passwordAuthenticator.IsPasswordHashValid(currentPassword, hashedPassword, salt);
+            // Check if the hash of the inputted current password matches the stored hashed password
+            bool passwordIsValid = _passwordAuthenticator.IsPasswordHashValid(inputtedPassword, storedHashedPassword, storedSalt);
 
             if (!passwordIsValid)
             {
-                return false;
+                return null;
             }
 
-            (string newHashedPassword, string newSalt) = _passwordHasher.HashAndSaltPassword(newPassword);
+            // If the password is valid, hash and salt the new password
+            (string newHashedPassword, string newSalt) = _passwordHasher.HashAndSaltPassword(inputtedPassword);
 
-            await UpdatePasswordHashAndSaltByUserIDAsync(userID, newHashedPassword, newSalt);
-
-            return true;
+            return (newHashedPassword, newSalt);
         }
     }
 }

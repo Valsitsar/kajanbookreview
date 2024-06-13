@@ -1,8 +1,11 @@
 ﻿using BusinessLogicLayer.DTOs;
 using BusinessLogicLayer.Entities;
 using BusinessLogicLayer.Interfaces;
+using Microsoft.SqlServer.Server;
+using Microsoft.VisualBasic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace DataAccessLayer
@@ -268,6 +271,196 @@ namespace DataAccessLayer
                     {
                         // Handle SQL exceptions (e.g., query syntax errors)
                         throw new IOException("Failed to retrieve the user.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
+                    }
+                }
+            }
+        }
+
+        public async Task<List<Review>> GetReviewsByUserIDAsync(int userID)
+        {
+            using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                    SELECT ID, Title, Body, UpvoteCount, DownvoteCount, PostDate, BookRating, BookID
+                    FROM Reviews
+                    WHERE UserID = @UserID; ";
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@UserID", userID);
+
+                    try
+                    {
+                        List<Review> reviews = [];
+
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (reader.Read())
+                            {
+                                Review review = new Review()
+                                {
+                                    ID = reader.GetInt32("ID"),
+                                    Title = reader.GetString("Title"),
+                                    Body = reader.GetString("Body"),
+                                    UpvoteCount = reader.GetInt32("UpvoteCount"),
+                                    DownvoteCount = reader.GetInt32("DownvoteCount"),
+                                    PostDate = reader.GetDateTime("PostDate"),
+                                    BookRating = reader.GetInt32("BookRating"),
+                                    SourceBook = new Book() { ID = reader.GetInt32("BookID") }
+                                };
+                                reviews.Add(review);
+                            }
+
+                            return reviews;
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the ratings.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
+                    }
+                }
+            }
+        }
+
+        public async Task<(List<Bookshelf>, List<int>)> GetBookshelfNamesAndCountsForUserAsync(int userID)
+        {
+            using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                    SELECT 
+	                    Bookshelves.ID AS BookshelfID, 
+	                    Name, 
+                        COUNT(*) AS BookCount
+                    FROM 
+	                    Bookshelves
+                    INNER JOIN 
+	                    Books_Bookshelves ON Bookshelves.ID = Books_Bookshelves.BookshelfID
+                    INNER JOIN 
+	                    Books ON Books_Bookshelves.BookID = Books.ID
+                    WHERE 
+	                    OwnerID = @UserID
+                    GROUP BY 
+	                    Bookshelves.ID, Bookshelves.Name
+                    ORDER BY
+	                    Bookshelves.ID; ";
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@UserID", userID);
+
+                    try
+                    {
+                        List<Bookshelf> bookshelves = [];
+                        List<int> bookCounts = [];
+
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (reader.Read())
+                            {
+                                Bookshelf bookshelf = new Bookshelf()
+                                {
+                                    ID = reader.GetInt32("BookshelfID"),
+                                    Name = reader.GetString("Name"),
+                                };
+                                bookshelves.Add(bookshelf);
+                                bookCounts.Add(reader.GetInt32("BookCount"));
+                            }
+
+                            return (bookshelves, bookCounts);
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the bookshelves.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
+                    }
+                }
+            }
+        }
+
+        public async Task<List<Book>> GetFavoritesByUserAsync(int userID)
+        {
+            using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                    SELECT Books.ID as BookID, Title, Description, PageCount, Publisher, PubDate, Language, ISBN, BookFormatID, CoverFilePath
+                    FROM Bookshelves
+                    INNER JOIN Books_Bookshelves
+                    ON Bookshelves.ID = Books_Bookshelves.BookshelfID
+                    INNER JOIN Books
+                    ON Books_Bookshelves.BookID = Books.ID
+                    WHERE Bookshelves.OwnerID = 3 AND
+                    Bookshelves.Name = 'Favorites'; ";
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@UserID", userID);
+
+                    try
+                    {
+                        List<Book> favorites = [];
+
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (reader.Read())
+                            {
+                                Book book = new Book()
+                                {
+                                    ID = reader.GetInt32("ID"),
+                                    Title = reader.GetString("Title"),
+                                    Description = reader.GetString("Description"),
+                                    PageCount = reader.GetInt32("PageCount"),
+                                    Publisher = reader.GetString("Publisher"),
+                                    PubDate = reader.GetDateTime("PubDate"),
+                                    Language = reader.GetString("Language"),
+                                    ISBN = reader.GetString("ISBN"),
+                                    Format = new BookFormat() { ID = reader.GetInt32("BookFormatID") },
+                                    CoverFilePath = reader.GetString("CoverFilePath"),
+                                };
+                                favorites.Add(book);
+                            }
+
+                            return favorites;
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the favorites.", ex);
                     }
                     catch (InvalidOperationException ex)
                     {

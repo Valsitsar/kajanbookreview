@@ -27,6 +27,31 @@ namespace BusinessLogicLayer.ManagerClasses
             return await _bookshelfDataAccess.GetAllBookshelvesForUserAsync(userID);
         }
 
+        public async Task<List<Book>> GetPagedBooksByBookshelfIDAsync(int bookshelfID, int pageNumber, int pageSize)
+        {
+            return await _bookshelfDataAccess.GetPagedBooksByBookshelfIDAsync(bookshelfID, pageNumber, pageSize);
+        }
+
+        public async Task<int> GetTotalBooksCountByBookshelfIDAsync(int bookshelfID)
+        {
+            return await _bookshelfDataAccess.GetTotalBooksCountByBookshelfIDAsync(bookshelfID);
+        }
+
+        public async Task<List<Book>> GetPagedBooksAcrossAllShelvesAsync(int userID, int pageNumber, int pageSize)
+        {
+            return await _bookshelfDataAccess.GetPagedBooksAcrossAllShelvesAsync(userID, pageNumber, pageSize);
+        }
+
+        public async Task<int> GetTotalBooksCountAcrossAllShelvesAsync(int userID)
+        {
+            return await _bookshelfDataAccess.GetTotalBooksCountAcrossAllShelvesAsync(userID);
+        }
+
+        public async Task<List<Book>> GetBooksByAuthorAsync(int userID)
+        {
+            return await _bookshelfDataAccess.GetBooksByAuthorAsync(userID);
+        }
+
         public async Task UpdateBookshelfAsync(Bookshelf bookshelf)
         {
             await _bookshelfDataAccess.UpdateBookshelfAsync(bookshelf);

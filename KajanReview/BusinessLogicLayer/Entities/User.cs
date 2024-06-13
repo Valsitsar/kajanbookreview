@@ -18,6 +18,6 @@ namespace BusinessLogicLayer.Entities
         public Role Role { get; set; } = new Role() { Name = "Reader" };
         public List<Bookshelf> Bookshelves { get; set; } = new List<Bookshelf>();
         public List<Role> Roles { get; set; } = new List<Role>();
-        public List<IUserPost> Posts { get; set; } = new List<IUserPost>();
+        public List<Review> Reviews { get; set; } = new List<Review>();
     }
 }

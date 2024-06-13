@@ -27,6 +27,11 @@ namespace BusinessLogicLayer.ManagerClasses
             return await _genreDataAccess.GetAllGenresAsync();
         }
 
+        public async Task<List<Genre>> GetGenresForBookAsync(int bookID)
+        {
+            return await _genreDataAccess.GetGenresForBookAsync(bookID);
+        }
+
         public async Task UpdateGenreAsync(Genre genre)
         {
             await _genreDataAccess.UpdateGenreAsync(genre);

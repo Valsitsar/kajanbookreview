@@ -35,11 +35,11 @@ namespace Web_App.Pages
 
         public string ChangePasswordError { get; set; }
 
-        private readonly UserManager _userManager;
+        private readonly IUserManager _userManager;
         private readonly PasswordAuthenticator _passwordAuthenticator;
         private readonly IWebHostEnvironment _environment;
 
-        public ProfileEditModel(UserManager userManager, IWebHostEnvironment environment)
+        public ProfileEditModel(IUserManager userManager, IWebHostEnvironment environment)
         {
             _userManager = userManager;
             _environment = environment;

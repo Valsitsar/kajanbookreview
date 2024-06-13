@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using BusinessLogicLayer;
 using BusinessLogicLayer.DTOs;
+using BusinessLogicLayer.Interfaces;
 
 namespace Web_App.Pages
 {
@@ -18,10 +19,10 @@ namespace Web_App.Pages
         [BindProperty]
         public string ConfirmPassword { get; set; }
 
-        private UserManager _userManager;
+        private IUserManager _userManager;
         private PasswordHasher _passwordHasher;
 
-        public SignUpModel(UserManager userManager)
+        public SignUpModel(IUserManager userManager)
         {
             _userManager = userManager;
             _passwordHasher = new PasswordHasher();

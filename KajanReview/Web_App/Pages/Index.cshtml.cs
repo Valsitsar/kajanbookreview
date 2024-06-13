@@ -1,11 +1,12 @@
 using BusinessLogicLayer.Entities;
+using BusinessLogicLayer.Interfaces;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Web_App.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly ILogger<IndexModel> _logger;
+        private readonly IBookManager _bookManager;
 
         // Properties for pagination
         public List<Book> Books { get; set; }

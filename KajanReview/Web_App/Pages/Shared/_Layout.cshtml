@@ -1,9 +1,10 @@
 ﻿@using System.Security.Claims
-@inject BusinessLogicLayer.ManagerClasses.UserManager userManager;
+@using BusinessLogicLayer.Interfaces
+@inject IUserManager userManager;
 @{
     var userID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     var user = userID != null ? await userManager.GetUserByIDAsync(Convert.ToInt32(userID)) : null;
-    var profilePictureFilePath = user?.ProfilePictureFilePath ?? Url.Content("/img/default-profile-picture.png");
+    var profilePictureFilePath = Url.Content(user?.ProfilePictureFilePath) ?? Url.Content("/img/default-profile-picture.png");
 }
 
 <!DOCTYPE html>
@@ -143,6 +144,12 @@
                             {
                                 <li class="nav-item">
                                     <a class="nav-link" asp-area="" asp-page="/SignIn">Sign in</a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-page="/SignOut">Sign out</a>
                                 </li>
                             }
                         </ul>

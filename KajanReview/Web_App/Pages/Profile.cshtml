@@ -1,25 +1,57 @@
 ﻿@page
-@using BusinessLogicLayer.Entities
+
+@using BusinessLogicLayer.Interfaces;
+@inject IUserManager userManager;
+@inject IBookshelfManager bookshelfManager;
 @model ProfileModel
 @{
     ViewData["Title"] = "Profile";
     // TODO: Figure out how to get all the user's book ratings
     // List<Review> reviews = Model.CurrentUser.Posts.FindAll(r => r.GetType() == typeof(Review));
-    int totalUpvotes = Model.CurrentUser.Posts.FindAll(r => r.GetType() == typeof(Review)).Sum(s => s.UpvoteCount);
-    int totalDownvotes = Model.CurrentUser.Posts.FindAll(r => r.GetType() == typeof(Review)).Sum(s => s.DownvoteCount);
-    int totalRatings = Model.CurrentUser.Posts.FindAll(r => r.GetType() == typeof(Review)).Count;
-    // int bookRatingSum = Model.CurrentUser.Posts.FindAll(r => r.GetType() == typeof(Review));
-    decimal upvoteDownvoteRatio = totalDownvotes == 0 ? totalUpvotes : (decimal)totalUpvotes / totalDownvotes;
+
+    int totalUpvotes = 0;
+    int totalDownvotes = 0;
+    int totalRatings = 0;
+    int totalReviews = 0;
+    double averageRating = 0;
+    decimal upvoteDownvoteRatio = 0;
+    int totalBookCountInShelves = 0;
+
+    if (Model.CurrentUser.Reviews != null && Model.CurrentUser.Reviews.Count > 0)
+    {
+        // Calculate the total number of upvotes and downvotes for all reviews
+        totalUpvotes = Model.CurrentUser.Reviews.Sum(r => r.UpvoteCount);
+        totalDownvotes = Model.CurrentUser.Reviews.Sum(r => r.DownvoteCount);
+        totalReviews = Model.CurrentUser.Reviews.Count(r => r.Body != null && r.Body != "");
+        totalRatings = Model.CurrentUser.Reviews.Count - totalReviews;
+        averageRating = Model.CurrentUser.Reviews.Average(r => r.BookRating);
+        // int bookRatingSum = Model.CurrentUser.Posts.FindAll(r => r.GetType() == typeof(Review));
+        upvoteDownvoteRatio = totalDownvotes == 0 ? totalUpvotes : (decimal)totalUpvotes / totalDownvotes;
+
+    }
+
+    var bookshelvesWithBookCounts = Model.CurrentUser.Bookshelves
+                                    .Zip(Model.bookshelfBookCounts, (bookshelf, bookCount) => new { bookshelf, bookCount });
+
+    totalBookCountInShelves = Model.bookshelfBookCounts.Sum();
 }
 
 <div class="container profile-wrapper d-flex justify-content-center mb-5">
     <div class="row w-75">
         <!-- Profile Picture and Ratings Section -->
         <div class="col-md-3 text-center">
-            <img src="@Url.Content(Model.CurrentUser.ProfilePictureFilePath)" id="UserProfilePicture" class="img-fluid rounded-circle mb-3" alt="Profile Picture" style="max-width: 100%">
+            @if (Model.CurrentUser.ProfilePictureFilePath != null)
+            {
+                <img src="@Url.Content(Model.CurrentUser.ProfilePictureFilePath)" id="UserProfilePicture" class="img-fluid rounded-circle mb-3" alt="Profile Picture" style="max-width: 100%">
+            }
+            else {
+                <img src="/img/default-profile-picture.png" id="UserProfilePicture" class="img-fluid rounded-circle mb-3" alt="Profile Picture" style="max-width: 100%">
+            }
             <div>
-                @* <p><strong>@Model.CurrentUser.Posts.Count ratings (@(Model.CurrentUser.Posts.Average(p => p.BookRating).ToString("F2")) avg.)</strong></p> *@
-                <p><strong>@Model.CurrentUser.Posts.Count ratings</strong></p>
+                <p><strong>
+                    <div>@totalReviews reviews with ratings</div>
+                    <div>@totalRatings standalone ratings</div>
+                </strong></p>
                 <p><strong>Up/Down: @upvoteDownvoteRatio.ToString("F2")</strong></p>
             </div>
         </div>
@@ -44,15 +76,19 @@
                 <ul class="list-group border-goldenrod">
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <a href="/MyBooks/All" class="text-decoration-none list-group-item-action">All</a>
-                        <span class="badge bg-goldenrod rounded-pill">@Model.CurrentUser.Posts.Count</span>
+                        <span class="badge bg-goldenrod rounded-pill">@totalBookCountInShelves</span>
                     </li>
-                    @foreach (var bookshelf in Model.CurrentUser.Bookshelves)
+                    @foreach (var item in bookshelvesWithBookCounts)
                     {
                         // Encode the bookshelf name to be used in the URL (spaces are replaced with %20)
-                        var encodedBookshelfName = System.Uri.EscapeDataString(bookshelf.Name);
+                        var encodedBookshelfName = System.Uri.EscapeDataString(item.bookshelf.Name);
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <a href=@($"/Mybooks/{encodedBookshelfName}") class="text-decoration-none list-group-item-action">@bookshelf.Name</a>
-                            <span class="badge bg-goldenrod rounded-pill">@bookshelf.Books.Count</span>
+                            <a href=@($"/Mybooks/{encodedBookshelfName}") class="text-decoration-none list-group-item-action">
+                                @item.bookshelf.Name
+                            </a>
+                            <span class="badge bg-goldenrod rounded-pill">
+                                @item.bookCount
+                            </span>
                         </li>
                     }
                 </ul>
