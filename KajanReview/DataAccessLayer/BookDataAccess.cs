@@ -186,6 +186,144 @@ namespace DataAccessLayer
             }
         }
 
+        #region Pagination queries
+        public async Task<int> GetTotalBooksCountAsync()
+        {
+            using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                    SELECT 
+                        COUNT(*) AS TotalBooks
+                    FROM 
+                        Books; ";
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    try
+                    {
+                        await connection.OpenAsync();
+                        return (int)await command.ExecuteScalarAsync();
+                    }
+                    catch (SqlException ex)
+                    {
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the total number of Books.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
+                    }
+                }
+            }
+        }
+
+        public async Task<List<Book>> GetBooksByPageAsync(int pageNumber, int pageSize)
+        {
+            var books = new Dictionary<int, Book>();
+
+            using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                SELECT
+                    b.ID AS BookID, b.Title, b.Description, b.PageCount, b.Publisher, 
+                    b.PubDate, b.Language, b.ISBN, b.CoverFilePath,
+                    u.ID AS AuthorID, u.FirstName, u.MiddleNames, u.LastName,
+                    r.ID AS ReviewID, r.BookRating
+                FROM
+                    Books AS b
+                LEFT JOIN 
+                    Books_Authors AS ba ON b.ID = ba.BookID
+                LEFT JOIN 
+                    Users AS u ON ba.UserID = u.ID
+                LEFT JOIN 
+                    Reviews AS r ON b.ID = r.BookID
+                ORDER BY
+                    b.ID
+                OFFSET 
+                    @Offset ROWS
+                FETCH NEXT
+                    @PageSize ROWS ONLY; ";
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@Offset", (pageNumber - 1) * pageSize);
+                    command.Parameters.AddWithValue("@PageSize", pageSize);
+
+                    try
+                    {
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                int bookID = reader.GetInt32("BookID");
+                                if (!books.ContainsKey(bookID))
+                                {
+                                    books[bookID] = new Book()
+                                    {
+                                        ID = bookID,
+                                        Title = reader.GetString("Title"),
+                                        Description = reader.GetString("Description"),
+                                        PageCount = reader.GetInt32("PageCount"),
+                                        Publisher = reader.GetString("Publisher"),
+                                        PubDate = reader.GetDateTime("PubDate"),
+                                        Language = reader.GetString("Language"),
+                                        ISBN = reader.GetString("ISBN"),
+                                        CoverFilePath = reader.GetString("CoverFilePath"),
+                                        Authors = new List<User>(),
+                                        Reviews = new List<Review>()
+                                    };
+                                }
+
+                                if (!reader.IsDBNull("AuthorID"))
+                                {
+                                    books[bookID].Authors.Add(new User()
+                                    {
+                                        ID = reader.GetInt32("AuthorID"),
+                                        FirstName = reader.GetString("FirstName"),
+                                        MiddleNames = reader.GetString("MiddleNames"),
+                                        LastName = reader.GetString("LastName")
+                                    });
+                                }
+
+                                if (!reader.IsDBNull("ReviewID"))
+                                {
+                                    books[bookID].Reviews.Add(new Review()
+                                    {
+                                        ID = reader.GetInt32("ReviewID"),
+                                        BookRating = reader.GetInt32("BookRating")
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the paginated list of books due to a SQL exception.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
+                    }
+                }
+            }
+            return new List<Book>(books.Values);
+        }
+        #endregion
+
         public async Task<List<User>> GetAuthorsForBookAsync(int bookID)
         {
             using (SqlConnection connection = OpenConnection())

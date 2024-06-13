@@ -7,6 +7,10 @@ namespace BusinessLogicLayer.Interfaces
         public Task CreateBookAsync(Book newBook);
         public Task<Book> GetBookByIDAsync(int bookID);
         public Task<List<Book>> GetAllBooksAsync();
+
+        public Task<int> GetTotalBooksCountAsync();
+        public Task<List<Book>> GetBooksByPageAsync(int pageNumber, int pageSize);
+
         public Task<List<User>> GetAuthorsForBookAsync(int bookID);
         public Task<int> GetMaxPageCountAsync();
         public Task UpdateBookAsync(Book book);
