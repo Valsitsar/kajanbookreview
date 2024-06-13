@@ -62,12 +62,31 @@ namespace DataAccessLayer
             using (SqlConnection connection = OpenConnection())
             {
                 string sqlQuery = @"
-                    SELECT Books.ID, Title, Description, PageCount, Publisher, PubDate, Language, ISBN,
-                    BookFormatID, BookFormats.Name AS BookFormatName, CoverFilePath,
-                    FROM Books
-                    INNER JOIN BookFormats
-                    ON Books.BookFormatID = BookFormats.ID
-                    WHERE Books.ID = @ID; ";
+                    SELECT 
+                        b.ID, b.Title, b.Description, b.PageCount, b.Publisher, b.PubDate, b.Language, b.ISBN, 
+	                    bf.ID as BookFormatID, bf.Name as BookFormatName, b.CoverFilePath,
+                        u.ID as AuthorID, u.FirstName AS AuthorFirstName, u.MiddleNames AS AuthorMiddleNames, u.LastName AS AuthorLastName,
+                        g.ID as GenreID, g.Name as GenreName,
+                        r.ID as ReviewID, r.BookRating, r.Title as ReviewTitle, r.Body as ReviewBody, r.PostDate, r.UpvoteCount, r.DownvoteCount, 
+                        ru.ID as ReviewerID, ru.Username as ReviewerUsername, ru.ProfilePictureFilePath as ReviewerProfilePicture
+                    FROM 
+	                    Books b
+                    INNER JOIN 
+	                    BookFormats bf ON b.BookFormatID = bf.ID
+                    LEFT JOIN 
+	                    Books_Authors ba ON b.ID = ba.BookID
+                    LEFT JOIN 
+	                    Users u ON ba.UserID = u.ID
+                    LEFT JOIN 
+	                    Books_Genres bg ON b.ID = bg.BookID
+                    LEFT JOIN 
+	                    Genres g ON bg.GenreID = g.ID
+                    LEFT JOIN 
+	                    Reviews r ON b.ID = r.BookID
+                    LEFT JOIN 
+	                    Users ru ON r.UserID = ru.ID
+                    WHERE 
+	                    b.ID = @ID; ";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
@@ -78,28 +97,101 @@ namespace DataAccessLayer
                         await connection.OpenAsync();
                         using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            if (reader.Read())
+                            Book book = null;
+                            var authors = new List<User>();
+                            var genres = new List<Genre>();
+                            var reviews = new List<Review>();
+
+                            while (await reader.ReadAsync())
                             {
-                                Book book = new Book()
+                                if (book == null)
                                 {
-                                    ID = reader.GetInt32("ID"),
-                                    Title = reader.GetString("Title"),
-                                    Description = reader.GetString("Description"),
-                                    PageCount = reader.GetInt32("PageCount"),
-                                    Publisher = reader.GetString("Publisher"),
-                                    PubDate = reader.GetDateTime("PubDate"),
-                                    Language = reader.GetString("Language"),
-                                    ISBN = reader.GetString("ISBN"),
-                                    Format = new BookFormat()
+                                    book = new Book()
                                     {
-                                        ID = reader.GetInt32("BookFormatID"),
-                                        Name = reader.GetString("FormatName")
-                                    },
-                                    CoverFilePath = reader.GetString("CoverFilePath")
-                                };
-                                return book;
+                                        ID = reader.GetInt32("ID"),
+                                        Title = reader.GetString("Title"),
+                                        Description = reader.GetString("Description"),
+                                        PageCount = reader.GetInt32("PageCount"),
+                                        Publisher = reader.GetString("Publisher"),
+                                        PubDate = reader.GetDateTime("PubDate"),
+                                        Language = reader.GetString("Language"),
+                                        ISBN = reader.GetString("ISBN"),
+                                        Format = new BookFormat()
+                                        {
+                                            ID = reader.GetInt32("BookFormatID"),
+                                            Name = reader.GetString("BookFormatName")
+                                        },
+                                        CoverFilePath = reader.GetString("CoverFilePath"),
+                                        Authors = new List<User>(),
+                                        Genres = new List<Genre>(),
+                                        Reviews = new List<Review>()
+                                    };
+                                }
+
+                                if (!reader.IsDBNull("AuthorID"))
+                                {
+                                    int authorID = reader.GetInt32("AuthorID");
+                                    if (!authors.Any(a => a.ID == authorID))
+                                    {
+                                        var author = new User()
+                                        {
+                                            ID = authorID,
+                                            FirstName = reader.IsDBNull("AuthorFirstName") ? "" : reader.GetString("AuthorFirstName"),
+                                            MiddleNames = reader.IsDBNull("AuthorMiddleNames") ? "" : reader.GetString("AuthorMiddleNames"),
+                                            LastName = reader.IsDBNull("AuthorLastName") ? "" : reader.GetString("AuthorLastName")
+                                        };
+                                        authors.Add(author);
+                                    }
+                                }
+
+                                if (!reader.IsDBNull("GenreID"))
+                                {
+                                    int genreID = reader.GetInt32("GenreID");
+                                    if (!genres.Any(g => g.ID == genreID))
+                                    {
+                                        var genre = new Genre()
+                                        {
+                                            ID = genreID,
+                                            Name = reader.GetString("GenreName")
+                                        };
+                                        genres.Add(genre);
+                                    }
+                                }
+
+                                if (!reader.IsDBNull("ReviewID"))
+                                {
+                                    int reviewID = reader.GetInt32("ReviewID");
+                                    if (!reviews.Any(r => r.ID == reviewID))
+                                    {
+                                        var review = new Review()
+                                        {
+                                            ID = reviewID,
+                                            BookRating = reader.GetInt32("BookRating"),
+                                            Title = reader.IsDBNull("ReviewTitle") ? "" : reader.GetString("ReviewTitle"),
+                                            Body = reader.IsDBNull("ReviewBody") ? "" : reader.GetString("ReviewBody"),
+                                            PostDate = reader.GetDateTime("PostDate"),
+                                            UpvoteCount = reader.GetInt32("UpvoteCount"),
+                                            DownvoteCount = reader.GetInt32("DownvoteCount"),
+                                            Poster = new User()
+                                            {
+                                                ID = reader.GetInt32("ReviewerID"),
+                                                Username = reader.GetString("ReviewerUsername"),
+                                                ProfilePictureFilePath = reader.IsDBNull("ReviewerProfilePicture") ? "" : reader.GetString("ReviewerProfilePicture")
+                                            }
+                                        };
+                                        reviews.Add(review);
+                                    }
+                                }
                             }
-                            else { return new Book(); }
+
+                            if (book != null)
+                            {
+                                book.Authors = authors;
+                                book.Genres = genres;
+                                book.Reviews = reviews;
+                            }
+
+                            return book;
                         }
                     }
                     catch (SqlException ex)
@@ -187,18 +279,31 @@ namespace DataAccessLayer
         }
 
         #region Pagination queries
-        public async Task<int> GetTotalBooksCountAsync()
+        public async Task<int> GetTotalBooksCountAsync(string searchQuery = null)
         {
             using (SqlConnection connection = OpenConnection())
             {
                 string sqlQuery = @"
                     SELECT 
-                        COUNT(*) AS TotalBooks
+                        COUNT(DISTINCT b.ID) AS TotalBooks
                     FROM 
-                        Books; ";
+                        Books AS b
+                    LEFT JOIN
+                        Books_Authors AS ba ON b.ID = ba.BookID
+                    LEFT JOIN
+                        Users AS u ON ba.UserID = u.ID
+                    WHERE
+                        (@SearchQuery IS NULL OR 
+	                    LOWER(b.Title) LIKE '%' + LOWER(@SearchQuery) + '%' OR 
+	                    LOWER(b.ISBN) LIKE '%' + LOWER(@SearchQuery) + '%' OR 
+	                    LOWER(u.FirstName) LIKE '%' + LOWER(@SearchQuery) + '%' OR
+	                    LOWER(u.MiddleNames) LIKE '%' + LOWER(@SearchQuery) + '%' OR
+	                    LOWER(u.LastName) LIKE '%' + LOWER(@SearchQuery) + '%');";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
+                    command.Parameters.AddWithValue("@SearchQuery", (object)searchQuery ?? DBNull.Value);
+
                     try
                     {
                         await connection.OpenAsync();
@@ -223,37 +328,56 @@ namespace DataAccessLayer
             }
         }
 
-        public async Task<List<Book>> GetBooksByPageAsync(int pageNumber, int pageSize)
+        public async Task<List<Book>> GetBooksByPageAsync(int pageNumber, int pageSize, string searchQuery = null)
         {
             var books = new Dictionary<int, Book>();
 
             using (SqlConnection connection = OpenConnection())
             {
                 string sqlQuery = @"
-                SELECT
-                    b.ID AS BookID, b.Title, b.Description, b.PageCount, b.Publisher, 
-                    b.PubDate, b.Language, b.ISBN, b.CoverFilePath,
-                    u.ID AS AuthorID, u.FirstName, u.MiddleNames, u.LastName,
-                    r.ID AS ReviewID, r.BookRating
-                FROM
-                    Books AS b
+                WITH PaginatedBooks AS (
+                    SELECT 
+                        b.Id, b.Title, b.Description, b.PageCount, b.Publisher, b.PubDate, b.Language, b.ISBN, b.CoverFilePath
+                    FROM 
+                        Books b
+                    LEFT JOIN 
+                        Books_Authors ba ON b.Id = ba.BookId
+                    LEFT JOIN 
+                        Users a ON ba.UserID = a.Id
+                    WHERE 
+                        @SearchQuery IS NULL OR 
+                        LOWER(b.Title) LIKE '%' + LOWER(@SearchQuery) + '%' OR 
+                        LOWER(b.ISBN) LIKE '%' + LOWER(@SearchQuery) + '%' OR 
+                        LOWER(a.FirstName) LIKE '%' + LOWER(@SearchQuery) + '%' OR 
+                        LOWER(a.MiddleNames) LIKE '%' + LOWER(@SearchQuery) + '%' OR 
+                        LOWER(a.LastName) LIKE '%' + LOWER(@SearchQuery) + '%'
+                    GROUP BY 
+                        b.Id, b.Title, b.Description, b.PageCount, b.Publisher, b.PubDate, b.Language, b.ISBN, b.CoverFilePath
+                    ORDER BY 
+                        b.Title
+                    OFFSET @Offset ROWS
+                    FETCH NEXT @PageSize ROWS ONLY
+                )
+                SELECT 
+                    pb.Id AS BookID, pb.Title, pb.Description, pb.PageCount, pb.Publisher, pb.PubDate, pb.Language, pb.ISBN, pb.CoverFilePath, 
+                    a.Id AS AuthorId, a.FirstName, a.MiddleNames, a.LastName,
+                    r.Id AS ReviewId, r.BookRating
+                FROM 
+                    PaginatedBooks pb
                 LEFT JOIN 
-                    Books_Authors AS ba ON b.ID = ba.BookID
+                    Books_Authors ba ON pb.Id = ba.BookId
                 LEFT JOIN 
-                    Users AS u ON ba.UserID = u.ID
+                    Users a ON ba.UserID = a.Id
                 LEFT JOIN 
-                    Reviews AS r ON b.ID = r.BookID
+                    Reviews r ON pb.Id = r.BookId
                 ORDER BY
-                    b.ID
-                OFFSET 
-                    @Offset ROWS
-                FETCH NEXT
-                    @PageSize ROWS ONLY; ";
+                    BookID;";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
                     command.Parameters.AddWithValue("@Offset", (pageNumber - 1) * pageSize);
                     command.Parameters.AddWithValue("@PageSize", pageSize);
+                    command.Parameters.AddWithValue("@SearchQuery", (object)searchQuery ?? DBNull.Value);
 
                     try
                     {
@@ -275,30 +399,43 @@ namespace DataAccessLayer
                                         PubDate = reader.GetDateTime("PubDate"),
                                         Language = reader.GetString("Language"),
                                         ISBN = reader.GetString("ISBN"),
-                                        CoverFilePath = reader.GetString("CoverFilePath"),
+                                        CoverFilePath = reader.IsDBNull("CoverFilePath") ? "" : reader.GetString("CoverFilePath)"),
                                         Authors = new List<User>(),
                                         Reviews = new List<Review>()
                                     };
                                 }
 
+                                var book = books[bookID];
+
+                                // Only add unique authors to the book
                                 if (!reader.IsDBNull("AuthorID"))
                                 {
-                                    books[bookID].Authors.Add(new User()
+                                    int authorID = reader.GetInt32("AuthorID");
+                                    if (!book.Authors.Any(a => a.ID == authorID))
                                     {
-                                        ID = reader.GetInt32("AuthorID"),
-                                        FirstName = reader.GetString("FirstName"),
-                                        MiddleNames = reader.GetString("MiddleNames"),
-                                        LastName = reader.GetString("LastName")
-                                    });
+                                        book.Authors.Add(new User()
+                                        {
+                                            ID = authorID,
+                                            FirstName = reader.IsDBNull("FirstName") ? "" : reader.GetString("FirstName"),
+                                            MiddleNames = reader.IsDBNull("MiddleNames") ? "" : reader.GetString("MiddleNames"),
+                                            LastName = reader.IsDBNull("LastName") ? "" : reader.GetString("LastName")
+                                        });
+                                    }
                                 }
 
+
+                                // Only add unique reviews to the book
                                 if (!reader.IsDBNull("ReviewID"))
                                 {
-                                    books[bookID].Reviews.Add(new Review()
+                                    int reviewID = reader.GetInt32("ReviewID");
+                                    if (!book.Reviews.Any(r => r.ID == reviewID))
                                     {
-                                        ID = reader.GetInt32("ReviewID"),
-                                        BookRating = reader.GetInt32("BookRating")
-                                    });
+                                        book.Reviews.Add(new Review()
+                                        {
+                                            ID = reviewID,
+                                            BookRating = reader.GetInt32("BookRating")
+                                        });
+                                    }
                                 }
                             }
                         }
@@ -478,3 +615,4 @@ namespace DataAccessLayer
         }
     }
 }
+ 

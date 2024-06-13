@@ -25,14 +25,14 @@ namespace BusinessLogicLayer.ManagerClasses
             return await _bookDataAccess.GetAllBooksAsync();
         }
 
-        public async Task<int> GetTotalBooksCountAsync()
+        public async Task<int> GetTotalBooksCountAsync(string searchQuery)
         {
-            return await _bookDataAccess.GetTotalBooksCountAsync();
+            return await _bookDataAccess.GetTotalBooksCountAsync(searchQuery);
         }
 
-        public async Task<List<Book>> GetBooksByPageAsync(int pageNumber, int pageSize)
+        public async Task<List<Book>> GetBooksByPageAsync(int pageNumber, int pageSize, string searchQuery)
         {
-            return await _bookDataAccess.GetBooksByPageAsync(pageNumber, pageSize);
+            return await _bookDataAccess.GetBooksByPageAsync(pageNumber, pageSize, searchQuery);
         }
 
         public async Task<List<User>> GetAuthorsForBookAsync(int bookID)
