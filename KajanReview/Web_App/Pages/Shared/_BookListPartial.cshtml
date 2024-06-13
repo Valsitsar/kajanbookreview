@@ -3,10 +3,15 @@
 @{
     var averageRating = 0.0;
     var percentage = 0.0;
+    var coverFilePath = Model.CoverFilePath;
     if (Model.Reviews != null && Model.Reviews.Count > 0) {
         averageRating = Math.Round(Model.Reviews.Average(r => r.BookRating), 2);
         percentage = (averageRating / 5.0) * 100;
     }
+    if (coverFilePath == null || coverFilePath == "") {
+        coverFilePath = "/img/Book_cover_unavailable.png";
+    }
+    coverFilePath = Url.Content(coverFilePath);
 }
 
 <div class="card BookItem-body mb-5 border-0">
@@ -16,7 +21,10 @@
         <!-- Left side with book cover, rating, and buttons -->
         <div class="col-md-2 col-3 d-flex flex-column align-items-center p-3 border-goldenrod border-end-0">
             <a href="/BookDetails">
-                <img class="book-cover img-fluid rounded pb-3" src="@Model.CoverFilePath" alt="@Model.Title cover">
+                @if (Model.CoverFilePath != null)
+                {
+                    <img class="book-cover img-fluid rounded pb-3" src="@coverFilePath" alt="@Model.Title cover">
+                }
             </a>
             
             <div class="btn-group" role="group">
