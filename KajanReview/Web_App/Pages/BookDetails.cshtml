@@ -1,9 +1,32 @@
 ﻿@page
+@using BusinessLogicLayer.Interfaces
+@using System.Security.Claims
+@inject IUserManager userManager;
 @model Web_App.Pages.BookDetailsModel
 @{
-    ViewData["Title"] = $"{Model.CurrentBook.Title} details";
-    var averageRating = Math.Round(Model.CurrentBook.Reviews.Average(r => r.BookRating), 2);
-    var percentage = (averageRating / 5.0) * 100;
+    ViewData["Title"] = $"{Model.CurrentBook?.Title} details" ?? $"Book Details";
+    double averageRating = 0;
+    double percentage = 0;
+
+    if (Model.CurrentBook?.Reviews?.Any() == true) // Check if there are any reviews
+    {
+        averageRating = Math.Round(Model.CurrentBook.Reviews.Average(r => r.BookRating), 2);
+        percentage = (averageRating / 5.0) * 100;
+    }
+
+    var coverFilePath = Model.CurrentBook?.CoverFilePath;
+    if (coverFilePath == null || coverFilePath == "")
+    {
+        coverFilePath = "/img/Book_cover_unavailable.png";
+    }
+    coverFilePath = Url.Content(coverFilePath);
+
+    var bookID = Model.CurrentBook.ID;
+    var returnUrl = Url.Page("/BookDetails", new { id = bookID });
+
+    var isUserAuthenticated = User.Identity.IsAuthenticated;
+
+    // TODO: Add funtionality to display error messages
 }
 
 <div id="BookDetails-body" style="margin-top: 75px;">
@@ -12,15 +35,42 @@
         <div class="col-12 col-lg-3 mb-4">
             <div class="sticky-sidebar">
                 <div class="text-center">
-                    <img class="book-cover img-fluid rounded" src="@Model.CurrentBook.CoverFilePath" alt="@Model.CurrentBook.Title cover">
+                    <img class="book-cover img-fluid rounded" src="@coverFilePath" alt="@Model.CurrentBook.Title cover">
                     <div id="star-rating" class="my-2">
                         @for (int i = 0; i < 5; i++)
                         {
                             <i class="bi bi-star text-warning fs-3"></i>
                         }
                     </div>
-                    @* TODO: Make it a button group with a dropdown to select a specific Bookshelf --> *@
-                    <button type="button" class="btn btn-lg" style="background-color: #DAA520; color: #36454F;">Want to read</button>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-lg btn-goldenrod">Want to read</button>
+                        <button type="button" class="btn btn-lg btn-goldenrod dropdown-toggle dropdown-toggle-split overflow-auto" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="visually-hidden">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu border-goldenrod">
+                            @if (isUserAuthenticated)
+                            {
+                                @foreach (var bookshelf in Model.UserBookshelves)
+                                {
+                                    <form method="post" asp-page-handler="AddToBookshelf">
+                                        <input type="hidden" name="CurrentBookID" value="@Model.CurrentBook.ID" />
+                                        <input type="hidden" name="BookshelfID" value="@bookshelf.ID" />
+                                        <li><button type="submit" class="dropdown-item">@bookshelf.Name</button></li>
+                                    </form>
+                                }
+                            }
+                            else
+                            {
+                                <li><a class="dropdown-item" href="/SignIn?ReturnUrl=@returnUrl">Sign in to add to bookshelf</a></li>
+                            }
+                        </ul>
+                        @if (TempData["Message"] != null)
+                        {
+                            <script>
+                                alert('@TempData["Message"]');
+                            </script>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
@@ -41,14 +91,16 @@
                     }
                     else
                     {
-                        <h5>@Model.CurrentBook.Authors[0].FirstName @Model.CurrentBook.Authors[0].LastName</h5>
-                        @foreach (var author in Model.CurrentBook.Authors)
-                        {
-                            @if (author != Model.CurrentBook.Authors[0])
+                        <h5>
+                            <span>@Model.CurrentBook.Authors[0].FirstName @Model.CurrentBook.Authors[0].LastName</span>
+                            @foreach (var author in Model.CurrentBook.Authors)
                             {
-                                <h5>, @author.FirstName @author.LastName</h5>
+                                @if (author != Model.CurrentBook.Authors[0])
+                                {
+                                    <span>, @author.FirstName @author.LastName</span>
+                                }
                             }
-                        }
+                        </h5>
                     }
                 </div>
                 <!-- #endregion -->
@@ -86,30 +138,22 @@
                 <!-- #endregion -->
 
                 <!-- #region More info + Description -->
-                <div>
-                    <div class="col-3 fs-5">
-                        <div>#X IN SERIES</div>
-                    </div>
-                    <div class="col-4 fs-5">
-                        <div>PUBLISHER</div>
-                    </div>
-                    <div class="col-5 fs-5">
-                        <div>PAGES</div>
-                    </div>
-
-                    <div class="col-3 fs-5">
-                        Example series
-                    </div>
-                    <div class="col-4 fs-5">
-                        @Model.CurrentBook.Publisher, @Model.CurrentBook.PubDate.Year
-                    </div>
-                    <div class="col-5 fs-5">
-                        @Model.CurrentBook.PageCount
-                    </div>
-
-                    <div class="col-12 my-5 fs-5">
-                        <p>@Model.CurrentBook.Description</p>
-                    </div>
+                <div class="d-flex mt-2 fs-5">
+                    <dl class="me-4">
+                        <dt>#X IN SERIES</dt>
+                        <dd>Example Series</dd> <!-- Placeholder for series data -->
+                    </dl>
+                    <dl class="me-4">
+                        <dt>PUBLISHER</dt>
+                        <dd>@Model.CurrentBook.Publisher, @Model.CurrentBook.PubDate.Year</dd>
+                    </dl>
+                    <dl>
+                        <dt>PAGES</dt>
+                        <dd>@Model.CurrentBook.PageCount</dd>
+                    </dl>
+                </div>
+                <div class="fs-5">
+                    <p class="card-text mt-xxl-3 mt-0">@Model.CurrentBook.Description</p>
                 </div>
                 <!-- #endregion -->
             </div>
@@ -120,57 +164,55 @@
                 <div class="col-12">
                     <h2>Additional Details</h2>
                     <div class="border-goldenrod p-2 px-3">
-                        <div class="row fs-5">
+                        <dl class="row fs-5">
                             <div class="col-4">
-                                <div class="text-muted">TITLE</div>
-                                <div class="mb-4">@Model.CurrentBook.Title</div>
+                                <dt class="text-muted">TITLE</dt>
+                                <dd class="mb-4">@Model.CurrentBook.Title</dd>
                             </div>
                             <div class="col-4">
-                                <div class="text-muted fs-5">LANGUAGE</div>
-                                <div class="mb-4">@Model.CurrentBook.Language</div>
+                                <dt class="text-muted">LANGUAGE</dt>
+                                <dd class="mb-4">@Model.CurrentBook.Language</dd>
                             </div>
                             <div class="col-4">
-                                <div class="text-muted fs-5">PAGES</div>
-                                <div class="mb-4">@Model.CurrentBook.PageCount</div>
+                                <dt class="text-muted">PAGES</dt>
+                                <dd class="mb-4">@Model.CurrentBook.PageCount</dd>
                             </div>
-                        </div>
-                        <div class="row fs-5">
+
                             <div class="col-4">
-                                <div class="text-muted">FORMAT</div>
-                                <div class="mb-4">@Model.CurrentBook.Format.Name</div>
-                            </div>
-                            <div class="col-4">
-                                <div class="text-muted">ISBN</div>
-                                <div class="mb-4">@Model.CurrentBook.ISBN</div>
+                                <dt class="text-muted">FORMAT</dt>
+                                <dd class="mb-4">@Model.CurrentBook.Format.Name</dd>
                             </div>
                             <div class="col-4">
-                                <div class="text-muted">GENRES</div>
-                                <div class="mb-4">
-                                    @foreach (var genre in Model.CurrentBook.Genres)
+                                <dt class="text-muted">ISBN</dt>
+                                <dd class="mb-4">@Model.CurrentBook.ISBN</dd>
+                            </div>
+                            <div class="col-4">
+                                <dt class="text-muted">GENRES</dt>
+                                <dd class="mb-4">
+                                    @for (int i = 0; i < Model.CurrentBook.Genres.Count; i++)
                                     {
-                                        <span>@genre.Name</span>
-                                        if (genre != Model.CurrentBook.Genres.Last())
+                                        <span>@Model.CurrentBook.Genres[i].Name</span>
+                                        if (i < Model.CurrentBook.Genres.Count - 1)
                                         {
                                             <span>, </span>
                                         }
                                     }
-                                </div>
+                                </dd>
                             </div>
-                        </div>
-                        <div class="row fs-5">
+
                             <div class="col-4">
-                                <div class="text-muted">PUBLISHER</div>
-                                <div class="mb-4">@Model.CurrentBook.Publisher</div>
-                            </div>
-                            <div class="col-4">
-                                <div class="text-muted">PUBLISHED ON</div>
-                                <div class="mb-4">@Model.CurrentBook.PubDate.Day/@Model.CurrentBook.PubDate.Month/@Model.CurrentBook.PubDate.Year</div>
+                                <dt class="text-muted">PUBLISHER</dt>
+                                <dd class="mb-4">@Model.CurrentBook.Publisher</dd>
                             </div>
                             <div class="col-4">
-                                <div class="text-muted">#3 IN SERIES</div>
-                                <div class="mb-4">Example series</div>
+                                <dt class="text-muted">PUBLISHED ON</dt>
+                                <dd class="mb-4">@Model.CurrentBook.PubDate.Day/@Model.CurrentBook.PubDate.Month/@Model.CurrentBook.PubDate.Year</dd>
                             </div>
-                        </div>
+                            <div class="col-4">
+                                <dt class="text-muted">#3 IN SERIES</dt>
+                                <dd class="mb-4">Example series</dd>
+                            </div>
+                        </dl>
                     </div>
                 </div>
             </div>
@@ -220,13 +262,62 @@
                 <div class="col-12 mb-5">
                     <h4>How did you like the book? Let others know!</h4>
                     <div class="d-flex align-items-center">
-                        <div class="me-3">
-                            @for (int i = 1; i <= 5; i++)
-                            {
-                                <i class="bi bi-star text-warning fs-2" onclick="setUserRating(@i)" id="userRatingStar-@i"></i>
-                            }
+                        @if (@isUserAuthenticated)
+                        {
+                            <button type="button" class="btn btn-lg btn-goldenrod" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                                Write review
+                            </button>
+                        }
+                        else
+                        {
+                            // Redirect to sign in page with the return URL
+                            <a href="/SignIn?ReturnUrl=@returnUrl" >
+                                <button type="button" class="btn btn-lg btn-goldenrod">
+                                    Write review
+                                </button>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+            <!-- #endregion -->
+
+            <!-- #region Review Modal -->
+            <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="reviewModalLabel">Write a Review</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <button type="button" class="btn btn-lg btn-goldenrod">Write review</button>
+                        <div class="modal-body">
+                            <form id="reviewForm" method="post" asp-page-handler="CreateReview">
+                                <input type="hidden" asp-for="@Model.CurrentBookID" />
+                                <div class="form-group mb-3">
+                                    <label for="reviewTitle" class="form-label">Review Title</label>
+                                    <input type="text" class="form-control" id="reviewTitle" name="reviewTitle" required>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="reviewBody" class="form-label">Review Body</label>
+                                    <textarea class="form-control" id="reviewBody" name="reviewBody" rows="3" required></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="me-2">
+                                        <div class="stars-outer" style="cursor: pointer;">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="bi bi-star text-warning" data-value="@i"></i>
+                                            }
+                                        </div>
+                                        <input type="hidden" id="userRating" name="userRating" value="0" />
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-goldenrod" form="reviewForm">Submit Review</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -283,9 +374,9 @@
                                 <button type="button" class="btn btn-sm p-0 text-decoration-none mx-3" id="btnDownvote" onclick="playVineBoomSound()">
                                     <span>&#128128 @review.DownvoteCount</span>
                                 </button>
-                                <button type="button" class="btn btn-sm p-0 text-decoration-none">
+                                @* <button type="button" class="btn btn-sm p-0 text-decoration-none">
                                     <i class="bi bi-reply"></i> Reply
-                                </button>
+                                </button> *@
                             </div>
                             <!-- #endregion -->
 
@@ -298,3 +389,42 @@
         <!-- #endregion -->
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const stars = document.querySelectorAll('.stars-outer .bi');
+            let currentRating = 0; // Keeps track of the current selected rating
+
+            stars.forEach(star => {
+                star.addEventListener('mouseover', (e) => {
+                    updateStarsVisual(e.target.getAttribute('data-value'), false);
+                });
+
+                star.addEventListener('mouseout', () => {
+                    // When mouse leaves, revert to the current selected rating
+                    updateStarsVisual(currentRating, true);
+                });
+
+                star.addEventListener('click', (e) => {
+                    currentRating = e.target.getAttribute('data-value');
+                    document.getElementById('userRating').value = currentRating; // Update the hidden input value
+                    updateStarsVisual(currentRating, true);
+                });
+            });
+
+            function updateStarsVisual(rating, permanent) {
+                stars.forEach(star => {
+                    if (star.getAttribute('data-value') <= rating) {
+                        star.classList.remove('bi-star');
+                        star.classList.add('bi-star-fill');
+                    } else if (permanent) {
+                        // Only revert back if the change is meant to be permanent (after click, not hover)
+                        star.classList.add('bi-star');
+                        star.classList.remove('bi-star-fill');
+                    }
+                });
+            }
+        });
+    </script>
+}

@@ -1,75 +1,153 @@
 using BusinessLogicLayer.Entities;
+using BusinessLogicLayer.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Security.Claims;
 
 namespace Web_App.Pages
 {
     public class BookDetailsModel : PageModel
     {
-        //[BindProperty(SupportsGet = true)]
-        //public Book CurrentBook { get; set; }
-        public Book CurrentBook { get; private set; }
-        public void OnGet()
+        private readonly IBookManager _bookManager;
+        private readonly IReviewManager _reviewManager;
+        private readonly IUserManager _userManager;
+        private readonly IBookshelfManager _bookshelfManager;
+        private readonly ILogger<BookDetailsModel> _logger;
+
+        public BookDetailsModel(IBookManager bookManager, IReviewManager reviewManager,  ILogger<BookDetailsModel> logger, IUserManager userManager, IBookshelfManager bookshelfManager)
         {
-            // TODO: implement DB
-            // Hard-coded values for now
-            CurrentBook = new Book()
+            _bookManager = bookManager;
+            _reviewManager = reviewManager;
+            _logger = logger;
+            _userManager = userManager;
+            _bookshelfManager = bookshelfManager;
+        }
+
+        public Book? CurrentBook { get; set; }
+
+        [BindProperty]
+        public int CurrentBookID { get; set; }
+
+        [BindProperty]
+        public int BookshelfID { get; set; }
+
+        [BindProperty]
+        public string? ReviewTitle { get; set; }
+
+        [BindProperty]
+        public string? ReviewBody { get; set; }
+
+        [BindProperty]
+        public int? UserRating { get; set; }
+
+        public List<Bookshelf> UserBookshelves { get; set; }
+
+        public async Task OnGet(int id)
+        {
+            try
             {
-                CoverFilePath = "./img/Book_cover_unavailable.png",
-                Title = "Example book",
-                Description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin tincidunt leo imperdiet ante venenatis, et tempus odio eleifend. Vivamus a magna arcu. In nisl ipsum, cursus sit amet posuere eu, bibendum eget mauris. Pellentesque semper semper orci, ut vehicula enim ultrices in. Duis tempor vulputate ante vel viverra. Sed fringilla dolor eget neque interdum, laoreet facilisis massa condimentum. Etiam ultrices sem non nunc gravida aliquet. Nunc eu ligula ut libero pulvinar porttitor a vitae nunc. Maecenas et nulla sem. Fusce ac risus ac justo dictum luctus id eu augue.",
-                PageCount = 1000,
-                ISBN = "1234567654321",
-                Format = new BookFormat() { Name = "Hardcover" },
-                Publisher = "Example publisher",
-                PubDate = DateTime.Today,
-                Language = "English",
-                Genres = new List<Genre>
+                CurrentBook = await _bookManager.GetBookByIDAsync(id);
+                if (CurrentBook == null)
                 {
-                    new Genre() { Name = "Fantasy" }, new Genre() { Name = "Romance" }
-                },
-                Authors = new List<User> { new User() { FirstName = "Example", LastName = "Author" } },
-                Reviews = new List<Review>
-                {
-                    new Review()
-                    {
-                        Poster = new User() { Username = "ReviewPoster1" },
-                        Title = "I loved it!",
-                        Body = "This book is amazing!",
-                        BookRating = 5,
-                        PostDate = DateTime.Today.AddDays(-4),
-                        UpvoteCount = 69,
-                    },
-                    new Review()
-                    {
-                        Poster = new User() { Username = "ReviewPoster2" },
-                        Title = "A mediocre experience.",
-                        Body = "This book is okay.",
-                        BookRating = 3,
-                        PostDate = DateTime.Today.AddDays(-3),
-                        UpvoteCount = 420,
-                    },
-                    new Review()
-                    {
-                        Poster = new User() { Username = "ReviewPoster3" },
-                        Title = "Do not recommend to anyone. Stay away!",
-                        Body = "This book is terrible.",
-                        BookRating = 1,
-                        PostDate = DateTime.Today.AddDays(-2),
-                        DownvoteCount = 666,
-                    },
-                    new Review()
-                    {
-                        Poster = new User() { Username = "ReviewPoster4" },
-                        Title = "This book changed my life - here's how.",
-                        Body = "This book is the best book ever!",
-                        BookRating = 5,
-                        PostDate = DateTime.Today.AddDays(-1)
-                    },
-                    new Review() { BookRating = 2 },
-                    new Review() { BookRating = 4 },
-                    new Review() { BookRating = 5 },
+                    // Log a warning if the book is not found
+                    TempData["ErrorMessage"] = "Book not found.";
+                    _logger.LogWarning($"Book with ID {id} not found.");
                 }
-            };
+                else
+                {
+                   CurrentBookID = CurrentBook.ID;
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred while retrieving the book.";
+                _logger.LogError(ex, $"An error occurred while retrieving book with ID {id}.");
+            }
+            try
+            {
+                UserBookshelves = await _userManager.GetBookshelvesForUserAsync(int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0"));
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred while retrieving the user's bookshelves.";
+                _logger.LogError(ex, "An error occurred while retrieving the user's bookshelves.");
+            }
+        }
+
+        public async Task<IActionResult> OnPostCreateReviewAsync()
+        {
+            try
+            {
+                // Get the current user
+                var userID = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var parsedUserID = int.Parse(userID ?? "0");
+
+                var username = User.Identity?.Name ?? string.Empty;
+
+                CurrentBook = await _bookManager.GetBookByIDAsync(CurrentBookID);
+
+                // Create a new review
+                var review = new Review
+                {
+                    Title = ReviewTitle,
+                    Body = ReviewBody,
+                    BookRating = UserRating.Value,
+                    PostDate = DateTime.Now,
+                    SourceBook = CurrentBook,
+                    Poster = new User() { ID = parsedUserID, Username = username }
+                };
+
+                // Add the review to the database
+                await _reviewManager.CreateReviewAsync(review);
+
+                // Redirect to the book details page
+                return RedirectToPage("/BookDetails", new { id = CurrentBookID });
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred while creating the review.";
+                _logger.LogError(ex, "An error occurred while creating a review.");
+                return Page();
+            }
+        }
+
+        public async Task<IActionResult> OnPostAddToBookshelfAsync(int bookshelfID)
+        {
+            try
+            {
+                // Get the current user
+                var userID = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var parsedUserID = int.Parse(userID ?? "0");
+
+                var username = User.Identity?.Name ?? string.Empty;
+
+                CurrentBook = await _bookManager.GetBookByIDAsync(CurrentBookID);
+
+                if (!User.Identity.IsAuthenticated)
+                {
+                    TempData["ErrorMessage"] = "You must be logged in to add a book to a bookshelf.";
+                    return RedirectToPage("/SignIn", new { id = CurrentBookID});
+                }
+
+                // Add the book to the bookshelf
+                var wasAdded = await _bookManager.TryAddBookToBookshelfAsync(CurrentBookID, bookshelfID);
+
+                if (wasAdded)
+                {
+                    TempData["SuccessMessage"] = "Book added to bookshelf.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "An error occurred while adding the book to a bookshelf.";
+                }
+                return RedirectToPage("/BookDetails", new { id = CurrentBookID });
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred while adding the book to a bookshelf.";
+                _logger.LogError(ex, "An error occurred while adding the book to a bookshelf.");
+                return RedirectToPage("/BookDetails", new { id = CurrentBookID });
+            }
         }
     }
 }
