@@ -5,8 +5,12 @@ namespace BusinessLogicLayer.Interfaces
     public interface IBookManager
     {
         public Task CreateBookAsync(Book newBook);
+
+        public Task<bool> TryAddBookToBookshelfAsync(int bookID, int bookshelfID);
+
         public Task<Book> GetBookByIDAsync(int bookID);
         public Task<List<Book>> GetAllBooksAsync();
+        public Task<List<Book>> GetAllBooksWithDetailsAsync();
 
         public Task<int> GetTotalBooksCountAsync(string searchQuery);
         public Task<List<Book>> GetBooksByPageAsync(int pageNumber, int pageSize, string searchQuery);

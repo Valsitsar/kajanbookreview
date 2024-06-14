@@ -13,12 +13,13 @@ namespace DataAccessLayer
             using (SqlConnection connection = OpenConnection())
             {
                 string sqlQuery = @"
-                    INSERT INTO Reviews (UserID, Body, UpvoteCount, DownvoteCount, PostDate, BookRating, BookID) 
-                    VALUES (@UserID, @Body, @UpvoteCount, @DownvoteCount, @PostDate, @BookRating, @BookID); ";
+                    INSERT INTO Reviews (UserID, Title, Body, UpvoteCount, DownvoteCount, PostDate, BookRating, BookID) 
+                    VALUES (@UserID, @Title, @Body, @UpvoteCount, @DownvoteCount, @PostDate, @BookRating, @BookID); ";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
-                    command.Parameters.AddWithValue("@UserID", newReview.Poster);
+                    command.Parameters.AddWithValue("@UserID", newReview.Poster.ID);
+                    command.Parameters.AddWithValue("@Title", newReview.Title);
                     command.Parameters.AddWithValue("@Body", newReview.Body);
                     command.Parameters.AddWithValue("@UpvoteCount", newReview.UpvoteCount);
                     command.Parameters.AddWithValue("@DownvoteCount", newReview.DownvoteCount);

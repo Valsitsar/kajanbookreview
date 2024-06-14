@@ -57,6 +57,60 @@ namespace DataAccessLayer
             }
         }
 
+        public async Task<bool> TryAddBookToBookshelfAsync(int bookID, int bookshelfID)
+        {
+           using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                    IF NOT EXISTS (
+                        SELECT 1
+                            FROM Books_Bookshelves
+                        WHERE
+                            BookID = @BookID AND BookshelfID = @BookshelfID)
+                    BEGIN
+                        INSERT INTO 
+                            Books_Bookshelves (BookID, BookshelfID, DateAdded)
+                        VALUES 
+                            (@BookID, @BookshelfID, GETDATE() );
+                        SELECT 1; -- Success
+                    END
+                    ELSE
+                    BEGIN
+                        SELECT 0; -- Already exists
+                    END";
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@BookID", bookID);
+                    command.Parameters.AddWithValue("@BookshelfID", bookshelfID);
+
+                    try
+                    {
+                        await connection.OpenAsync();
+                        var result = await command.ExecuteScalarAsync();
+                        return (int)result == 1;
+                    }
+                    catch (SqlException ex)
+                    {
+                        return false;
+                        // Handle SQL exceptions (e.g., query syntax errors, constraint violations)
+                        throw new IOException("Failed to add the Book to the Bookshelf.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        return false;
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        return false;
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
+                    }
+                }
+            }
+        }
+
         public async Task<Book> GetBookByIDAsync(int bookID)
         {
             using (SqlConnection connection = OpenConnection())
@@ -86,7 +140,9 @@ namespace DataAccessLayer
                     LEFT JOIN 
 	                    Users ru ON r.UserID = ru.ID
                     WHERE 
-	                    b.ID = @ID; ";
+	                    b.ID = @ID
+                    ORDER BY 
+                        r.PostDate DESC; ";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
@@ -121,7 +177,7 @@ namespace DataAccessLayer
                                             ID = reader.GetInt32("BookFormatID"),
                                             Name = reader.GetString("BookFormatName")
                                         },
-                                        CoverFilePath = reader.GetString("CoverFilePath"),
+                                        CoverFilePath = reader.IsDBNull("CoverFilePath") ? "" : reader.GetString("CoverFilePath"),
                                         Authors = new List<User>(),
                                         Genres = new List<Genre>(),
                                         Reviews = new List<Review>()
@@ -219,7 +275,7 @@ namespace DataAccessLayer
             {
                 string sqlQuery = @"
                     SELECT Books.ID, Title, Description, PageCount, Publisher, PubDate, Language, ISBN,
-                    BookFormatID, BookFormats.Name AS BookFormatName, CoverFilePath,
+                    BookFormatID, BookFormats.Name AS BookFormatName, CoverFilePath
                     FROM Books
                     INNER JOIN BookFormats
                     ON Books.BookFormatID = BookFormats.ID; ";
@@ -248,9 +304,9 @@ namespace DataAccessLayer
                                     Format = new BookFormat()
                                     {
                                         ID = reader.GetInt32("BookFormatID"),
-                                        Name = reader.GetString("FormatName")
+                                        Name = reader.GetString("BookFormatName")
                                     },
-                                    CoverFilePath = reader.GetString("CoverFilePath")
+                                    CoverFilePath = reader.IsDBNull("CoverFilePath") ? "" : reader.GetString("CoverFilePath")
                                 };
                                 _books.Add(book);
                             }
@@ -276,6 +332,125 @@ namespace DataAccessLayer
                     }
                 }
             }
+        }
+
+        public async Task<List<Book>> GetAllBooksWithDetailsAsync()
+        {
+            var books = new Dictionary<int, Book>();
+
+            using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                    SELECT 
+                        b.ID AS BookID, b.Title, b.Description, b.PageCount, b.Publisher, b.PubDate, b.CoverFilePath,
+                        a.ID AS AuthorID, a.FirstName, a.MiddleNames, a.LastName,
+                        g.ID AS GenreID, g.Name AS GenreName,
+                        r.ID AS ReviewID, r.BookRating, r.UserID
+                    FROM 
+                        Books b
+                    LEFT JOIN 
+                        Books_Authors ba ON b.ID = ba.BookID
+                    LEFT JOIN 
+                        Users a ON ba.UserID = a.ID
+                    LEFT JOIN 
+                        Books_Genres bg ON b.ID = bg.BookID
+                    LEFT JOIN 
+                        Genres g ON bg.GenreID = g.ID
+                    LEFT JOIN 
+                        Reviews r ON b.ID = r.BookID;";
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    try
+                    {
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                int bookID = reader.GetInt32("BookID");
+                                if (!books.TryGetValue(bookID, out var book))
+                                {
+                                    book = new Book()
+                                    {
+                                        ID = bookID,
+                                        Title = reader.GetString("Title"),
+                                        Description = reader.GetString("Description"),
+                                        PageCount = reader.GetInt32("PageCount"),
+                                        Publisher = reader.GetString("Publisher"),
+                                        PubDate = reader.GetDateTime("PubDate"),
+                                        CoverFilePath = reader.IsDBNull("CoverFilePath") ? "" : reader.GetString("CoverFilePath"),
+                                        Authors = new List<User>(),
+                                        Genres = new List<Genre>(),
+                                        Reviews = new List<Review>()
+                                    };
+                                    books.Add(bookID, book);
+                                }
+
+                                // Only add unique authors to the book
+                                if (!reader.IsDBNull("AuthorID"))
+                                {
+                                    int authorID = reader.GetInt32("AuthorID");
+                                    if (!book.Authors.Any(a => a.ID == authorID))
+                                    {
+                                        book.Authors.Add(new User()
+                                        {
+                                            ID = authorID,
+                                            FirstName = reader.IsDBNull("FirstName") ? "" : reader.GetString("FirstName"),
+                                            MiddleNames = reader.IsDBNull("MiddleNames") ? "" : reader.GetString("MiddleNames"),
+                                            LastName = reader.IsDBNull("LastName") ? "" : reader.GetString("LastName")
+                                        });
+                                    }
+                                }
+
+                                // Only add unique genres to the book
+                                if (!reader.IsDBNull("GenreID"))
+                                {
+                                    int genreID = reader.GetInt32("GenreID");
+                                    if (!book.Genres.Any(g => g.ID == genreID))
+                                    {
+                                        book.Genres.Add(new Genre()
+                                        {
+                                            ID = genreID,
+                                            Name = reader.IsDBNull("GenreName") ? "" : reader.GetString("GenreName")
+                                        });
+                                    }
+                                }
+
+                                // Only add unique reviews to the book
+                                if (!reader.IsDBNull("ReviewID"))
+                                {
+                                    int reviewID = reader.GetInt32("ReviewID");
+                                    if (!book.Reviews.Any(r => r.ID == reviewID))
+                                    {
+                                        book.Reviews.Add(new Review()
+                                        {
+                                            ID = reviewID,
+                                            BookRating = reader.GetInt32("BookRating")
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the list of books with details.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
+                    }
+                }
+            }
+            return books.Values.ToList();
         }
 
         #region Pagination queries
@@ -335,43 +510,52 @@ namespace DataAccessLayer
             using (SqlConnection connection = OpenConnection())
             {
                 string sqlQuery = @"
-                WITH PaginatedBooks AS (
+                    WITH PaginatedBooks AS (
+                        SELECT 
+                            b.Id, b.Title, b.Description, b.PageCount, b.Publisher, b.PubDate, b.Language, b.ISBN, b.CoverFilePath
+                        FROM 
+                            Books b
+                        LEFT JOIN 
+                            Books_Authors ba ON b.Id = ba.BookId
+                        LEFT JOIN 
+                            Users a ON ba.UserID = a.Id
+	                    LEFT JOIN
+		                    Books_Genres AS bg ON b.ID = bg.BookID
+	                    LEFT JOIN
+		                    Genres AS g ON bg.GenreID = g.ID
+                        WHERE 
+                            @SearchQuery IS NULL OR 
+                            LOWER(b.Title) LIKE '%' + LOWER(@SearchQuery) + '%' OR 
+                            LOWER(b.ISBN) LIKE '%' + LOWER(@SearchQuery) + '%' OR 
+                            LOWER(a.FirstName) LIKE '%' + LOWER(@SearchQuery) + '%' OR 
+                            LOWER(a.MiddleNames) LIKE '%' + LOWER(@SearchQuery) + '%' OR 
+                            LOWER(a.LastName) LIKE '%' + LOWER(@SearchQuery) + '%'
+                        GROUP BY 
+                            b.Id, b.Title, b.Description, b.PageCount, b.Publisher, b.PubDate, b.Language, b.ISBN, b.CoverFilePath
+                        ORDER BY 
+                            b.Title
+                        OFFSET 0 ROWS
+                        FETCH NEXT 10 ROWS ONLY
+                    )
                     SELECT 
-                        b.Id, b.Title, b.Description, b.PageCount, b.Publisher, b.PubDate, b.Language, b.ISBN, b.CoverFilePath
+                        pb.Id AS BookID, pb.Title, pb.Description, pb.PageCount, pb.Publisher, pb.PubDate, pb.Language, pb.ISBN, pb.CoverFilePath, 
+                        a.Id AS AuthorId, a.FirstName, a.MiddleNames, a.LastName,
+                        r.Id AS ReviewId, r.BookRating,
+	                    g.ID AS GenreID, g.Name AS GenreName
                     FROM 
-                        Books b
+                        PaginatedBooks pb
                     LEFT JOIN 
-                        Books_Authors ba ON b.Id = ba.BookId
+                        Books_Authors ba ON pb.Id = ba.BookId
                     LEFT JOIN 
                         Users a ON ba.UserID = a.Id
-                    WHERE 
-                        @SearchQuery IS NULL OR 
-                        LOWER(b.Title) LIKE '%' + LOWER(@SearchQuery) + '%' OR 
-                        LOWER(b.ISBN) LIKE '%' + LOWER(@SearchQuery) + '%' OR 
-                        LOWER(a.FirstName) LIKE '%' + LOWER(@SearchQuery) + '%' OR 
-                        LOWER(a.MiddleNames) LIKE '%' + LOWER(@SearchQuery) + '%' OR 
-                        LOWER(a.LastName) LIKE '%' + LOWER(@SearchQuery) + '%'
-                    GROUP BY 
-                        b.Id, b.Title, b.Description, b.PageCount, b.Publisher, b.PubDate, b.Language, b.ISBN, b.CoverFilePath
-                    ORDER BY 
-                        b.Title
-                    OFFSET @Offset ROWS
-                    FETCH NEXT @PageSize ROWS ONLY
-                )
-                SELECT 
-                    pb.Id AS BookID, pb.Title, pb.Description, pb.PageCount, pb.Publisher, pb.PubDate, pb.Language, pb.ISBN, pb.CoverFilePath, 
-                    a.Id AS AuthorId, a.FirstName, a.MiddleNames, a.LastName,
-                    r.Id AS ReviewId, r.BookRating
-                FROM 
-                    PaginatedBooks pb
-                LEFT JOIN 
-                    Books_Authors ba ON pb.Id = ba.BookId
-                LEFT JOIN 
-                    Users a ON ba.UserID = a.Id
-                LEFT JOIN 
-                    Reviews r ON pb.Id = r.BookId
-                ORDER BY
-                    BookID;";
+                    LEFT JOIN 
+                        Reviews r ON pb.Id = r.BookId
+                    LEFT JOIN
+	                    Books_Genres AS bg ON pb.ID = bg.BookID
+                    LEFT JOIN
+	                    Genres AS g ON bg.GenreID = g.ID
+                    ORDER BY
+                        BookID;";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
@@ -401,7 +585,8 @@ namespace DataAccessLayer
                                         ISBN = reader.GetString("ISBN"),
                                         CoverFilePath = reader.IsDBNull("CoverFilePath") ? "" : reader.GetString("CoverFilePath)"),
                                         Authors = new List<User>(),
-                                        Reviews = new List<Review>()
+                                        Reviews = new List<Review>(),
+                                        Genres = new List<Genre>()
                                     };
                                 }
 
@@ -434,6 +619,20 @@ namespace DataAccessLayer
                                         {
                                             ID = reviewID,
                                             BookRating = reader.GetInt32("BookRating")
+                                        });
+                                    }
+                                }
+
+                                // Only add unique genres to the book
+                                if (!reader.IsDBNull("GenreID"))
+                                {
+                                    int genreID = reader.GetInt32("GenreID");
+                                    if (!book.Genres.Any(g => g.ID == genreID))
+                                    {
+                                        book.Genres.Add(new Genre()
+                                        {
+                                            ID = genreID,
+                                            Name = reader.GetString("GenreName")
                                         });
                                     }
                                 }
@@ -472,10 +671,12 @@ namespace DataAccessLayer
                     ON Books.ID = Books_Authors.BookID
                     INNER JOIN Users
                     ON Books_Authors.UserID = Users.ID
-                    WHERE Books.ID = @ID; ";
+                    WHERE Books.ID = @BookID; ";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
+                    command.Parameters.AddWithValue("@BookID", bookID);
+
                     try
                     {
                         List<User> authors = [];
@@ -487,7 +688,7 @@ namespace DataAccessLayer
                             {
                                 User author = new User()
                                 {
-                                    ID = reader.GetInt32("ID"),
+                                    ID = reader.GetInt32("UserID"),
                                 };
                                 authors.Add(author);
                             }

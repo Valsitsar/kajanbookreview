@@ -158,6 +158,8 @@ namespace DataAccessLayer
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
+                    command.Parameters.AddWithValue("@ID", bookID);
+
                     try
                     {
                         List<Genre> _genres = [];
@@ -169,7 +171,7 @@ namespace DataAccessLayer
                             {
                                 Genre genre = new Genre()
                                 {
-                                    ID = reader.GetInt32("ID"),
+                                    ID = reader.GetInt32("GenreID"),
                                     Name = reader.GetString("Name")
                                 };
                                 _genres.Add(genre);

@@ -25,12 +25,7 @@ namespace BusinessLogicLayer.RecommendationAlgorithm
 
         public async Task<List<Book>> GetRecommendationsForUserAsync(int userID, int topN = 10)
         {
-            var allBooks = await _bookManager.GetAllBooksAsync();
-            foreach (var book in allBooks)
-            {
-                book.Genres = await _genreManager.GetGenresForBookAsync(book.ID);
-                book.Authors = await _bookManager.GetAuthorsForBookAsync(book.ID);
-            }
+            var allBooks = await _bookManager.GetAllBooksWithDetailsAsync();
 
             var userRatings = await _userManager.GetReviewsByUserAsync(userID);
             var userFavorites = await _userManager.GetFavoritesByUserAsync(userID);

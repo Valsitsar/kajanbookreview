@@ -15,8 +15,10 @@ namespace DataAccessLayer
             using (SqlConnection connection = OpenConnection())
             {
                 string sqlQuery = @"
-                    INSERT INTO Bookshelves (Name, OwnerID) 
-                    VALUES (@Name, @OwnerID); ";
+                    INSERT INTO 
+                        Bookshelves (Name, OwnerID) 
+                    VALUES 
+                        (@Name, @OwnerID); ";
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
                     command.Parameters.AddWithValue("@Name", newBookshelf.Name);
@@ -361,7 +363,7 @@ namespace DataAccessLayer
                     WHERE 
                         Books_Bookshelves.BookshelfID = @BookshelfID
                     ORDER BY
-                        Books.ID
+                        Books_Bookshelves.DateAdded
                     OFFSET @Offset ROWS
                     FETCH NEXT @PageSize ROWS ONLY; ";
 
@@ -480,7 +482,7 @@ namespace DataAccessLayer
                     WHERE 
                         Bookshelves.OwnerID = @UserID
                     ORDER BY 
-                        Books.ID
+                        Books_Bookshelves.DateAdded
                     OFFSET @Offset ROWS
                     FETCH NEXT @PageSize ROWS ONLY;";
 
