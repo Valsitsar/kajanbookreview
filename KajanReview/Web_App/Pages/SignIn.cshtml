@@ -40,6 +40,8 @@
                         <input type="password" class="form-control" id="Password" name="Password" placeholder="Password" required />
                     </div>
 
+                    <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+
                     @* Confirm sign in *@
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-goldenrod mb-1">Continue</button>

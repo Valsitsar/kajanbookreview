@@ -22,7 +22,7 @@ namespace Web_App.Pages
         private IUserManager _userManager;
         private PasswordHasher _passwordHasher;
 
-        public SignUpModel(IUserManager userManager)
+        public SignUpModel(IUserManager userManager, IBookshelfManager bookshelfManager)
         {
             _userManager = userManager;
             _passwordHasher = new PasswordHasher();
@@ -45,10 +45,16 @@ namespace Web_App.Pages
                 await _userManager.CreateUserAsync(new UserDTO()
                 {
                     Username = Username,
-                    Email = Email
+                    Email = Email,
+                    Role = new Role() { ID = 3, Name = "Reader" }
                 },
                 hashedPassword, salt);
                 createSuccessful = true;
+
+                // Create default bookshelves for the new user
+                var newUserID = await _userManager.GetLastUserID();
+                await _userManager.CreateDefaultBookshelvesForUserAsync(newUserID);
+
             }
             catch
             {

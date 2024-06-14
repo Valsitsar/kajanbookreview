@@ -18,6 +18,9 @@ namespace Web_App.Pages
         [BindProperty]
         public string Password { get; set; }
 
+        [BindProperty(SupportsGet = true)]
+        public string ReturnUrl { get; set; }
+
         private readonly IUserManager _userManager;
         private readonly PasswordAuthenticator _passwordVerifier;
 
@@ -27,8 +30,15 @@ namespace Web_App.Pages
             _passwordVerifier = passwordVerifier;
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task OnGet()
         {
+            ModelState.Remove("ReturnUrl");
+        }
+
+        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        {
+            ModelState.Remove("ReturnUrl");
+
             if (!ModelState.IsValid) { return Page(); }
 
             // TODO: Implement sign-in logic here (e.g. check if the user exists in the database)
@@ -58,7 +68,15 @@ namespace Web_App.Pages
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 await HttpContext.SignInAsync(new ClaimsPrincipal(claimsIdentity));
 
-                return RedirectToPage("Index");
+                // Check if returnUrl is not null, not empty, and local
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
+                else
+                {
+                    return RedirectToPage("Index");
+                }
             }
             else
             {
