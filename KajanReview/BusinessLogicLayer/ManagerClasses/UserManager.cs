@@ -22,6 +22,16 @@ namespace BusinessLogicLayer.ManagerClasses
             await _userDataAccess.CreateUserAsync(newUser, hashedPassword, salt);
         }
 
+        public async Task CreateDefaultBookshelvesForUserAsync(int userID)
+        {
+            await _userDataAccess.CreateDefaultBookshelvesForUserAsync(userID);
+        }
+
+        public async Task<int> GetLastUserID()
+        {
+            return await _userDataAccess.GetLastUserID();
+        }
+
         public async Task<UserDTO> GetUserByIDAsync(int userID)
         {
             return await _userDataAccess.GetUserByIDAsync(userID);
@@ -50,6 +60,11 @@ namespace BusinessLogicLayer.ManagerClasses
         public async Task<(List<Bookshelf>, List<int>)> GetBookshelfNamesAndCountsForUserAsync(int userID)
         {
             return await _userDataAccess.GetBookshelfNamesAndCountsForUserAsync(userID);
+        }
+
+        public async Task<List<Bookshelf>> GetBookshelvesForUserAsync(int userID)
+        {
+            return await _userDataAccess.GetBookshelvesForUserAsync(userID);
         }
 
         public async Task<List<Book>> GetFavoritesByUserAsync(int userID)

@@ -17,10 +17,12 @@ namespace DataAccessLayer
             using (SqlConnection connection = OpenConnection())
             {
                 string sqlQuery = @"
-                    INSERT INTO Users (FirstName, MiddleNames, LastName, Username, Email, 
-                    PhoneNumber, PasswordHash, Salt, ProfilePictureFilePath, Role) 
-                    VALUES (@FirstName, @MiddleNames, @LastName, @Username, @Email, 
-                    @PhoneNumber, @PasswordHash, @Salt, @ProfilePictureFilePath, @Role); ";
+                    INSERT INTO 
+                        Users (FirstName, MiddleNames, LastName, Username, Email, PhoneNumber, 
+                               PasswordHash, PasswordSalt, ProfilePictureFilePath, Role) 
+                    VALUES 
+                        (@FirstName, @MiddleNames, @LastName, @Username, @Email, 
+                        @PhoneNumber, @PasswordHash, @PasswordSalt, @ProfilePictureFilePath, @Role); ";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
@@ -31,9 +33,9 @@ namespace DataAccessLayer
                     command.Parameters.AddWithValue("@Email", newUser.Email);
                     command.Parameters.AddWithValue("@PhoneNumber", newUser.PhoneNumber ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@PasswordHash", hashedPassword);
-                    command.Parameters.AddWithValue("@Salt", salt);
+                    command.Parameters.AddWithValue("@PasswordSalt", salt);
                     command.Parameters.AddWithValue("@ProfilePictureFilePath", newUser.ProfilePictureFilePath ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@Role", newUser.Role.Name);
+                    command.Parameters.AddWithValue("@Role", newUser.Role.ID);
 
                     try
                     {
@@ -48,6 +50,86 @@ namespace DataAccessLayer
                     {
                         // Handle SQL exceptions (e.g., query syntax errors, constraint violations)
                         throw new IOException("Failed to create the User.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
+                    }
+                }
+            }
+        }
+
+        public async Task CreateDefaultBookshelvesForUserAsync(int userID)
+        {
+            using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                    INSERT INTO
+                        Bookshelves (OwnerID, Name)
+                    VALUES
+                        (@OwnerID, 'Want to Read'),
+                        (@OwnerID, 'Reading'),
+                        (@OwnerID, 'Read'),
+                        (@OwnerID, 'Favorites'); ";
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@OwnerID", userID);
+
+                    try
+                    {
+                        await connection.OpenAsync();
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+                        if (rowsAffected == 0)
+                        {
+                            throw new Exception("No rows were inserted. The Bookshelves may not have been created.");
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        // Handle SQL exceptions (e.g., query syntax errors, constraint violations)
+                        throw new IOException("Failed to create the Bookshelves.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
+                    }
+                }
+            }
+        }
+
+        public async Task<int> GetLastUserID()
+        {
+            using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                    SELECT TOP 1 ID
+                    FROM Users
+                    ORDER BY ID DESC; ";
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    try
+                    {
+                        await connection.OpenAsync();
+                        return await command.ExecuteScalarAsync() as int? ?? 0;
+                    }
+                    catch (SqlException ex)
+                    {
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the last User ID.", ex);
                     }
                     catch (InvalidOperationException ex)
                     {
@@ -311,8 +393,8 @@ namespace DataAccessLayer
                                 Review review = new Review()
                                 {
                                     ID = reader.GetInt32("ID"),
-                                    Title = reader.GetString("Title"),
-                                    Body = reader.GetString("Body"),
+                                    Title = reader.IsDBNull("Title") ? "" : reader.GetString("Title"),
+                                    Body = reader.IsDBNull("Body") ? "" : reader.GetString("Body"),
                                     UpvoteCount = reader.GetInt32("UpvoteCount"),
                                     DownvoteCount = reader.GetInt32("DownvoteCount"),
                                     PostDate = reader.GetDateTime("PostDate"),
@@ -411,6 +493,70 @@ namespace DataAccessLayer
             }
         }
 
+        public async Task<List<Bookshelf>> GetBookshelvesForUserAsync(int userID)
+        {
+            using (SqlConnection connection = OpenConnection())
+            {
+                string sqlQuery = @"
+                    SELECT 
+	                    Bookshelves.ID AS BookshelfID, 
+	                    Name
+                    FROM 
+	                    Bookshelves
+                    INNER JOIN 
+	                    Books_Bookshelves ON Bookshelves.ID = Books_Bookshelves.BookshelfID
+                    INNER JOIN 
+	                    Books ON Books_Bookshelves.BookID = Books.ID
+                    WHERE 
+	                    OwnerID = @UserID
+                    GROUP BY 
+	                    Bookshelves.ID, Bookshelves.Name
+                    ORDER BY
+	                    Bookshelves.ID; ";
+
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@UserID", userID);
+
+                    try
+                    {
+                        List<Bookshelf> bookshelves = [];
+
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (reader.Read())
+                            {
+                                Bookshelf bookshelf = new Bookshelf()
+                                {
+                                    ID = reader.GetInt32("BookshelfID"),
+                                    Name = reader.GetString("Name"),
+                                };
+                                bookshelves.Add(bookshelf);
+                            }
+
+                            return bookshelves;
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        // Handle SQL exceptions (e.g., query syntax errors)
+                        throw new IOException("Failed to retrieve the bookshelves.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
+                    }
+                }
+            }
+        }
+
         public async Task<List<Book>> GetFavoritesByUserAsync(int userID)
         {
             using (SqlConnection connection = OpenConnection())
@@ -440,7 +586,7 @@ namespace DataAccessLayer
                             {
                                 Book book = new Book()
                                 {
-                                    ID = reader.GetInt32("ID"),
+                                    ID = reader.GetInt32("BookID"),
                                     Title = reader.GetString("Title"),
                                     Description = reader.GetString("Description"),
                                     PageCount = reader.GetInt32("PageCount"),
@@ -449,7 +595,7 @@ namespace DataAccessLayer
                                     Language = reader.GetString("Language"),
                                     ISBN = reader.GetString("ISBN"),
                                     Format = new BookFormat() { ID = reader.GetInt32("BookFormatID") },
-                                    CoverFilePath = reader.GetString("CoverFilePath"),
+                                    CoverFilePath = reader.IsDBNull("CoverFilePath") ? "" : reader.GetString("CoverFilePath"),
                                 };
                                 favorites.Add(book);
                             }
