@@ -16,6 +16,12 @@ namespace BusinessLogicLayer.ManagerClasses
         {
             await _bookDataAccess.CreateBookAsync(book);
         }
+
+        public async Task<bool> TryAddBookToBookshelfAsync(int bookID, int bookshelfID)
+        {
+            return await _bookDataAccess.TryAddBookToBookshelfAsync(bookID, bookshelfID);
+        }
+
         public async Task<Book> GetBookByIDAsync(int bookID)
         {
             return await _bookDataAccess.GetBookByIDAsync(bookID);
@@ -23,6 +29,11 @@ namespace BusinessLogicLayer.ManagerClasses
         public async Task<List<Book>> GetAllBooksAsync()
         {
             return await _bookDataAccess.GetAllBooksAsync();
+        }
+
+        public async Task<List<Book>> GetAllBooksWithDetailsAsync()
+        {
+            return await _bookDataAccess.GetAllBooksWithDetailsAsync();
         }
 
         public async Task<int> GetTotalBooksCountAsync(string searchQuery)
