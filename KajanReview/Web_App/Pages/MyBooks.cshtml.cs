@@ -3,6 +3,7 @@ using BusinessLogicLayer.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System;
 using System.Security.Claims;
 
 namespace Web_App.Pages
@@ -86,6 +87,24 @@ namespace Web_App.Pages
                 PagedBooks = new List<Book>();
             }
         }
+
+        public async Task<IActionResult> OnPostAddBookshelfAsync(string shelfName)
+        {
+            if (!User.Identity.IsAuthenticated) { return RedirectToPage("/SignIn"); }
+
+            var userID = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var parsedUserID = int.Parse(userID);
+
+            var newBookshelf = new Bookshelf()
+            {
+                Name = shelfName,
+                Owner = new User() { ID = parsedUserID }
+            };
+            await _bookshelfManager.CreateBookshelfAsync(newBookshelf);
+
+            return RedirectToPage();
+        }
+
         private async Task GetAllBookshelvesData()
         {
             Bookshelves = new List<Bookshelf>();
