@@ -1,6 +1,6 @@
 ﻿@using BusinessLogicLayer.Entities
 @model Book
-@{
+@{ 
     var averageRating = 0.0;
     var percentage = 0.0;
     var coverFilePath = Model.CoverFilePath;
@@ -20,7 +20,7 @@
         </div>
         <!-- Left side with book cover, rating, and buttons -->
         <div class="col-md-2 col-3 d-flex flex-column align-items-center p-3 border-goldenrod border-end-0">
-            <a href="/BookDetails">
+            <a href="/BookDetails?id=@Model.ID">
                 @if (Model.CoverFilePath != null)
                 {
                     <img class="book-cover img-fluid rounded pb-3" src="@coverFilePath" alt="@Model.Title cover">
@@ -44,7 +44,11 @@
         <div class="col-md-8 col-9 border-goldenrod border-start-0">
             <div class="card-body text-start fs-5">
                 <h5 class="card-title text-start fs-3">
-                    <a href="/BookDetails" class="text-decoration-none">@Model.Title</a>
+                    <a href="/BookDetails?id=@Model.ID" class="text-decoration-none">@Model.Title</a>
+                    @foreach (var genre in Model.Genres)
+                    {
+                        <span class="badge text-bg-secondary">@genre.Name</span>
+                    }
                 </h5>
                 <p class="card-text mb-0">
                     @foreach (var author in Model.Authors)
@@ -89,7 +93,7 @@
                 <div class="BookItem-description-container">
                     <p class="BookItem-description card-text mt-xxl-3 mt-0">@Model.Description</p>
                 </div>
-                <a href="/BookDetails" class="BookItem-more-details d-none">More details</a>
+                <a href="/BookDetails?id=@Model.ID" class="BookItem-more-details d-none">More details</a>
             </div>
         </div>
         <div class="col-md-0">
