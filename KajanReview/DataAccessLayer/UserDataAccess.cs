@@ -308,7 +308,7 @@ namespace DataAccessLayer
             }
         }
 
-        public async Task<List<UserDTO>> GetAllUsersAsync()
+        public async Task<List<User>> GetAllUsersAsync()
         {
             using (SqlConnection connection = OpenConnection())
             {
@@ -322,31 +322,29 @@ namespace DataAccessLayer
                 {
                     try
                     {
-                        List<UserDTO> _userDTOs = [];
+                        List<User> _users = [];
 
                         await connection.OpenAsync();
                         using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
                             while (reader.Read())
                             {
-                                string middleNames = !reader.IsDBNull("MiddleNames") ? reader.GetString("MiddleNames") : "";
-
-                                UserDTO userDTO = new UserDTO()
+                                User user = new User()
                                 {
                                     ID = reader.GetInt32("ID"),
-                                    FirstName = reader.GetString("FirstName"),
-                                    MiddleNames = middleNames,
-                                    LastName = reader.GetString("LastName"),
+                                    FirstName = reader.IsDBNull("FirstName") ? "" : reader.GetString("FirstName"),
+                                    MiddleNames = reader.IsDBNull("MiddleNames") ? "" : reader.GetString("MiddleNames"),
+                                    LastName = reader.IsDBNull("LastName") ? "" : reader.GetString("LastName"),
                                     Username = reader.GetString("Username"),
                                     Email = reader.GetString("Email"),
-                                    PhoneNumber = reader.GetString("PhoneNumber"),
-                                    ProfilePictureFilePath = reader.GetString("ProfilePictureFilePath"),
+                                    PhoneNumber = reader.IsDBNull("PhoneNumber") ? "" : reader.GetString("PhoneNumber"),
+                                    ProfilePictureFilePath = reader.IsDBNull("ProfilePictureFilePath") ? "" : reader.GetString("ProfilePictureFilePath"),
                                     Role = new Role() { Name = reader.GetString("Role") }
                                 };
-                                _userDTOs.Add(userDTO);
+                                _users.Add(user);
                             }
 
-                            return _userDTOs;
+                            return _users;
                         }
                     }
                     catch (SqlException ex)

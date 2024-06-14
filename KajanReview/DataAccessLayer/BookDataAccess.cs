@@ -15,8 +15,8 @@ namespace DataAccessLayer
             using (SqlConnection connection = OpenConnection())
             {
                 string sqlQuery = @"
-                    INSERT INTO Books (Title, Description, PageCount, Publisher, PubDate, Language, ISBN, BookFormatID, CoverFilePath)
-                    VALUES (@Title, @Description, @NoOfPages, @Publisher, @PubDate, @Language, @ISBN, @BookFormatID, @CoverFilePath);";
+                    INSERT INTO Books (Title, Description, PageCount, Publisher, PubDate, Language, ISBN, BookFormatID)
+                    VALUES (@Title, @Description, @PageCount, @Publisher, @PubDate, @Language, @ISBN, @BookFormatID);";
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
                     command.Parameters.AddWithValue("@Title", newBook.Title);
@@ -27,7 +27,6 @@ namespace DataAccessLayer
                     command.Parameters.AddWithValue("@Language", newBook.Language);
                     command.Parameters.AddWithValue("@ISBN", newBook.ISBN);
                     command.Parameters.AddWithValue("@BookFormatID", newBook.Format.ID);
-                    command.Parameters.AddWithValue("@CoverFilePath", newBook.CoverFilePath);
 
                     try
                     {
@@ -716,6 +715,43 @@ namespace DataAccessLayer
             }
         }
 
+        public async Task<List<Genre>> GetGenresForBookAsync(int bookID)
+        {
+            List<Genre> genres = new List<Genre>();
+            string query = @"
+                SELECT 
+                    Genres.* 
+                FROM 
+                    Genres 
+                INNER JOIN 
+                    Books_Genres ON Genres.ID = Books_Genres.GenreID 
+                WHERE 
+                    Books_Genres.BookID = @BookID";
+
+            using (SqlConnection connection = OpenConnection())
+            {
+                await connection.OpenAsync();
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@BookID", bookID);
+                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            Genre genre = new Genre
+                            {
+                                // Assuming Genre has ID and Name properties. Adjust according to your actual Genre class.
+                                ID = reader.GetInt32(reader.GetOrdinal("ID")),
+                                Name = reader.GetString(reader.GetOrdinal("Name"))
+                            };
+                            genres.Add(genre);
+                        }
+                    }
+                }
+            }
+            return genres;
+        }
+
         public async Task<int> GetMaxPageCountAsync()
         {
             using (SqlConnection connection = OpenConnection())
@@ -764,7 +800,7 @@ namespace DataAccessLayer
                 string sqlQuery = @"
                     UPDATE Books
                     SET Title = @Title, Description = @Description, PageCount = @PageCount, Publisher = @Publisher,
-                    PubDate = @PubDate, Language = @Language, ISBN = @ISBN, BookFormatID = @Format.ID, CoverFilePath = @CoverFilePath
+                    PubDate = @PubDate, Language = @Language, ISBN = @ISBN, BookFormatID = @BookFormatID
                     WHERE ID = @ID; ";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
@@ -778,7 +814,6 @@ namespace DataAccessLayer
                     command.Parameters.AddWithValue("@Language", book.Language);
                     command.Parameters.AddWithValue("@ISBN", book.ISBN);
                     command.Parameters.AddWithValue("@BookFormatID", book.Format.ID);
-                    command.Parameters.AddWithValue("@CoverFilePath", book.CoverFilePath);
 
                     try
                     {
@@ -801,6 +836,128 @@ namespace DataAccessLayer
                     }
                     catch (Exception ex)
                     {
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
+                    }
+                }
+            }
+        }
+
+        public async Task UpdateAuthorsForBookAsync(int bookID, List<int> authorIDs)
+        {
+            using (SqlConnection connection = OpenConnection())
+            {
+                await connection.OpenAsync();
+                using (SqlTransaction transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        // Delete existing authors for the book
+                        string deleteQuery = @"
+                            DELETE FROM Books_Authors 
+                            WHERE BookID = @BookID; ";
+
+                        using (SqlCommand deleteCommand = new SqlCommand(deleteQuery, connection, transaction))
+                        {
+                            deleteCommand.Parameters.AddWithValue("@BookID", bookID);
+                            await deleteCommand.ExecuteNonQueryAsync();
+                        }
+
+                        // Insert new authors for the book
+                        string insertQuery = @"
+                            INSERT INTO Books_Authors (BookID, UserID) 
+                            VALUES (@BookID, @UserID); ";
+
+                        foreach (var authorID in authorIDs)
+                        {
+                            using (SqlCommand insertCommand = new SqlCommand(insertQuery, connection, transaction))
+                            {
+                                insertCommand.Parameters.AddWithValue("@BookID", bookID);
+                                insertCommand.Parameters.AddWithValue("@UserID", authorID);
+                                await insertCommand.ExecuteNonQueryAsync();
+                            }
+                        }
+
+                        // Commit the transaction
+                        transaction.Commit();
+                    }
+
+                    catch (SqlException ex)
+                    {
+                        transaction.Rollback();
+                        // Handle SQL exceptions (e.g., query syntax errors, constraint violations)
+                        throw new IOException("Failed to update the Book.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        transaction.Rollback();
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        // Handle any other exceptions
+                        throw new IOException("An unexpected error occurred.", ex);
+                    }
+                }
+            }
+        }
+
+        public async Task UpdateGenresForBookAsync(int bookID, List<int> genreIDs)
+        {
+            using (SqlConnection connection = OpenConnection())
+            {
+                await connection.OpenAsync();
+                using (SqlTransaction transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        // Delete existing genres for the book
+                        string deleteQuery = @"
+                            DELETE FROM Books_Genres 
+                            WHERE BookID = @BookID; ";
+
+                        using (SqlCommand deleteCommand = new SqlCommand(deleteQuery, connection, transaction))
+                        {
+                            deleteCommand.Parameters.AddWithValue("@BookID", bookID);
+                            await deleteCommand.ExecuteNonQueryAsync();
+                        }
+
+                        // Insert new genres for the book
+                        string insertQuery = @"
+                            INSERT INTO Books_Genres (BookID, GenreID) 
+                            VALUES (@BookID, @GenreID); ";
+
+                        foreach (var genreID in genreIDs)
+                        {
+                            using (SqlCommand insertCommand = new SqlCommand(insertQuery, connection, transaction))
+                            {
+                                insertCommand.Parameters.AddWithValue("@BookID", bookID);
+                                insertCommand.Parameters.AddWithValue("@GenreID", genreID);
+                                await insertCommand.ExecuteNonQueryAsync();
+                            }
+                        }
+
+                        // Commit the transaction
+                        transaction.Commit();
+                    }
+
+                    catch (SqlException ex)
+                    {
+                        transaction.Rollback();
+                        // Handle SQL exceptions (e.g., query syntax errors, constraint violations)
+                        throw new IOException("Failed to update the Book.", ex);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        transaction.Rollback();
+                        // Handle exceptions related to the connection (e.g., not open)
+                        throw new IOException("Failed to open the database connection.", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
                         // Handle any other exceptions
                         throw new IOException("An unexpected error occurred.", ex);
                     }

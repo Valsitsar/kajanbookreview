@@ -47,7 +47,7 @@ namespace BusinessLogicLayer.ManagerClasses
             return await _userDataAccess.GetUserByEmailForLoginAsync(email);
         }
 
-        public async Task<List<UserDTO>> GetAllUsersAsync()
+        public async Task<List<User>> GetAllUsersAsync()
         {
             return await _userDataAccess.GetAllUsersAsync();
         }

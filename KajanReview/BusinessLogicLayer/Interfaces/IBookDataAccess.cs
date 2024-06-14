@@ -16,8 +16,11 @@ namespace BusinessLogicLayer.Interfaces
         public Task<List<Book>> GetBooksByPageAsync(int pageNumber, int pageSize, string searchQuery);
 
         public Task<List<User>> GetAuthorsForBookAsync(int bookID);
+        public Task<List<Genre>> GetGenresForBookAsync(int bookID);
         public Task<int> GetMaxPageCountAsync();
         public Task UpdateBookAsync(Book book);
+        public Task UpdateAuthorsForBookAsync(int bookID, List<int> authorIDs);
+        public Task UpdateGenresForBookAsync(int bookID, List<int> genreIDs);
         public Task DeleteBookByIDAsync(int bookID);
     }
 }
