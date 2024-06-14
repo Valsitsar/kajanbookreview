@@ -20,6 +20,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Desktop_App", "Desktop_App\
 		{BCD929C7-1A74-4A15-8DC2-42555695349C} = {BCD929C7-1A74-4A15-8DC2-42555695349C}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLogicLayer.Tests", "BusinessLogicLayer.Tests\BusinessLogicLayer.Tests.csproj", "{5BB2DF72-1192-462C-9DCD-7D0A9B3B95E7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BCD929C7-1A74-4A15-8DC2-42555695349C} = {BCD929C7-1A74-4A15-8DC2-42555695349C}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +47,10 @@ Global
 		{62F85F75-3A2F-4116-BD95-79710DA89577}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62F85F75-3A2F-4116-BD95-79710DA89577}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62F85F75-3A2F-4116-BD95-79710DA89577}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BB2DF72-1192-462C-9DCD-7D0A9B3B95E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BB2DF72-1192-462C-9DCD-7D0A9B3B95E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BB2DF72-1192-462C-9DCD-7D0A9B3B95E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BB2DF72-1192-462C-9DCD-7D0A9B3B95E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
