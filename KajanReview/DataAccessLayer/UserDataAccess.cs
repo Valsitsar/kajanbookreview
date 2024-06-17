@@ -501,14 +501,8 @@ namespace DataAccessLayer
 	                    Name
                     FROM 
 	                    Bookshelves
-                    INNER JOIN 
-	                    Books_Bookshelves ON Bookshelves.ID = Books_Bookshelves.BookshelfID
-                    INNER JOIN 
-	                    Books ON Books_Bookshelves.BookID = Books.ID
                     WHERE 
 	                    OwnerID = @UserID
-                    GROUP BY 
-	                    Bookshelves.ID, Bookshelves.Name
                     ORDER BY
 	                    Bookshelves.ID; ";
 

@@ -37,16 +37,19 @@ namespace Web_App.Pages
                 CurrentUser.Bookshelves = bookshelves;
                 bookshelfBookCounts = bookCounts;
 
-                var authorBooks = await _bookshelfManager.GetBooksByAuthorAsync(parsedUserID);
-                Bookshelf authorBookshelf = new Bookshelf()
+                if (User.IsInRole("Author"))
                 {
-                    Name = "Written by Me",
-                    Books = authorBooks
-                };
-                var authorBooksCount = authorBooks.Count;
+                    var authorBooks = await _bookshelfManager.GetBooksByAuthorAsync(parsedUserID);
+                    Bookshelf authorBookshelf = new Bookshelf()
+                    {
+                        Name = "Written by Me",
+                        Books = authorBooks
+                    };
+                    var authorBooksCount = authorBooks.Count;
 
-                bookshelves.Add(authorBookshelf);
-                bookCounts.Add(authorBooksCount);
+                    bookshelves.Add(authorBookshelf);
+                    bookCounts.Add(authorBooksCount);
+                }
             }
         }
     }
