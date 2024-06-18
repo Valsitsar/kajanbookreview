@@ -533,8 +533,8 @@ namespace DataAccessLayer
                             b.Id, b.Title, b.Description, b.PageCount, b.Publisher, b.PubDate, b.Language, b.ISBN, b.CoverFilePath
                         ORDER BY 
                             b.Title
-                        OFFSET 0 ROWS
-                        FETCH NEXT 10 ROWS ONLY
+                        OFFSET @Offset ROWS
+                        FETCH NEXT @PageSize ROWS ONLY
                     )
                     SELECT 
                         pb.Id AS BookID, pb.Title, pb.Description, pb.PageCount, pb.Publisher, pb.PubDate, pb.Language, pb.ISBN, pb.CoverFilePath, 
