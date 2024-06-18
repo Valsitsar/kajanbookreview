@@ -9,6 +9,7 @@
       "Web_App/1.0.0": {
         "dependencies": {
           "BusinessLogicLayer": "1.0.0",
+          "DataAccessLayer": "1.0.0",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.1",
           "System.Data.SqlClient": "4.8.6"
         },
@@ -143,6 +144,15 @@
         "runtime": {
           "BusinessLogicLayer.dll": {}
         }
+      },
+      "DataAccessLayer/1.0.0": {
+        "dependencies": {
+          "BusinessLogicLayer": "1.0.0",
+          "System.Data.SqlClient": "4.8.6"
+        },
+        "runtime": {
+          "DataAccessLayer.dll": {}
+        }
       }
     }
   },
@@ -251,6 +261,11 @@
       "hashPath": "system.security.principal.windows.4.7.0.nupkg.sha512"
     },
     "BusinessLogicLayer/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "DataAccessLayer/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
